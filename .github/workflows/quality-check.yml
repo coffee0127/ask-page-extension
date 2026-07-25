@@ -154,6 +154,15 @@ jobs:
           fi
         done
 
+        # 檢查語系檔案
+        LOCALES=("_locales/en/messages.json" "_locales/zh_TW/messages.json")
+        for locale in "${LOCALES[@]}"; do
+          if [ ! -f "$locale" ]; then
+            echo "❌ 缺少語系檔案: $locale"
+            exit 1
+          fi
+        done
+
         echo "✅ 所有檔案都存在"
 
     - name: 建立測試套件
@@ -170,7 +179,17 @@ jobs:
           style.css \
           icons/ \
           lib/ \
+          _locales/ \
           -x "*.git*" "*.DS_Store*" "*node_modules*"
+
+        # 驗證語系檔存在於套件中
+        for locale_json in _locales/en/messages.json _locales/zh_TW/messages.json; do
+          if ! unzip -l test-package.zip "$locale_json" | grep -q "$locale_json"; then
+            echo "❌ 套件缺少 $locale_json"
+            exit 1
+          fi
+        done
+        echo "✅ 語系檔已包含於套件"
 
         # 檢查套件大小
         SIZE=$(du -k test-package.zip | cut -f1)

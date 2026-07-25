@@ -65,3 +65,6 @@ key.pem
 .cache
 
 tasks/
+
+# i18n chunker output (regenerable, goes stale)
+scripts/i18n/chunks/

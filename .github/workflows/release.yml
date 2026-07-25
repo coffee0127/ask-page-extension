@@ -40,7 +40,16 @@ jobs:
     - name: Create ZIP package
       run: |
         filePath="AskPageExtension_v${{ steps.get_version.outputs.version }}.zip"
-        zip -r "$filePath" manifest.json background.js content.js popup.html popup.js settings.html settings.js style.css icons lib CHANGELOG.md README.md
+        zip -r "$filePath" manifest.json background.js content.js popup.html popup.js settings.html settings.js style.css icons lib _locales CHANGELOG.md README.md
+
+        # Verify locale bundles are present in the package
+        for locale_json in _locales/en/messages.json _locales/zh_TW/messages.json; do
+          if ! unzip -l "$filePath" "$locale_json" | grep -q "$locale_json"; then
+            echo "❌ Missing $locale_json in package"
+            exit 1
+          fi
+        done
+        echo "✅ Locale bundles present in package"
 
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v3

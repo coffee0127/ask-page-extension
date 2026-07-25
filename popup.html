@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>頁問: 設定已移轉</title>
+  <title data-i18n="popup_title">頁問: 設定已移轉</title>
   <meta charset="UTF-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,13 +159,14 @@
     <div class="logo-container">
       <img src="icons/icon128.png" alt="AskPage Logo" class="logo-icon" id="logo">
     </div>
-    <h1>頁問 AskPage</h1>
-    <p>設定已升級至支援多模型設定，即將為您跳轉至完整設定頁面...</p>
+    <h1 data-i18n="popup_heading">頁問 AskPage</h1>
+    <p data-i18n="popup_settings_migrated_msg">設定已升級至支援多模型設定，即將為您跳轉至完整設定頁面...</p>
     <button id="open-settings" class="btn">
       <div class="spinner"></div>
-      開啟設定頁面
+      <span data-i18n="popup_open_settings_btn">開啟設定頁面</span>
     </button>
   </div>
+  <script src="lib/i18n-bootstrap.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

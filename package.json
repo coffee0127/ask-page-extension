@@ -9,10 +9,10 @@
     "bump:major": "node scripts/bump-version.js major",
     "lint": "eslint *.js --ignore-pattern lib/",
     "lint:fix": "eslint *.js --fix --ignore-pattern lib/",
-    "build": "npm run lint",
-    "package": "zip -r dist/AskPageExtension.zip manifest.json background.js content.js popup.html popup.js settings.html settings.js style.css icons/*.png lib CHANGELOG.md README.md",
-    "test": "node tests/run-all.js",
-    "clean": "rm -rf dist/ node_modules/ *.zip"
+    "validate:i18n": "node scripts/i18n/validate-messages.mjs --locale=en && node scripts/i18n/validate-messages.mjs --locale=zh_TW",
+    "build": "npm run lint && npm test && npm run validate:i18n",
+    "package": "zip -r dist/AskPageExtension.zip manifest.json background.js content.js popup.html popup.js settings.html settings.js style.css icons/*.png lib _locales CHANGELOG.md README.md",
+    "test": "node tests/run-all.js",    "clean": "rm -rf dist/ node_modules/ *.zip"
   },
   "keywords": [
     "chrome-extension",

@@ -16,7 +16,11 @@ module.exports = {
     // 外部函式庫
     marked: 'readonly',
     DOMPurify: 'readonly',
-    hljs: 'readonly'
+    hljs: 'readonly',
+
+    // Runtime locale switcher (lib/i18n.js) and i18n-bootstrap re-apply helper
+    askpageI18n: 'readonly',
+    applyI18nAttributes: 'readonly'
   },
   rules: {
     // 程式碼風格

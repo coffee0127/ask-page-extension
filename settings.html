@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <title>頁問: 偏好設定</title>
+  <title data-i18n="settings_title">頁問: 偏好設定</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -142,6 +142,14 @@
     .header .button-group button {
       min-width: 58px;
       padding: 9px 13px;
+    }
+
+    .header .button-group .lang-select {
+      min-width: auto;
+      padding: 9px 13px;
+      cursor: pointer;
+      font-weight: 900;
+      appearance: auto;
     }
 
     .header .icon {
@@ -679,13 +687,17 @@
     <div class="header">
       <h1>
         <img class="icon" src="icons/askpage-mark.png" alt="" aria-hidden="true">
-        頁問: 偏好設定
+        <span data-i18n="settings_title">頁問: 偏好設定</span>
       </h1>
-      <p>設定您的 AI 提供者、自訂斜線命令和系統提示</p>
+      <p data-i18n="settings_subtitle">設定您的 AI 提供者、自訂斜線命令和系統提示</p>
       <div class="button-group">
-        <button id="reset" class="btn-secondary">🔄 重置設定</button>
-        <button id="export" class="btn-secondary">📤 匯出</button>
-        <button id="import" class="btn-secondary">📥 匯入</button>
+        <button id="reset" class="btn-secondary"><span data-i18n="btn_reset">🔄 重置設定</span></button>
+        <button id="export" class="btn-secondary"><span data-i18n="btn_export">📤 匯出</span></button>
+        <button id="import" class="btn-secondary"><span data-i18n="btn_import">📥 匯入</span></button>
+        <select id="langSelect" class="btn-secondary lang-select" data-i18n-title="lang_select_title" data-i18n-aria-label="lang_select_title">
+          <option value="en">English</option>
+          <option value="zh_TW">繁體中文</option>
+        </select>
         <input type="file" id="importFile" accept=".json" style="display: none;">
       </div>
     </div>
@@ -695,15 +707,15 @@
       <div class="tab-nav">
         <button class="tab-btn active" data-tab="provider">
           <span class="icon">🤖</span>
-          AI 提供者
+          <span data-i18n="tab_provider">AI 提供者</span>
         </button>
         <button class="tab-btn" data-tab="commands">
           <span class="icon">⚡</span>
-          自訂斜線命令
+          <span data-i18n="tab_commands">自訂斜線命令</span>
         </button>
         <button class="tab-btn" data-tab="system-prompt">
           <span class="icon">📝</span>
-          調整系統提示
+          <span data-i18n="tab_system_prompt">調整系統提示</span>
         </button>
       </div>
 
@@ -716,12 +728,12 @@
               <div>
                 <h2 class="card-title">
                   <span class="icon">🔧</span>
-                  AI 提供者設定
+                  <span data-i18n="settings_provider_card_title">AI 提供者設定</span>
                 </h2>
-                <p class="card-description" style="margin-top: 4px;">設定多個不同的 AI 提供者，並啟用一至多個模型，點擊模型名稱可切換為當前使用模型</p>
+                <p class="card-description" style="margin-top: 4px;" data-i18n="settings_provider_card_desc">設定多個不同的 AI 提供者，並啟用一至多個模型，點擊模型名稱可切換為當前使用模型</p>
               </div>
               <button id="addProvider" class="btn-primary" style="margin-top: 0; min-width: auto; padding: 8px 16px; display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 13px;" type="button">
-                <span>➕ 新增 AI 提供者</span>
+                <span data-i18n="btn_add_provider">➕ 新增 AI 提供者</span>
               </button>
             </div>
 
@@ -738,12 +750,12 @@
               <div>
                 <h2 class="card-title">
                   <span class="icon">⚡</span>
-                  斜線命令管理
+                  <span data-i18n="settings_commands_card_title">斜線命令管理</span>
                 </h2>
-                <p class="card-description" style="margin-top: 4px;">管理內建和自訂的斜線命令</p>
+                <p class="card-description" style="margin-top: 4px;" data-i18n="settings_commands_card_desc">管理內建和自訂的斜線命令</p>
               </div>
               <button id="addCommand" class="btn-primary" style="margin-top: 0; min-width: auto; padding: 8px 16px; display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 13px;" type="button">
-                <span>➕ 新增自訂斜線命令</span>
+                <span data-i18n="btn_add_custom_command">➕ 新增自訂斜線命令</span>
               </button>
             </div>
 
@@ -760,15 +772,15 @@
             <div class="card-header">
               <h2 class="card-title">
                 <span class="icon">📝</span>
-                調整系統提示
+                <span data-i18n="tab_system_prompt">調整系統提示</span>
               </h2>
-              <p class="card-description">這段內容會附加在內建系統提示最後面；留空則不追加。內建系統提示不會被覆寫。</p>
+              <p class="card-description" data-i18n="settings_system_prompt_card_desc">這段內容會附加在內建系統提示最後面；留空則不追加。內建系統提示不會被覆寫。</p>
             </div>
 
             <div class="form-group">
-              <label for="customSystemPrompt">追加提示詞</label>
-              <textarea id="customSystemPrompt" placeholder="請輸入要附加到系統提示最後面的內容..." spellcheck="false" style="min-height: 168px;"></textarea>
-              <small style="color: var(--text-secondary);">儲存後，所有 AI 提供者都會在送出請求時套用這段追加提示詞。</small>
+              <label for="customSystemPrompt" data-i18n="settings_additional_prompt_label">追加提示詞</label>
+              <textarea id="customSystemPrompt" placeholder="請輸入要附加到系統提示最後面的內容..." data-i18n-placeholder="settings_additional_prompt_placeholder" spellcheck="false" style="min-height: 168px;"></textarea>
+              <small style="color: var(--text-secondary);" data-i18n="settings_additional_prompt_hint">儲存後，所有 AI 提供者都會在送出請求時套用這段追加提示詞。</small>
               <small id="customSystemPromptCount" style="color: var(--text-secondary);">0 字元</small>
             </div>
           </div>
@@ -778,7 +790,7 @@
       <div id="status" class="status"></div>
 
       <footer class="footer">
-        <p>© 2026 本工具由 <a href="https://www.facebook.com/will.fans/" target="_blank">Will 保哥的技術交流中心</a> 設計、開發與維護 v<span id="appVersion"></span></p>
+        <p id="footerText"></p>
       </footer>
     </div>
   </div>
@@ -786,58 +798,54 @@
   <!-- Command Edit Modal -->
   <div id="commandModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; padding: 20px;">
     <div style="max-width: 600px; margin: 50px auto; background: var(--card-background); border-radius: 16px; padding: 24px; max-height: 80vh; overflow-y: auto; box-sizing: border-box;">
-      <h3 id="modalTitle" style="margin: 0 0 20px; color: var(--text-primary);">編輯斜線命令</h3>
-
+      <h3 id="modalTitle" style="margin: 0 0 20px; color: var(--text-primary);" data-i18n="modal_edit_command_title">編輯斜線命令</h3>
       <div class="form-group">
-        <label for="modalCommandName">命令名稱</label>
-        <input id="modalCommandName" type="text" placeholder="例如：/help" pattern="^/[a-zA-Z0-9_\-]+$" aria-describedby="modalCommandNameError">
+        <label for="modalCommandName" data-i18n="modal_command_name_label">命令名稱</label>
+        <input id="modalCommandName" type="text" placeholder="例如：/help" data-i18n-placeholder="modal_command_name_placeholder" pattern="^/[a-zA-Z0-9_\-]+$" aria-describedby="modalCommandNameError">
         <small id="modalCommandNameError" class="field-error"></small>
-        <small style="color: var(--text-secondary);">命令必須以 / 開頭，只能包含字母、數字、底線和連字符</small>
+        <small style="color: var(--text-secondary);" data-i18n="modal_command_name_hint">命令必須以 / 開頭，只能包含字母、數字、底線和連字符</small>
       </div>
 
       <div class="form-group">
-        <label for="modalCommandPrompt">提示內容</label>
-        <textarea id="modalCommandPrompt" aria-describedby="modalCommandPromptError modalCommandPromptHelp" placeholder="請輸入當使用者執行此命令時要傳送給 AI 的提示內容。使用 ${變數名} 產生填空，例如：Hi, I'm ${name} from ${country:TW}。"></textarea>
-        <small id="modalCommandPromptError" class="field-error"></small>
-        <small id="modalCommandPromptHelp" style="color: var(--text-secondary);">在提示內容中以 <code>${變數名}</code> 產生填空，使用者執行命令後可逐一填寫；用 <code>${變數名:預設值}</code> 設預設值。同名變數會同步填寫，最多只能有一組預設值。</small>
+        <label for="modalCommandPrompt" data-i18n="modal_prompt_content_label">提示內容</label>
+        <textarea id="modalCommandPrompt" aria-describedby="modalCommandPromptError modalCommandPromptHelp" placeholder="請輸入當使用者執行此命令時要傳送給 AI 的提示內容。使用 ${變數名} 產生填空，例如：Hi, I'm ${name} from ${country:TW}。" data-i18n-placeholder="modal_prompt_content_placeholder"></textarea>
+        <small id="modalCommandPromptHelp" style="display: block; color: var(--text-secondary); margin-top: 4px;" data-i18n="modal_prompt_content_help">使用 ${變數名} 產生填空，例如：Hi, I'm ${name} from ${country:TW}。</small>
       </div>
 
       <div class="form-group">
         <label for="modalCommandShowVariableLabels">
           <input type="checkbox" id="modalCommandShowVariableLabels" />
-          展開提示詞時顯示變數名稱
+          <span data-i18n="modal_show_variable_labels">展開提示詞時顯示變數名稱</span>
         </label>
-        <small style="color: var(--text-secondary);">未勾選時，未填寫的變數只會以空白提示顯示變數名稱，一旦輸入內容就會消失；勾選後則會持續顯示「變數名稱：」的標籤。</small>
+        <small style="color: var(--text-secondary);" data-i18n="modal_show_variable_labels_hint">未勾選時，未填寫的變數只會以空白提示顯示變數名稱，一旦輸入內容就會消失；勾選後則會持續顯示「變數名稱：」的標籤。</small>
       </div>
 
       <div class="form-group">
-        <div style="font-weight: 600; margin-bottom: 10px;">模式</div>
+        <div style="font-weight: 600; margin-bottom: 10px;" data-i18n="modal_mode_label">模式</div>
         <label style="display: inline-flex; align-items: center; gap: 6px; margin-right: 16px;">
           <input type="radio" name="modalCommandMode" id="modalCommandModeUnspecified" value="unspecified" checked>
-          不指定
+          <span data-i18n="modal_mode_unspecified">不指定</span>
         </label>
         <label style="display: inline-flex; align-items: center; gap: 6px; margin-right: 16px;">
           <input type="radio" name="modalCommandMode" id="modalCommandModeAgent" value="agent">
-          代理
-        </label>
+          <span data-i18n="modal_mode_agent">代理</span>        </label>
         <label style="display: inline-flex; align-items: center; gap: 6px;">
           <input type="radio" name="modalCommandMode" id="modalCommandModeInquiry" value="inquiry">
-          詢問
+          <span data-i18n="modal_mode_inquiry">詢問</span>
         </label>
-        <small style="display: block; color: var(--text-secondary); margin-top: 8px;">使用命令時會自動切換模式；選擇「不指定」不會改變目前模式。</small>
-      </div>
+        <small style="display: block; color: var(--text-secondary); margin-top: 8px;" data-i18n="modal_mode_hint">使用命令時會自動切換模式；選擇「不指定」不會改變目前模式。</small>      </div>
 
       <div class="form-group">
         <label for="modalCommandScreenshotEnabled">
           <input type="checkbox" id="modalCommandScreenshotEnabled" />
-          啟用截圖模式
+          <span data-i18n="modal_enable_screenshot">啟用截圖模式</span>
         </label>
-        <small style="color: var(--text-secondary);">命令執行時會自動套用截圖模式。</small>
+        <small style="color: var(--text-secondary);" data-i18n="modal_screenshot_hint">命令執行時會自動套用截圖模式。</small>
       </div>
 
       <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
-        <button id="modalCancel" class="btn-secondary">取消</button>
-        <button id="modalSave" class="btn-primary">儲存</button>
+        <button id="modalCancel" class="btn-secondary" data-i18n="btn_cancel">取消</button>
+        <button id="modalSave" class="btn-primary" data-i18n="btn_save">儲存</button>
       </div>
     </div>
   </div>
@@ -845,10 +853,10 @@
   <!-- Provider Edit Modal -->
   <div id="providerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; padding: 20px;">
     <div style="max-width: 650px; margin: 40px auto; background: var(--card-background); border-radius: 16px; padding: 24px; max-height: 85vh; overflow-y: auto;">
-      <h3 id="providerModalTitle" style="margin: 0 0 20px; color: var(--text-primary); font-size: 20px; font-weight: 700;">新增 AI 提供者</h3>
+      <h3 id="providerModalTitle" style="margin: 0 0 20px; color: var(--text-primary); font-size: 20px; font-weight: 700;" data-i18n="modal_add_provider_title">新增 AI 提供者</h3>
 
       <div class="form-group">
-        <label for="modalProviderType">提供者類型</label>
+        <label for="modalProviderType" data-i18n="modal_provider_type_label">提供者類型</label>
         <select id="modalProviderType">
           <option value="gemini">Google Gemini</option>
           <option value="openai">OpenAI</option>
@@ -860,27 +868,27 @@
           <option value="mistral">Mistral AI</option>
           <option value="ollama">Ollama (Local)</option>
           <option value="ollama-cloud">Ollama Cloud</option>
-          <option value="openai-compatible">OpenAI 相容端點</option>
+          <option value="openai-compatible" data-i18n="modal_provider_type_openai_compatible">OpenAI 相容端點</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="modalProviderName">提供者自訂名稱</label>
-        <input id="modalProviderName" type="text" placeholder="例如：我的 Gemini 帳號">
+        <label for="modalProviderName" data-i18n="modal_provider_name_label">提供者自訂名稱</label>
+        <input id="modalProviderName" type="text" placeholder="例如：我的 Gemini 帳號" data-i18n-placeholder="modal_provider_name_placeholder">
       </div>
 
       <!-- Gemini Settings Fields -->
       <div id="modal-gemini-fields" class="provider-fields">
         <div class="form-group">
           <label for="modalGeminiApiKey">Gemini API Key</label>
-          <input id="modalGeminiApiKey" type="password" placeholder="請輸入您的 Gemini API Key">
+          <input id="modalGeminiApiKey" type="password" placeholder="請輸入您的 Gemini API Key" data-i18n-placeholder="modal_gemini_apikey_placeholder">
         </div>
         <div class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="gemini" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入所有可用模型</button>
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="gemini" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="gemini" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_all_models">🔍 載入所有可用模型</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="gemini" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
           <div id="modalGeminiModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
@@ -893,14 +901,14 @@
       <div id="modal-openai-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalOpenaiApiKey">OpenAI API Key</label>
-          <input id="modalOpenaiApiKey" type="password" placeholder="請輸入您的 OpenAI API Key">
+          <input id="modalOpenaiApiKey" type="password" placeholder="請輸入您的 OpenAI API Key" data-i18n-placeholder="modal_openai_apikey_placeholder">
         </div>
         <div class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openai" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入所有可用模型</button>
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openai" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openai" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_all_models">🔍 載入所有可用模型</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openai" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
           <div id="modalOpenaiModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
@@ -913,15 +921,15 @@
       <div id="modal-azure-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalAzureApiKey">Azure OpenAI API Key</label>
-          <input id="modalAzureApiKey" type="password" placeholder="請輸入您的 Azure OpenAI API Key">
+          <input id="modalAzureApiKey" type="password" placeholder="請輸入您的 Azure OpenAI API Key" data-i18n-placeholder="modal_azure_apikey_placeholder">
         </div>
         <div class="form-group" style="margin-top: 8px;">
           <label for="modalAzureEndpoint">Azure OpenAI Endpoint</label>
-          <input id="modalAzureEndpoint" type="text" placeholder="例如: https://your-resource.openai.azure.com">
+          <input id="modalAzureEndpoint" type="text" placeholder="例如: https://your-resource.openai.azure.com" data-i18n-placeholder="modal_azure_endpoint_placeholder">
         </div>
         <div class="form-group" style="margin-top: 8px;">
           <label for="modalAzureDeployment">Deployment Name</label>
-          <input id="modalAzureDeployment" type="text" placeholder="例如: gpt-4o-mini">
+          <input id="modalAzureDeployment" type="text" placeholder="例如: gpt-4o-mini" data-i18n-placeholder="modal_azure_deployment_placeholder">
         </div>
         <div class="form-group" style="margin-top: 8px;">
           <label for="modalAzureApiVersion">API Version</label>
@@ -940,24 +948,24 @@
       <div id="modal-openai-compatible-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalOpenaiCompatibleEndpoint">API Endpoint</label>
-          <input id="modalOpenaiCompatibleEndpoint" type="text" placeholder="例如: http://localhost:11434/v1">
+          <input id="modalOpenaiCompatibleEndpoint" type="text" placeholder="例如: http://localhost:11434/v1" data-i18n-placeholder="modal_openai_compatible_endpoint_placeholder">
         </div>
         <div class="form-group" style="margin-top: 8px;">
-          <label for="modalOpenaiCompatibleApiKey">API Key (選填)</label>
-          <input id="modalOpenaiCompatibleApiKey" type="password" placeholder="若不需要可留空">
+          <label for="modalOpenaiCompatibleApiKey" data-i18n="modal_openai_compatible_apikey_label">API Key (選填)</label>
+          <input id="modalOpenaiCompatibleApiKey" type="password" placeholder="若不需要可留空" data-i18n-placeholder="modal_openai_compatible_apikey_placeholder">
         </div>
         <div id="modalOpenaiCompatibleModelInputGroup" class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label style="margin-bottom: 0;" for="modalOpenaiCompatibleModel">模型名稱</label>
-            <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openai-compatible" data-action="fetch-custom-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入端點模型</button>
+            <label style="margin-bottom: 0;" for="modalOpenaiCompatibleModel" data-i18n="label_model_name">模型名稱</label>
+            <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openai-compatible" data-action="fetch-custom-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_endpoint_models">🔍 載入端點模型</button>
           </div>
-          <input id="modalOpenaiCompatibleModel" type="text" placeholder="例如: llama3, mistral" style="width: 100%;">
+          <input id="modalOpenaiCompatibleModel" type="text" placeholder="例如: llama3, mistral" style="width: 100%;" data-i18n-placeholder="modal_openai_compatible_model_placeholder">
         </div>
         <div id="modalOpenaiCompatibleModelsListGroup" class="form-group" style="margin-top: 12px; display: none;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openai-compatible" data-action="switch-to-manual-input" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openai-compatible" data-action="switch-to-manual-input" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
           <div id="modalOpenaiCompatibleModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
@@ -970,14 +978,14 @@
       <div id="modal-anthropic-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalAnthropicApiKey">Anthropic API Key</label>
-          <input id="modalAnthropicApiKey" type="password" placeholder="請輸入您的 Anthropic API Key">
+          <input id="modalAnthropicApiKey" type="password" placeholder="請輸入您的 Anthropic API Key" data-i18n-placeholder="modal_anthropic_apikey_placeholder">
         </div>
         <div class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="anthropic" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入所有可用模型</button>
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="anthropic" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="anthropic" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_all_models">🔍 載入所有可用模型</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="anthropic" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
           <div id="modalAnthropicModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
@@ -990,14 +998,14 @@
       <div id="modal-deepseek-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalDeepseekApiKey">DeepSeek API Key</label>
-          <input id="modalDeepseekApiKey" type="password" placeholder="請輸入您的 DeepSeek API Key">
+          <input id="modalDeepseekApiKey" type="password" placeholder="請輸入您的 DeepSeek API Key" data-i18n-placeholder="modal_deepseek_apikey_placeholder">
         </div>
         <div class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="deepseek" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入所有可用模型</button>
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="deepseek" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="deepseek" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_all_models">🔍 載入所有可用模型</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="deepseek" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
           <div id="modalDeepseekModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
@@ -1010,14 +1018,14 @@
       <div id="modal-openrouter-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalOpenrouterApiKey">OpenRouter API Key</label>
-          <input id="modalOpenrouterApiKey" type="password" placeholder="請輸入您的 OpenRouter API Key">
+          <input id="modalOpenrouterApiKey" type="password" placeholder="請輸入您的 OpenRouter API Key" data-i18n-placeholder="modal_openrouter_apikey_placeholder">
         </div>
         <div class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openrouter" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入所有可用模型</button>
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openrouter" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openrouter" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_all_models">🔍 載入所有可用模型</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="openrouter" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
           <div id="modalOpenrouterModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
@@ -1030,14 +1038,14 @@
       <div id="modal-groq-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalGroqApiKey">Groq API Key</label>
-          <input id="modalGroqApiKey" type="password" placeholder="請輸入您的 Groq API Key">
+          <input id="modalGroqApiKey" type="password" placeholder="請輸入您的 Groq API Key" data-i18n-placeholder="modal_groq_apikey_placeholder">
         </div>
         <div class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="groq" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入所有可用模型</button>
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="groq" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="groq" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_all_models">🔍 載入所有可用模型</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="groq" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
           <div id="modalGroqModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
@@ -1049,14 +1057,14 @@
       <div id="modal-mistral-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalMistralApiKey">Mistral API Key</label>
-          <input id="modalMistralApiKey" type="password" placeholder="請輸入您的 Mistral API Key">
+          <input id="modalMistralApiKey" type="password" placeholder="請輸入您的 Mistral API Key" data-i18n-placeholder="modal_mistral_apikey_placeholder">
         </div>
         <div class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="mistral" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入所有可用模型</button>
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="mistral" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="mistral" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_all_models">🔍 載入所有可用模型</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="mistral" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
           <div id="modalMistralModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
@@ -1069,14 +1077,14 @@
       <div id="modal-ollama-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalOllamaEndpoint">Ollama API Endpoint</label>
-          <input id="modalOllamaEndpoint" type="text" placeholder="例如: http://localhost:11434/v1">
+          <input id="modalOllamaEndpoint" type="text" placeholder="例如: http://localhost:11434/v1" data-i18n-placeholder="modal_ollama_endpoint_placeholder">
         </div>
         <div class="form-group" style="margin-top: 8px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label style="margin-bottom: 0;" for="modalOllamaModel">模型名稱</label>
-            <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="ollama" data-action="fetch-custom-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入本機模型</button>
+            <label style="margin-bottom: 0;" for="modalOllamaModel" data-i18n="label_model_name">模型名稱</label>
+            <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="ollama" data-action="fetch-custom-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_local_models">🔍 載入本機模型</button>
           </div>
-          <input id="modalOllamaModel" type="text" placeholder="例如: llama3.3, deepseek-r1">
+          <input id="modalOllamaModel" type="text" placeholder="例如: llama3.3, deepseek-r1" data-i18n-placeholder="modal_ollama_model_placeholder">
         </div>
       </div>
 
@@ -1084,18 +1092,18 @@
       <div id="modal-ollama-cloud-fields" class="provider-fields" style="display: none; margin-top: 12px;">
         <div class="form-group">
           <label for="modalOllamaCloudApiKey">Ollama Cloud API Key</label>
-          <input id="modalOllamaCloudApiKey" type="password" placeholder="請輸入您的 Ollama API Key">
-          <small style="display: block; color: var(--text-secondary); margin-top: 6px;">可至 <a href="https://ollama.com/settings/keys" target="_blank" rel="noopener noreferrer">Ollama API Keys</a> 建立金鑰。</small>
+          <input id="modalOllamaCloudApiKey" type="password" placeholder="請輸入您的 Ollama API Key" data-i18n-placeholder="modal_ollama_cloud_apikey_placeholder">
+          <small style="display: block; color: var(--text-secondary); margin-top: 6px;" data-i18n-html="modal_ollama_cloud_apikey_hint" data-i18n-substitutions='["<a href=\"https://ollama.com/settings/keys\" target=\"_blank\" rel=\"noopener noreferrer\">Ollama API Keys</a>"]'>可至 <a href="https://ollama.com/settings/keys" target="_blank" rel="noopener noreferrer">Ollama API Keys</a> 建立金鑰。</small>
         </div>
         <div class="form-group" style="margin-top: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <label style="margin-bottom: 0;">啟用模型 (可複選，最少選一個)</label>
+            <label style="margin-bottom: 0;" data-i18n="label_enabled_models">啟用模型 (可複選，最少選一個)</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="ollama-cloud" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">🔍 載入最新雲端模型</button>
-              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="ollama-cloud" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;">✏️ 手動輸入模型名稱</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="ollama-cloud" data-action="fetch-models" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_load_latest_cloud_models">🔍 載入最新雲端模型</button>
+              <button type="button" class="btn-secondary btn-small btn-action-models" data-provider-type="ollama-cloud" data-action="add-custom-model" style="padding: 4px 8px; min-width: auto; font-size: 11px; margin-top: 0;" data-i18n="btn_enter_model_manually">✏️ 手動輸入模型名稱</button>
             </div>
           </div>
-          <small style="display: block; color: var(--text-secondary); margin-top: 6px;">內建精選的 <a href="https://ollama.com/search?c=cloud" target="_blank" rel="noopener noreferrer">Ollama Cloud</a> 模型 ID；也可載入最新完整清單。</small>
+          <small style="display: block; color: var(--text-secondary); margin-top: 6px;" data-i18n-html="modal_ollama_cloud_models_hint" data-i18n-substitutions='["<a href=\"https://ollama.com/search?c=cloud\" target=\"_blank\" rel=\"noopener noreferrer\">Ollama Cloud</a>"]'>內建精選的 <a href="https://ollama.com/search?c=cloud" target="_blank" rel="noopener noreferrer">Ollama Cloud</a> 模型 ID；也可載入最新完整清單。</small>
           <div id="modalOllamaCloudModelsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px;">
             <!-- 動態載入 -->
           </div>
@@ -1104,13 +1112,15 @@
 
       <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-end; margin-top: 24px; flex-wrap: wrap;">
         <span id="modalProviderTestResult" style="font-size: 13px; font-weight: 500; margin-right: auto; max-width: 250px; overflow-wrap: break-word; text-align: left; display: none;"></span>
-        <button id="modalProviderTest" class="btn-secondary" style="min-width: auto; padding: 10px 14px;" type="button">⚡ 測試連線</button>
-        <button id="modalProviderCancel" class="btn-secondary" type="button">取消</button>
-        <button id="modalProviderSave" class="btn-primary" type="button">儲存</button>
+        <button id="modalProviderTest" class="btn-secondary" style="min-width: auto; padding: 10px 14px;" type="button" data-i18n="btn_test_connection">⚡ 測試連線</button>
+        <button id="modalProviderCancel" class="btn-secondary" type="button" data-i18n="btn_cancel">取消</button>
+        <button id="modalProviderSave" class="btn-primary" type="button" data-i18n="btn_save">儲存</button>
       </div>
     </div>
   </div>
 
+  <script src="lib/i18n.js"></script>
+  <script src="lib/i18n-bootstrap.js"></script>
   <script src="settings.js"></script>
 </body>
 </html>

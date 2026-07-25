@@ -478,10 +478,10 @@
   line-height: 1.2;
 }
 #gemini-qna-messages .gemini-msg-assistant .askpage-trace-expand-button::before {
-  content: '展開';
+  content: '__MSG_code_expand__';
 }
 #gemini-qna-messages .gemini-msg-assistant .askpage-trace-disclosure[open] .askpage-trace-expand-button::before {
-  content: '收合';
+  content: '__MSG_code_collapse__';
 }
 #gemini-qna-messages .gemini-msg-assistant .askpage-trace-disclosure-body {
   display: block;
@@ -738,7 +738,7 @@
   display: none !important;
 }
 #gemini-qna-messages .gemini-msg-assistant.askpage-streaming-answer .askpage-code-block::after {
-  content: '正在生成中...';
+  content: '__MSG_code_streaming_status__';
   position: absolute;
   top: 0;
   left: 0;

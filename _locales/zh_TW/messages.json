@@ -1,0 +1,3193 @@
+{
+  "ext_name": {
+    "message": "頁問 AskPage",
+    "description": "Extension name shown in Chrome UI"
+  },
+  "ext_description": {
+    "message": "使用 Gemini API、OpenAI API、Azure OpenAI API 或 OpenAI Compatible API 詢問關於目前頁面的問題",
+    "description": "Extension description in manifest.json"
+  },
+  "ext_short_name": {
+    "message": "頁問",
+    "description": "Short extension name"
+  },
+  "cmd_toggle_dialog": {
+    "message": "開啟頁問對話框",
+    "description": "Keyboard shortcut command description: toggle dialog"
+  },
+  "cmd_switch_provider": {
+    "message": "切換 AI 提供者",
+    "description": "Keyboard shortcut command description: switch provider"
+  },
+  "popup_title": {
+    "message": "頁問: 設定已移轉",
+    "description": "popup.html <title>"
+  },
+  "popup_heading": {
+    "message": "頁問 AskPage",
+    "description": "popup.html heading"
+  },
+  "popup_settings_migrated_msg": {
+    "message": "設定已升級至支援多模型設定，即將為您跳轉至完整設定頁面...",
+    "description": "popup.html migration notice"
+  },
+  "popup_open_settings_btn": {
+    "message": "開啟設定頁面",
+    "description": "popup.html button to open settings page"
+  },
+  "settings_title": {
+    "message": "頁問: 偏好設定",
+    "description": "settings.html <title> and h1"
+  },
+  "settings_subtitle": {
+    "message": "設定您的 AI 提供者、自訂斜線命令和系統提示",
+    "description": "settings.html subtitle under h1"
+  },
+  "btn_reset": {
+    "message": "🔄 重置設定",
+    "description": "settings.html reset button (keep emoji)"
+  },
+  "btn_export": {
+    "message": "📤 匯出",
+    "description": "settings.html export button"
+  },
+  "btn_import": {
+    "message": "📥 匯入",
+    "description": "settings.html import button"
+  },
+  "lang_select_title": {
+    "message": "語言",
+    "description": "settings.html language switcher tooltip/aria-label"
+  },
+  "lang_en_label": {
+    "message": "英文",
+    "description": "language switcher option label for English (option text uses native name; key kept for potential future use)"
+  },
+  "lang_zh_tw_label": {
+    "message": "繁體中文",
+    "description": "language switcher option label for Traditional Chinese (option text uses native name; key kept for potential future use)"
+  },
+  "tab_provider": {
+    "message": "AI 提供者",
+    "description": "settings tab label"
+  },
+  "tab_commands": {
+    "message": "自訂斜線命令",
+    "description": "settings tab label"
+  },
+  "tab_system_prompt": {
+    "message": "調整系統提示",
+    "description": "settings tab label"
+  },
+  "settings_provider_card_title": {
+    "message": "AI 提供者設定",
+    "description": "card title"
+  },
+  "settings_provider_card_desc": {
+    "message": "設定多個不同的 AI 提供者，並啟用一至多個模型，點擊模型名稱可切換為當前使用模型",
+    "description": "card description"
+  },
+  "btn_add_provider": {
+    "message": "➕ 新增 AI 提供者",
+    "description": "add provider button"
+  },
+  "settings_commands_card_title": {
+    "message": "斜線命令管理",
+    "description": "card title"
+  },
+  "settings_commands_card_desc": {
+    "message": "管理內建和自訂的斜線命令",
+    "description": "card description"
+  },
+  "btn_add_custom_command": {
+    "message": "➕ 新增自訂斜線命令",
+    "description": "add custom command button"
+  },
+  "settings_system_prompt_card_desc": {
+    "message": "這段內容會附加在內建系統提示最後面；留空則不追加。內建系統提示不會被覆寫。",
+    "description": "card description"
+  },
+  "settings_additional_prompt_label": {
+    "message": "追加提示詞",
+    "description": "label for customSystemPrompt textarea"
+  },
+  "settings_additional_prompt_placeholder": {
+    "message": "請輸入要附加到系統提示最後面的內容...",
+    "description": "placeholder for customSystemPrompt textarea"
+  },
+  "settings_additional_prompt_hint": {
+    "message": "儲存後，所有 AI 提供者都會在送出請求時套用這段追加提示詞。",
+    "description": "hint under customSystemPrompt textarea"
+  },
+  "char_count_suffix": {
+    "message": "$count$ 字元",
+    "description": "character count label",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "footer_credit": {
+    "message": "Will 保哥的技術交流中心",
+    "description": "settings.html footer credit - kept in Chinese per user edit (do NOT translate)"
+  },
+  "footer_text": {
+    "message": "© 2026 本工具由 $credit$ 設計、開發與維護 v$version$",
+    "description": "settings.html footer text",
+    "placeholders": {
+      "credit": {
+        "content": "$1",
+        "example": "Will 保哥的技術交流中心"
+      },
+      "version": {
+        "content": "$2",
+        "example": "0.34.0"
+      }
+    }
+  },
+  "modal_edit_command_title": {
+    "message": "編輯斜線命令",
+    "description": "modal title default text"
+  },
+  "modal_command_name_label": {
+    "message": "命令名稱",
+    "description": "label"
+  },
+  "modal_command_name_placeholder": {
+    "message": "例如：/help",
+    "description": "placeholder"
+  },
+  "modal_command_name_hint": {
+    "message": "命令必須以 / 開頭，只能包含字母、數字、底線和連字符",
+    "description": "hint"
+  },
+  "modal_prompt_content_label": {
+    "message": "提示內容",
+    "description": "label"
+  },
+  "modal_prompt_content_placeholder": {
+    "message": "請輸入當使用者執行此命令時要傳送給 AI 的提示內容...",
+    "description": "placeholder"
+  },
+  "modal_mode_label": {
+    "message": "模式",
+    "description": "modal mode section label"
+  },
+  "modal_mode_agent": {
+    "message": "代理",
+    "description": "radio label"
+  },
+  "modal_mode_inquiry": {
+    "message": "詢問",
+    "description": "radio label"
+  },
+  "modal_mode_hint": {
+    "message": "使用命令時會自動切換模式。",
+    "description": "hint"
+  },
+  "modal_enable_screenshot": {
+    "message": "啟用截圖模式",
+    "description": "checkbox label"
+  },
+  "modal_screenshot_hint": {
+    "message": "命令執行時會自動套用截圖模式。",
+    "description": "hint"
+  },
+  "btn_cancel": {
+    "message": "取消",
+    "description": "shared cancel button"
+  },
+  "btn_save": {
+    "message": "儲存",
+    "description": "shared save button"
+  },
+  "modal_add_provider_title": {
+    "message": "新增 AI 提供者",
+    "description": "provider modal title (add)"
+  },
+  "modal_edit_provider_title": {
+    "message": "編輯 AI 提供者",
+    "description": "provider modal title (edit)"
+  },
+  "modal_provider_type_label": {
+    "message": "提供者類型",
+    "description": "label"
+  },
+  "modal_provider_type_openai_compatible": {
+    "message": "OpenAI 相容端點",
+    "description": "option label"
+  },
+  "modal_provider_name_label": {
+    "message": "提供者自訂名稱",
+    "description": "label"
+  },
+  "modal_provider_name_placeholder": {
+    "message": "例如：我的 Gemini 帳號",
+    "description": "placeholder"
+  },
+  "modal_gemini_apikey_placeholder": {
+    "message": "請輸入您的 Gemini API Key",
+    "description": "placeholder"
+  },
+  "modal_openai_apikey_placeholder": {
+    "message": "請輸入您的 OpenAI API Key",
+    "description": "placeholder"
+  },
+  "modal_azure_apikey_placeholder": {
+    "message": "請輸入您的 Azure OpenAI API Key",
+    "description": "placeholder"
+  },
+  "modal_azure_endpoint_placeholder": {
+    "message": "例如: https://your-resource.openai.azure.com",
+    "description": "placeholder"
+  },
+  "modal_azure_deployment_placeholder": {
+    "message": "例如: gpt-4o-mini",
+    "description": "placeholder"
+  },
+  "modal_openai_compatible_endpoint_placeholder": {
+    "message": "例如: http://localhost:11434/v1",
+    "description": "placeholder"
+  },
+  "modal_openai_compatible_apikey_label": {
+    "message": "API Key (選填)",
+    "description": "label"
+  },
+  "modal_openai_compatible_apikey_placeholder": {
+    "message": "若不需要可留空",
+    "description": "placeholder"
+  },
+  "modal_openai_compatible_model_placeholder": {
+    "message": "例如: llama3, mistral",
+    "description": "placeholder"
+  },
+  "modal_anthropic_apikey_placeholder": {
+    "message": "請輸入您的 Anthropic API Key",
+    "description": "placeholder"
+  },
+  "modal_deepseek_apikey_placeholder": {
+    "message": "請輸入您的 DeepSeek API Key",
+    "description": "placeholder"
+  },
+  "modal_openrouter_apikey_placeholder": {
+    "message": "請輸入您的 OpenRouter API Key",
+    "description": "placeholder"
+  },
+  "modal_groq_apikey_placeholder": {
+    "message": "請輸入您的 Groq API Key",
+    "description": "placeholder"
+  },
+  "modal_mistral_apikey_placeholder": {
+    "message": "請輸入您的 Mistral API Key",
+    "description": "placeholder"
+  },
+  "modal_ollama_endpoint_placeholder": {
+    "message": "例如: http://localhost:11434/v1",
+    "description": "placeholder"
+  },
+  "modal_ollama_model_placeholder": {
+    "message": "例如: llama3.3, deepseek-r1",
+    "description": "placeholder"
+  },
+  "modal_ollama_cloud_apikey_placeholder": {
+    "message": "請輸入您的 Ollama API Key",
+    "description": "placeholder"
+  },
+  "modal_ollama_cloud_apikey_hint": {
+    "message": "可至 $link$ 建立金鑰。",
+    "description": "hint with Ollama API Keys link",
+    "placeholders": {
+      "link": {
+        "content": "$1",
+        "example": "Ollama API Keys"
+      }
+    }
+  },
+  "modal_ollama_cloud_models_hint": {
+    "message": "內建精選的 $link$ 模型 ID；也可載入最新完整清單。",
+    "description": "hint with Ollama Cloud search link",
+    "placeholders": {
+      "link": {
+        "content": "$1",
+        "example": "Ollama Cloud"
+      }
+    }
+  },
+  "label_enabled_models": {
+    "message": "啟用模型 (可複選，最少選一個)",
+    "description": "label for enabled models multi-select"
+  },
+  "label_model_name": {
+    "message": "模型名稱",
+    "description": "label for model name"
+  },
+  "btn_load_all_models": {
+    "message": "🔍 載入所有可用模型",
+    "description": "button to fetch models"
+  },
+  "btn_enter_model_manually": {
+    "message": "✏️ 手動輸入模型名稱",
+    "description": "button to add custom model"
+  },
+  "btn_load_local_models": {
+    "message": "🔍 載入本機模型",
+    "description": "button to load Ollama local models"
+  },
+  "btn_load_latest_cloud_models": {
+    "message": "🔍 載入最新雲端模型",
+    "description": "button to load Ollama Cloud models"
+  },
+  "btn_load_endpoint_models": {
+    "message": "🔍 載入端點模型",
+    "description": "button to load endpoint models"
+  },
+  "btn_test_connection": {
+    "message": "⚡ 測試連線",
+    "description": "provider test connection button"
+  },
+  "status_system_prompt_saved": {
+    "message": "✅ 系統提示已自動儲存！",
+    "description": "status message"
+  },
+  "status_settings_reset": {
+    "message": "設定已重置！",
+    "description": "status message"
+  },
+  "status_settings_exported": {
+    "message": "設定已匯出！",
+    "description": "status message"
+  },
+  "status_settings_imported_reloading": {
+    "message": "設定匯入成功！正在重新載入...",
+    "description": "status message"
+  },
+  "err_import_invalid_format": {
+    "message": "匯入失敗：檔案格式錯誤",
+    "description": "status error"
+  },
+  "status_provider_saved": {
+    "message": "提供者已儲存！",
+    "description": "status message"
+  },
+  "status_provider_deleted": {
+    "message": "提供者已刪除",
+    "description": "status message"
+  },
+  "status_switched_model": {
+    "message": "已切換使用模型為 $model$",
+    "description": "status message",
+    "placeholders": {
+      "model": {
+        "content": "$1",
+        "example": "gemini-2.0-flash"
+      }
+    }
+  },
+  "status_models_loaded": {
+    "message": "已成功載入 $count$ 個模型！",
+    "description": "status message",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "status_testing": {
+    "message": "⏳ 測試中...",
+    "description": "test connection in-progress label"
+  },
+  "status_processing": {
+    "message": "⏳ 處理中...",
+    "description": "generic processing label"
+  },
+  "status_connection_success": {
+    "message": "🟢 連線測試成功",
+    "description": "test connection success"
+  },
+  "status_connection_failed": {
+    "message": "🔴 連線失敗: $msg$",
+    "description": "test connection failed",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Unauthorized"
+      }
+    }
+  },
+  "status_command_saved": {
+    "message": "命令已儲存",
+    "description": "status message"
+  },
+  "status_command_deleted": {
+    "message": "命令已刪除",
+    "description": "status message"
+  },
+  "status_manual_model_added": {
+    "message": "已手動加入並選取模型：$model$",
+    "description": "status message",
+    "placeholders": {
+      "model": {
+        "content": "$1",
+        "example": "gpt-4o"
+      }
+    }
+  },
+  "status_model_selected": {
+    "message": "已選取模型：$model$",
+    "description": "status message",
+    "placeholders": {
+      "model": {
+        "content": "$1",
+        "example": "gpt-4o"
+      }
+    }
+  },
+  "alert_reset_confirm": {
+    "message": "確定要重置所有設定嗎？\\n\\n這會清除 AI 提供者、API Key、斜線命令、提問歷史與所有其他設定。",
+    "description": "reset confirmation dialog"
+  },
+  "alert_import_confirm": {
+    "message": "確定要匯入此設定檔嗎？這將會覆蓋您目前的設定。",
+    "description": "import confirmation dialog"
+  },
+  "alert_delete_command_confirm": {
+    "message": "確定要刪除命令 $cmd$ 嗎？",
+    "description": "delete command confirm",
+    "placeholders": {
+      "cmd": {
+        "content": "$1",
+        "example": "/help"
+      }
+    }
+  },
+  "alert_delete_provider_confirm": {
+    "message": "確定要刪除「$name$」提供者嗎？",
+    "description": "delete provider confirm",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Gemini account"
+      }
+    }
+  },
+  "alert_enter_gemini_apikey": {
+    "message": "請輸入 Gemini API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_gemini_model": {
+    "message": "請至少勾選一個 Gemini 模型",
+    "description": "alert"
+  },
+  "alert_enter_openai_apikey": {
+    "message": "請輸入 OpenAI API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_openai_model": {
+    "message": "請至少勾選一個 OpenAI 模型",
+    "description": "alert"
+  },
+  "alert_fill_azure_fields": {
+    "message": "請填寫 Azure OpenAI 的 API Key、Endpoint 與 Deployment Name",
+    "description": "alert"
+  },
+  "alert_fill_api_endpoint": {
+    "message": "請填寫 API Endpoint",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_model": {
+    "message": "請至少勾選一個模型",
+    "description": "alert"
+  },
+  "alert_fill_model_name": {
+    "message": "請填寫模型名稱",
+    "description": "alert"
+  },
+  "alert_enter_anthropic_apikey": {
+    "message": "請輸入 Anthropic API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_anthropic_model": {
+    "message": "請至少勾選一個 Anthropic 模型",
+    "description": "alert"
+  },
+  "alert_enter_deepseek_apikey": {
+    "message": "請輸入 DeepSeek API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_deepseek_model": {
+    "message": "請至少勾選一個 DeepSeek 模型",
+    "description": "alert"
+  },
+  "alert_enter_openrouter_apikey": {
+    "message": "請輸入 OpenRouter API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_openrouter_model": {
+    "message": "請至少勾選一個 OpenRouter 模型",
+    "description": "alert"
+  },
+  "alert_enter_groq_apikey": {
+    "message": "請輸入 Groq API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_groq_model": {
+    "message": "請至少勾選一個 Groq 模型",
+    "description": "alert"
+  },
+  "alert_enter_mistral_apikey": {
+    "message": "請輸入 Mistral API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_mistral_model": {
+    "message": "請至少勾選一個 Mistral 模型",
+    "description": "alert"
+  },
+  "alert_fill_ollama_endpoint_model": {
+    "message": "請填寫 Ollama API Endpoint 與模型名稱",
+    "description": "alert"
+  },
+  "alert_enter_ollama_cloud_apikey": {
+    "message": "請輸入 Ollama Cloud API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_ollama_cloud_model": {
+    "message": "請至少勾選一個 Ollama Cloud 模型",
+    "description": "alert"
+  },
+  "alert_model_name_empty": {
+    "message": "模型名稱不能為空",
+    "description": "alert"
+  },
+  "alert_operation_failed": {
+    "message": "操作失敗: $msg$",
+    "description": "alert",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "err_enter_gemini_apikey_first": {
+    "message": "請先輸入 Gemini API Key",
+    "description": "thrown error"
+  },
+  "err_enter_openai_apikey_first": {
+    "message": "請先輸入 OpenAI API Key",
+    "description": "thrown error"
+  },
+  "err_enter_anthropic_apikey_first": {
+    "message": "請先輸入 Anthropic API Key",
+    "description": "thrown error"
+  },
+  "err_enter_deepseek_apikey_first": {
+    "message": "請先輸入 DeepSeek API Key",
+    "description": "thrown error"
+  },
+  "err_enter_openrouter_apikey_first": {
+    "message": "請先輸入 OpenRouter API Key",
+    "description": "thrown error"
+  },
+  "err_enter_groq_apikey_first": {
+    "message": "請先輸入 Groq API Key",
+    "description": "thrown error"
+  },
+  "err_enter_mistral_apikey_first": {
+    "message": "請先輸入 Mistral API Key",
+    "description": "thrown error"
+  },
+  "err_enter_ollama_cloud_apikey_first": {
+    "message": "請先輸入 Ollama Cloud API Key",
+    "description": "thrown error"
+  },
+  "err_fill_azure_fields": {
+    "message": "請填寫 Azure OpenAI 的 API Key、Endpoint 與 Deployment Name",
+    "description": "thrown error"
+  },
+  "err_fill_ollama_model_name": {
+    "message": "請填寫 Ollama 模型名稱",
+    "description": "thrown error"
+  },
+  "err_fill_api_endpoint": {
+    "message": "請填寫 API Endpoint",
+    "description": "thrown error"
+  },
+  "err_fill_api_endpoint_first": {
+    "message": "請先輸入 API Endpoint",
+    "description": "thrown error"
+  },
+  "err_unknown_provider_type": {
+    "message": "未知的提供者類型",
+    "description": "thrown error"
+  },
+  "err_api_error_status": {
+    "message": "API 回傳錯誤: $status$ $text$",
+    "description": "thrown error",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "401"
+      },
+      "text": {
+        "content": "$2",
+        "example": "Unauthorized"
+      }
+    }
+  },
+  "err_no_models_found": {
+    "message": "未找到任何可用的模型名稱",
+    "description": "thrown error"
+  },
+  "err_cannot_connect_ollama": {
+    "message": "無法連線至 Ollama 服務",
+    "description": "thrown error"
+  },
+  "modal_edit_builtin_command": {
+    "message": "編輯內建命令",
+    "description": "modal title"
+  },
+  "modal_edit_custom_command": {
+    "message": "編輯自訂命令",
+    "description": "modal title"
+  },
+  "modal_new_custom_command": {
+    "message": "新增自訂命令",
+    "description": "modal title"
+  },
+  "err_enter_command_name": {
+    "message": "請輸入命令名稱",
+    "description": "validation error"
+  },
+  "err_command_name_format": {
+    "message": "命令名稱格式不正確，必須以 / 開頭且只能包含字母、數字、底線和連字符",
+    "description": "validation error"
+  },
+  "err_command_name_dup_builtin": {
+    "message": "命令名稱不能與內建命令重複",
+    "description": "validation error"
+  },
+  "err_command_name_dup_custom": {
+    "message": "命令名稱已被既有自訂命令使用",
+    "description": "validation error"
+  },
+  "err_enter_prompt_content": {
+    "message": "請輸入提示內容",
+    "description": "validation error"
+  },
+  "err_cannot_delete_builtin": {
+    "message": "無法刪除內建命令",
+    "description": "alert error"
+  },
+  "provider_list_empty": {
+    "message": "尚未新增任何 AI 提供者，請點擊下方的「新增 AI 提供者」按鈕。",
+    "description": "empty provider list message"
+  },
+  "provider_model_unspecified": {
+    "message": "(未指定模型)",
+    "description": "shown when ollama model empty"
+  },
+  "provider_endpoint_label": {
+    "message": "端點: $endpoint$",
+    "description": "provider endpoint detail",
+    "placeholders": {
+      "endpoint": {
+        "content": "$1",
+        "example": "http://localhost:11434/v1"
+      }
+    }
+  },
+  "provider_endpoint_ollama_cloud": {
+    "message": "端點: https://ollama.com/v1",
+    "description": "fixed ollama cloud endpoint"
+  },
+  "btn_edit": {
+    "message": "✏️ 編輯",
+    "description": "provider edit button"
+  },
+  "btn_delete": {
+    "message": "🗑️ 刪除",
+    "description": "provider delete button"
+  },
+  "builtin_badge": {
+    "message": "內建",
+    "description": "badge for built-in command"
+  },
+  "prompt_enter_manual_model_name": {
+    "message": "請輸入要手動新增的模型名稱：",
+    "description": "prompt dialog"
+  },
+  "prompt_loaded_models_hint": {
+    "message": "已成功載入下列模型名稱。請複製或直接輸入您要選取的模型名稱：\\n\\n$list$",
+    "description": "prompt dialog listing loaded models",
+    "placeholders": {
+      "list": {
+        "content": "$1",
+        "example": "gpt-4o\\ngpt-5"
+      }
+    }
+  },
+  "bg_js_exec_failed": {
+    "message": "JavaScript 執行失敗：$msg$",
+    "description": "background.js error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "SyntaxError"
+      }
+    }
+  },
+  "bg_unknown_error": {
+    "message": "未知錯誤",
+    "description": "fallback error message"
+  },
+  "bg_no_user_scripts_api": {
+    "message": "目前執行環境沒有提供 User Scripts API。這通常代表擴充功能尚未重新載入以套用最新權限，或您目前使用的瀏覽器發行版尚未支援這個 API。",
+    "description": "background.js error"
+  },
+  "bg_browser_no_user_scripts": {
+    "message": "目前瀏覽器不支援 User Scripts API，請升級到 Chrome 135 以上版本。",
+    "description": "background.js error"
+  },
+  "bg_browser_too_old": {
+    "message": "目前瀏覽器版本過舊，無法執行 run_js。請升級到 Chrome 135 以上版本。",
+    "description": "background.js error"
+  },
+  "bg_allow_user_scripts_required": {
+    "message": "run_js 需要在擴充功能詳細資料頁啟用「Allow User Scripts」後才能使用。",
+    "description": "background.js error"
+  },
+  "bg_enable_user_scripts_hint": {
+    "message": "run_js 需要啟用 User Scripts。請先到 chrome://extensions 開啟開發人員模式，再重新整理目前頁面。$err$",
+    "description": "background.js error",
+    "placeholders": {
+      "err": {
+        "content": "$1",
+        "example": " (Permission denied)"
+      }
+    }
+  },
+  "bg_js_executed_main_world": {
+    "message": "已在頁面主世界執行 JavaScript。",
+    "description": "background.js result message"
+  },
+  "bg_no_js_result": {
+    "message": "沒有取得 JavaScript 執行結果。",
+    "description": "background.js error"
+  },
+  "bg_invalid_ollama_sw_request": {
+    "message": "無效的 Ollama Cloud Service Worker 請求。",
+    "description": "background.js error"
+  },
+  "bg_disallowed_ollama_endpoint": {
+    "message": "不允許的 Ollama Cloud API 端點。",
+    "description": "background.js error"
+  },
+  "bg_ollama_key_empty": {
+    "message": "Ollama Cloud API Key 不可為空。",
+    "description": "background.js error"
+  },
+  "bg_ollama_body_invalid": {
+    "message": "Ollama Cloud 請求內容格式不正確。",
+    "description": "background.js error"
+  },
+  "bg_ollama_one_request_only": {
+    "message": "每個 Ollama Cloud 連線只能處理一個請求。",
+    "description": "background.js error"
+  },
+  "bg_no_tab_found": {
+    "message": "找不到目前頁籤，無法執行 JavaScript。",
+    "description": "background.js error"
+  },
+  "bg_code_param_empty": {
+    "message": "code 參數不可為空。",
+    "description": "background.js error"
+  },
+  "bg_main_world_js_failed": {
+    "message": "主世界 JavaScript 執行失敗。",
+    "description": "background.js error"
+  },
+  "bg_ollama_sw_disallowed_origin": {
+    "message": "Ollama Cloud Service Worker 不允許呼叫其他網域。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_disallowed_endpoint": {
+    "message": "Ollama Cloud Service Worker 不允許呼叫這個 API 端點。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_failed": {
+    "message": "Ollama Cloud Service Worker 請求失敗。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_post_only": {
+    "message": "Ollama Cloud Service Worker 僅允許 POST 請求。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_invalid_json": {
+    "message": "Ollama Cloud 請求內容不是有效的 JSON。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_dup_response": {
+    "message": "Ollama Cloud Service Worker 重複回傳回應資訊。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_invalid_http_status": {
+    "message": "Ollama Cloud Service Worker 回傳了無效的 HTTP 狀態。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_no_response": {
+    "message": "Ollama Cloud Service Worker 尚未提供回應資訊。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_no_http_response": {
+    "message": "Ollama Cloud Service Worker 未提供 HTTP 回應。",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_disconnected": {
+    "message": "Ollama Cloud Service Worker 連線已中斷。",
+    "description": "content.js error (ollama SW)"
+  },
+  "content_loading": {
+    "message": "載入中",
+    "description": "loading model state label"
+  },
+  "content_model_not_set": {
+    "message": "，尚未設定模型",
+    "description": "model not set suffix in placeholder"
+  },
+  "content_model_not_set_short": {
+    "message": "尚未設定模型",
+    "description": "model not set short label"
+  },
+  "content_shift_enter_hint": {
+    "message": "Shift+Enter 可換行",
+    "description": "input hint"
+  },
+  "content_input_placeholder_active": {
+    "message": "正在使用 $provider$$modeltext$ 回答您的提問 ($hint$)",
+    "description": "input placeholder when active",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "modeltext": {
+        "content": "$2",
+        "example": " (gemini-2.0-flash)"
+      },
+      "hint": {
+        "content": "$3",
+        "example": "Shift+Enter for newline"
+      }
+    }
+  },
+  "content_provider_model_display": {
+    "message": "$provider$ · $model$",
+    "description": "provider display with model",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "model": {
+        "content": "$2",
+        "example": "gemini-2.0-flash"
+      }
+    }
+  },
+  "content_provider_model_unset": {
+    "message": "$provider$ · 尚未設定模型",
+    "description": "provider display without model",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "content_screenshot_mode_label": {
+    "message": "截圖模式",
+    "description": "toggle label"
+  },
+  "content_screenshot_active_text": {
+    "message": "截圖",
+    "description": "toggle active text"
+  },
+  "content_screenshot_inactive_text": {
+    "message": "截圖",
+    "description": "toggle inactive text"
+  },
+  "content_screenshot_active_state": {
+    "message": "含截圖",
+    "description": "toggle active state label"
+  },
+  "content_screenshot_inactive_state": {
+    "message": "無截圖",
+    "description": "toggle inactive state label"
+  },
+  "content_mode_switch_label": {
+    "message": "模式切換",
+    "description": "toggle label"
+  },
+  "content_mode_switch_active_text": {
+    "message": "代理",
+    "description": "toggle active text"
+  },
+  "content_mode_switch_inactive_text": {
+    "message": "詢問",
+    "description": "toggle inactive text"
+  },
+  "content_dialog_drag_hint": {
+    "message": "拖曳標題列可移動對話框",
+    "description": "dialog drag title"
+  },
+  "content_brand_name": {
+    "message": "頁問",
+    "description": "brand name in dialog header"
+  },
+  "content_toggle_title": {
+    "message": "$label$：目前為$current$，點擊切換為$next$",
+    "description": "toggle button title",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Screenshot Mode"
+      },
+      "current": {
+        "content": "$2",
+        "example": "No Screenshot"
+      },
+      "next": {
+        "content": "$3",
+        "example": "With Screenshot"
+      }
+    }
+  },
+  "content_ai_provider_btn": {
+    "message": "AI 提供者",
+    "description": "switch provider button text/title/aria"
+  },
+  "content_options_btn": {
+    "message": "開啟選項",
+    "description": "options button title/aria"
+  },
+  "err_open_options_failed": {
+    "message": "❌ **無法開啟選項畫面**\\n\\n請稍後再試一次。",
+    "description": "error when opening options fails"
+  },
+  "err_open_settings_failed": {
+    "message": "❌ **無法開啟偏好設定**\\n\\n請稍後再試一次。",
+    "description": "error when opening settings fails"
+  },
+  "content_input_placeholder": {
+    "message": "輸入問題後按 Enter；也可貼上或拖曳最多 4 張圖片作為上下文",
+    "description": "input placeholder"
+  },
+  "content_image_strip_title": {
+    "message": "圖片上下文（可透過 Ctrl+V 或拖曳貼上參考圖片）",
+    "description": "image strip title"
+  },
+  "content_image_strip_title_full": {
+    "message": "圖片上下文（可上傳、貼上、拖曳，或標注目前畫面）",
+    "description": "image strip title (full)"
+  },
+  "content_image_meta": {
+    "message": "支援 PNG / JPG / WebP 等圖片，單檔大小上限 10MB",
+    "description": "image meta text"
+  },
+  "content_image_meta_count": {
+    "message": "支援 PNG / JPG / WebP 等圖片，單檔大小上限 10MB · $current$/$max$",
+    "description": "image meta with count",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "2"
+      },
+      "max": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "content_upload_image": {
+    "message": "上傳圖片",
+    "description": "upload image button text"
+  },
+  "content_upload_image_title": {
+    "message": "選取圖片並加入本次提問上下文",
+    "description": "upload image button title"
+  },
+  "content_upload_image_aria": {
+    "message": "上傳圖片並加入圖片上下文",
+    "description": "upload image button aria"
+  },
+  "content_annotate_screen": {
+    "message": "標注畫面",
+    "description": "annotate screen button text"
+  },
+  "content_annotate_screen_title": {
+    "message": "暫時隱藏對話框，選取或標注目前畫面後加入圖片上下文",
+    "description": "annotate screen button title"
+  },
+  "content_annotate_screen_aria": {
+    "message": "標注畫面並加入圖片上下文",
+    "description": "annotate screen button aria"
+  },
+  "content_ask_button": {
+    "message": "問",
+    "description": "single-char ask button glyph"
+  },
+  "content_ask_button_aria": {
+    "message": "送出提問",
+    "description": "ask button aria-label"
+  },
+  "cmd_clear_desc": {
+    "message": "清除提問歷史紀錄",
+    "description": "/clear command description"
+  },
+  "cmd_summary_desc": {
+    "message": "總結本頁內容",
+    "description": "/summary command description"
+  },
+  "cmd_screenshot_desc": {
+    "message": "切換截圖功能狀態",
+    "description": "/screenshot command description"
+  },
+  "cmd_screenshot_disable": {
+    "message": "停用截圖功能",
+    "description": "/screenshot desc when enabled"
+  },
+  "cmd_screenshot_enable": {
+    "message": "啟用截圖功能",
+    "description": "/screenshot desc when disabled"
+  },
+  "cmd_agent_desc": {
+    "message": "切換詢問 / 代理模式（代理模式會使用頁面 HTML 與工具調用）",
+    "description": "/agent command description"
+  },
+  "cmd_agent_switch_to_ask": {
+    "message": "切換為詢問模式（只做內容問答）",
+    "description": "/agent desc when agent mode active"
+  },
+  "cmd_agent_switch_to_agent": {
+    "message": "切換為代理模式（允許工具調用）",
+    "description": "/agent desc when ask mode active"
+  },
+  "cmd_custom_desc": {
+    "message": "自訂命令",
+    "description": "custom command desc fallback"
+  },
+  "cmd_usage_builtin_commands_title": {
+    "message": "內建命令",
+    "description": "usage panel subtitle"
+  },
+  "cmd_usage_clear_detail": {
+    "message": "清除歷史紀錄（Ctrl+L）",
+    "description": "usage /clear detail"
+  },
+  "cmd_usage_summary_detail": {
+    "message": "總結整個頁面",
+    "description": "usage /summary detail"
+  },
+  "cmd_custom_count_label": {
+    "message": "自訂命令 ($count$)",
+    "description": "usage custom commands count",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "cmd_custom_count_aria": {
+    "message": "開啟偏好設定查看所有自訂命令",
+    "description": "custom command count link title/aria"
+  },
+  "cmd_custom_plain": {
+    "message": "自訂命令",
+    "description": "usage custom commands plain"
+  },
+  "usage_built_in_help": {
+    "message": "**內建斜線命令：**\\n- /clear - 清除歷史紀錄（也可按 Ctrl+L）\\n- /summary - 總結整個頁面",
+    "description": "help text for built-in commands"
+  },
+  "usage_screenshot_enabled": {
+    "message": "📸 **截圖模式目前為啟用狀態**\\n系統會在提問時會自動附帶目前可視範圍的截圖作為輔助分析。",
+    "description": "usage screenshot enabled notice"
+  },
+  "usage_screenshot_disabled": {
+    "message": "📝 **截圖模式目前為停用狀態**\\n頁問只會對目前網頁的文字內容進行分析，不會自動附帶截圖。",
+    "description": "usage screenshot disabled notice"
+  },
+  "usage_agent_enabled": {
+    "message": "🤖 **代理模式目前為啟用狀態**\\n系統會使用多步驟代理的工具調用能力來分析與操作目前頁面。",
+    "description": "usage agent enabled notice"
+  },
+  "usage_inquiry_enabled": {
+    "message": "💬 **詢問模式目前為啟用狀態**\\n系統只會根據頁面內容回答問題，不會呼叫頁面工具。",
+    "description": "usage inquiry enabled notice"
+  },
+  "usage_screenshot_status_on": {
+    "message": "截圖：啟用",
+    "description": "status line"
+  },
+  "usage_screenshot_status_off": {
+    "message": "截圖：停用",
+    "description": "status line"
+  },
+  "usage_screenshot_on_desc": {
+    "message": "提問時自動附帶目前可視範圍截圖。",
+    "description": "status desc"
+  },
+  "usage_screenshot_off_desc": {
+    "message": "只分析網頁文字，不自動附帶截圖。",
+    "description": "status desc"
+  },
+  "usage_agent_status_on": {
+    "message": "代理：啟用",
+    "description": "status line"
+  },
+  "usage_inquiry_status_on": {
+    "message": "詢問：啟用",
+    "description": "status line"
+  },
+  "usage_agent_on_desc": {
+    "message": "可用多步驟工具呼叫分析與操作目前頁面。",
+    "description": "status desc"
+  },
+  "usage_inquiry_on_desc": {
+    "message": "根據頁面內容回答，不呼叫頁面工具。",
+    "description": "status desc"
+  },
+  "usage_selected_detected_title": {
+    "message": "已偵測到選取文字",
+    "description": "usage title when text selected"
+  },
+  "usage_hint_title": {
+    "message": "使用提示",
+    "description": "usage title default"
+  },
+  "usage_selected_context": {
+    "message": "將以選取文字作為主要分析對象。<span class=\"askpage-usage-count\">$count$ 字元</span>",
+    "description": "usage selected context",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "usage_no_selection_hint": {
+    "message": "直接提問目前頁面，或先選取文字範圍再提問。",
+    "description": "usage hint when no selection"
+  },
+  "usage_custom_commands_header": {
+    "message": "\\n\\n**您的自訂命令：**\\n",
+    "description": "custom commands header in usage text"
+  },
+  "usage_detected_text_banner": {
+    "message": "🎯 **已偵測到選取文字** ($count$ 字元)\\n\\n您可以直接提問，系統將以選取的文字作為分析對象。\\n\\n**選取內容：**\\n$selected$$notice$\\n\\n💡 $builtin$$custom$",
+    "description": "detected text banner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      },
+      "selected": {
+        "content": "$2",
+        "example": "selected text..."
+      },
+      "notice": {
+        "content": "$3",
+        "example": ""
+      },
+      "builtin": {
+        "content": "$4",
+        "example": "**Built-in..."
+      },
+      "custom": {
+        "content": "$5",
+        "example": ""
+      }
+    }
+  },
+  "usage_tip_banner": {
+    "message": "💡 **使用提示:**\\n\\n您可以直接提問關於此頁面的問題，或先選取頁面上的文字範圍後再提問。$notice$\\n\\n$builtin$$custom$",
+    "description": "usage tip banner",
+    "placeholders": {
+      "notice": {
+        "content": "$1",
+        "example": ""
+      },
+      "builtin": {
+        "content": "$2",
+        "example": "**Built-in..."
+      },
+      "custom": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_unknown_command": {
+    "message": "❌ **未知命令: $cmd$**\\n\\n可用的命令：\\n- `/clear` - 清除歷史紀錄\\n- `/summary` - 總結整個頁面\\n- `/screenshot` - 切換截圖功能\\n- `/agent` - 切換詢問/代理模式\\n\\n您也可以在設定中新增自訂命令。",
+    "description": "unknown command error",
+    "placeholders": {
+      "cmd": {
+        "content": "$1",
+        "example": "/foo"
+      }
+    }
+  },
+  "cmd_summary_default_prompt": {
+    "message": "請幫我總結這篇文章，並以 Markdown 格式輸出，內容包含「標題」、「重點摘要」、「總結」",
+    "description": "default prompt sent to LLM for /summary"
+  },
+  "content_screenshot_feature": {
+    "message": "截圖功能",
+    "description": "screenshot feature label"
+  },
+  "content_screenshot_failed_log": {
+    "message": "[AskPage] 截圖失敗: $err$",
+    "description": "console error",
+    "placeholders": {
+      "err": {
+        "content": "$1",
+        "example": "Permission denied"
+      }
+    }
+  },
+  "content_annotation_aria": {
+    "message": "AskPage 畫面標注模式",
+    "description": "overlay aria-label for annotation mode"
+  },
+  "content_annotation_panel_text": {
+    "message": "移動滑鼠可框選 DOM 元素；點擊選取。按住左鍵拖曳時只會畫線，不會選取 DOM。",
+    "description": "annotation panel instructions"
+  },
+  "code_copy_button": {
+    "message": "📋 複製程式碼",
+    "description": "code block copy button title"
+  },
+  "code_copy_to_clipboard": {
+    "message": "複製到剪貼簿",
+    "description": "copy button title"
+  },
+  "code_collapse": {
+    "message": "收合",
+    "description": "collapse toggle text"
+  },
+  "code_expand": {
+    "message": "展開",
+    "description": "expand toggle text"
+  },
+  "code_streaming_status": {
+    "message": "正在生成中...",
+    "description": "CSS pseudo-element content shown on a code block while the AI response is streaming"
+  },
+  "code_collapse_code": {
+    "message": "收合程式碼",
+    "description": "collapse code title"
+  },
+  "code_expand_full": {
+    "message": "展開完整程式碼",
+    "description": "expand full code title"
+  },
+  "code_expand_all": {
+    "message": "展開全部",
+    "description": "expand all toggle text"
+  },
+  "code_open_in_codepen": {
+    "message": "在 CodePen 開啟",
+    "description": "codepen button title"
+  },
+  "code_opened": {
+    "message": "已開啟",
+    "description": "codepen opened state"
+  },
+  "code_open_failed": {
+    "message": "失敗",
+    "description": "codepen open failed state"
+  },
+  "code_copy_failed_log": {
+    "message": "複製失敗: $err$",
+    "description": "console error",
+    "placeholders": {
+      "err": {
+        "content": "$1",
+        "example": "NotAllowedError"
+      }
+    }
+  },
+  "code_lang_plaintext": {
+    "message": "純文字",
+    "description": "plaintext language label"
+  },
+  "code_lang_code": {
+    "message": "程式碼",
+    "description": "default code label"
+  },
+  "code_lang_auto_detected": {
+    "message": "自動判斷：$label$",
+    "description": "auto-detected language label",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "JavaScript"
+      }
+    }
+  },
+  "token_usage_cached": {
+    "message": "快取 $n$",
+    "description": "cached input tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "1000"
+      }
+    }
+  },
+  "token_usage_cache_write": {
+    "message": "快取寫入 $n$",
+    "description": "cache creation tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
+  "token_usage_input_label": {
+    "message": "輸入",
+    "description": "token usage input label"
+  },
+  "token_usage_input_line": {
+    "message": "- 輸入：$extras$",
+    "description": "token usage input line",
+    "placeholders": {
+      "extras": {
+        "content": "$1",
+        "example": "1000、cached 500"
+      }
+    }
+  },
+  "token_usage_reasoning": {
+    "message": "推理 $n$",
+    "description": "reasoning tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "token_usage_accepted_prediction": {
+    "message": "已接受預測 $n$",
+    "description": "accepted prediction tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "token_usage_rejected_prediction": {
+    "message": "已否決預測 $n$",
+    "description": "rejected prediction tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "token_usage_output_label": {
+    "message": "輸出",
+    "description": "token usage output label"
+  },
+  "token_usage_output_line": {
+    "message": "- 輸出：$extras$",
+    "description": "token usage output line",
+    "placeholders": {
+      "extras": {
+        "content": "$1",
+        "example": "500、reasoning 200"
+      }
+    }
+  },
+  "token_usage_tool_input_label": {
+    "message": "工具輸入",
+    "description": "token usage tool input label"
+  },
+  "token_usage_total_label": {
+    "message": "總計",
+    "description": "token usage total label"
+  },
+  "token_usage_summary_header": {
+    "message": "Token 用量統計：",
+    "description": "token usage summary header"
+  },
+  "image_preview_title_default": {
+    "message": "圖片預覽 - AskPage",
+    "description": "default image preview title"
+  },
+  "image_preview_heading_default": {
+    "message": "圖片預覽",
+    "description": "default image preview heading"
+  },
+  "image_preview_alt_default": {
+    "message": "AskPage 圖片預覽",
+    "description": "default image preview alt"
+  },
+  "image_preview_size_meta": {
+    "message": "圖片大小：約 $size$ KB",
+    "description": "image preview size meta",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "image_strip_remove_aria": {
+    "message": "移除第 $index$ 張圖片",
+    "description": "remove image button aria/title",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_strip_open_full_aria": {
+    "message": "點擊開啟第 $index$ 張完整圖片",
+    "description": "image link title",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_strip_open_full_aria_open": {
+    "message": "開啟第 $index$ 張完整圖片",
+    "description": "image link aria",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_preview_title_indexed": {
+    "message": "圖片預覽 $index$ - AskPage",
+    "description": "indexed image preview title",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_preview_heading_indexed": {
+    "message": "圖片預覽 $index$",
+    "description": "indexed image preview heading",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_preview_alt_indexed": {
+    "message": "AskPage 提問圖片 $index$",
+    "description": "indexed image preview alt",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_strip_alt_indexed": {
+    "message": "提問圖片 $index$",
+    "description": "image alt text",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "err_image_too_large": {
+    "message": "圖片檔案超過 10MB 上限。",
+    "description": "error"
+  },
+  "err_image_invalid_content": {
+    "message": "讀取到的檔案內容不是有效圖片。",
+    "description": "error"
+  },
+  "err_image_read_failed": {
+    "message": "無法讀取圖片內容。",
+    "description": "error"
+  },
+  "err_drag_image_fetch_failed": {
+    "message": "無法讀取拖曳圖片（$status$ $statusText$）。",
+    "description": "error",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "404"
+      },
+      "statusText": {
+        "content": "$2",
+        "example": "Not Found"
+      }
+    }
+  },
+  "err_drag_not_image": {
+    "message": "拖曳內容不是圖片。",
+    "description": "error"
+  },
+  "notice_no_images_detected": {
+    "message": "沒有偵測到可加入的圖片。",
+    "description": "image notice warning"
+  },
+  "notice_images_already_added": {
+    "message": "這些圖片已經加入目前提問。",
+    "description": "image notice info"
+  },
+  "notice_max_images": {
+    "message": "最多只能附加 $max$ 張圖片。",
+    "description": "image notice warning",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "notice_max_images_partial": {
+    "message": "最多只能附加 $max$ 張圖片，已加入前 $count$ 張。",
+    "description": "image notice warning",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "4"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "notice_images_added_ready": {
+    "message": "已加入 $count$ 張圖片，可直接送出給模型。",
+    "description": "image notice info",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "notice_enable_screenshot_first": {
+    "message": "請先啟用截圖功能，才能標注目前畫面。",
+    "description": "image notice warning"
+  },
+  "notice_annotation_started": {
+    "message": "標注模式已啟動：點擊頁面元素，或按住左鍵拖曳畫線。",
+    "description": "image notice info"
+  },
+  "notice_annotation_cancelled": {
+    "message": "已取消或未取得標注畫面，未加入圖片上下文。",
+    "description": "image notice info"
+  },
+  "notice_no_annotation_screenshot": {
+    "message": "沒有取得可加入的標注截圖。",
+    "description": "image notice emptyMessage"
+  },
+  "notice_annotation_added": {
+    "message": "已加入標注截圖；送出提示時不會再額外擷取一次畫面。",
+    "description": "image notice info"
+  },
+  "notice_choose_image_file": {
+    "message": "請選擇可用的圖片檔案。",
+    "description": "image notice warning"
+  },
+  "notice_switch_to_agent_first": {
+    "message": "請先切換到代理模式，才能手動附加圖片上下文。",
+    "description": "image notice warning"
+  },
+  "notice_no_image_files": {
+    "message": "沒有可加入的圖片檔案。",
+    "description": "image notice emptyMessage"
+  },
+  "notice_upload_failed": {
+    "message": "無法上傳圖片：$msg$",
+    "description": "image notice error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "notice_no_clipboard_images": {
+    "message": "剪貼簿裡沒有可用的圖片。",
+    "description": "image notice emptyMessage"
+  },
+  "notice_paste_failed": {
+    "message": "無法貼上圖片：$msg$",
+    "description": "image notice error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "notice_no_drag_images": {
+    "message": "拖曳內容中沒有可用的圖片。",
+    "description": "image notice emptyMessage"
+  },
+  "notice_drag_failed": {
+    "message": "無法加入拖曳圖片：$msg$",
+    "description": "image notice error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "msg_screenshot_enabled": {
+    "message": "📸 **截圖模式已啟用**",
+    "description": "screenshot toggle on"
+  },
+  "msg_screenshot_disabled": {
+    "message": "⭕ **截圖模式已停用**",
+    "description": "screenshot toggle off"
+  },
+  "msg_screenshot_testing_start": {
+    "message": "✅ **截圖功能已啟用**\\n\\n🔄 正在測試截圖功能...",
+    "description": "screenshot test start"
+  },
+  "msg_screenshot_test_success": {
+    "message": "📸 **截圖測試成功!**\\n\\n:**截圖資訊:**\\n- 📏 圖片大小: $size$ KB\\n- 🔗 格式: PNG (Base64)\\n- 📊 資料長度: $dataLen$ 字元\\n- 🎯 Base64 資料長度: $base64Len$ 字元\\n\\n**捕獲的截圖預覽:**",
+    "description": "screenshot test success detail",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "120"
+      },
+      "dataLen": {
+        "content": "$2",
+        "example": "100000"
+      },
+      "base64Len": {
+        "content": "$3",
+        "example": "90000"
+      }
+    }
+  },
+  "msg_screenshot_enabled_ready": {
+    "message": "✨ **截圖功能已啟用!** 您現在提問時，系統會自動包含截圖進行分析。此設定會記憶到下次重新載入頁面。",
+    "description": "screenshot enabled ready"
+  },
+  "msg_screenshot_test_failed": {
+    "message": "❌ **截圖測試失敗**\\n\\n截圖功能已啟用，但截圖捕獲失敗。請檢查瀏覽器權限設定。",
+    "description": "screenshot test failed"
+  },
+  "msg_screenshot_disabled_notice": {
+    "message": "⭕ **截圖功能已停用**\\n\\n系統將不再自動捕獲截圖。您的提問將僅使用文字內容進行分析。此設定會記憶到下次重新載入頁面。",
+    "description": "screenshot disabled notice"
+  },
+  "msg_agent_mode_enabled": {
+    "message": "🤖 **代理模式已啟用**",
+    "description": "agent toggle on"
+  },
+  "msg_inquiry_mode_enabled": {
+    "message": "💬 **詢問模式已啟用**",
+    "description": "inquiry toggle on"
+  },
+  "msg_agent_enabled_notice": {
+    "message": "✅ **代理模式已啟用**\\n\\n目前已切換為代理模式。系統會使用頁面 HTML 與工具調用能力來分析與操作目前頁面，此設定會保留到重新載入後。",
+    "description": "agent enabled notice"
+  },
+  "msg_inquiry_enabled_notice": {
+    "message": "💬 **詢問模式已啟用**\\n\\n目前已切換為詢問模式。系統只會根據頁面內容回答問題，不會呼叫頁面工具，手動附加的圖片上下文也會一併停用，此設定會保留到重新載入後。",
+    "description": "inquiry enabled notice"
+  },
+  "screenshot_preview_title": {
+    "message": "截圖預覽 - AskPage",
+    "description": "screenshot preview title"
+  },
+  "screenshot_preview_heading": {
+    "message": "截圖預覽",
+    "description": "screenshot preview heading"
+  },
+  "screenshot_preview_alt": {
+    "message": "AskPage 截圖預覽",
+    "description": "screenshot preview alt"
+  },
+  "screenshot_open_full_title": {
+    "message": "點擊開啟完整截圖",
+    "description": "screenshot link title"
+  },
+  "screenshot_open_full_aria": {
+    "message": "開啟提問當下的完整截圖",
+    "description": "screenshot link aria"
+  },
+  "screenshot_image_alt": {
+    "message": "提問當下的畫面截圖",
+    "description": "screenshot image alt"
+  },
+  "screenshot_view_original_title": {
+    "message": "點擊查看原始大小",
+    "description": "screenshot image title"
+  },
+  "screenshot_size_info_loading": {
+    "message": "📊 尺寸資訊: $w$×$h$ | 檔案大小: $kb$ KB",
+    "description": "screenshot size info (loading)",
+    "placeholders": {
+      "w": {
+        "content": "$1",
+        "example": "Loading..."
+      },
+      "h": {
+        "content": "$2",
+        "example": "Loading..."
+      },
+      "kb": {
+        "content": "$3",
+        "example": "120"
+      }
+    }
+  },
+  "screenshot_copy_base64_title": {
+    "message": "複製截圖 Base64 資料",
+    "description": "copy screenshot button title"
+  },
+  "content_user_preview_label": {
+    "message": "你: $text$",
+    "description": "user message preview label",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "what is this page?"
+      }
+    }
+  },
+  "status_tool_selected": {
+    "message": "已選擇工具",
+    "description": "agent status: tool selected"
+  },
+  "status_executing_tool": {
+    "message": "正在執行工具",
+    "description": "agent status: executing tool"
+  },
+  "status_tool_executed": {
+    "message": "已執行工具",
+    "description": "agent status: tool executed"
+  },
+  "status_capturing_context": {
+    "message": "正在擷取畫面與整理頁面上下文",
+    "description": "agent status"
+  },
+  "status_organizing_context": {
+    "message": "正在整理頁面上下文",
+    "description": "agent status"
+  },
+  "status_organizing_image_context": {
+    "message": "正在整理圖片與頁面上下文...",
+    "description": "agent status with images"
+  },
+  "status_planning_task": {
+    "message": "規劃任務",
+    "description": "agent status: planning"
+  },
+  "status_endpoint_no_tool_calling": {
+    "message": "端點不支援 tool calling",
+    "description": "agent status"
+  },
+  "status_ask_plan_task": {
+    "message": "正在請 $provider$ 規劃任務...",
+    "description": "agent status",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_ask_analyze_page": {
+    "message": "正在請 $provider$ 分析頁面並回答問題...",
+    "description": "agent status",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_got_final_reply": {
+    "message": "已取得最終回覆，正在整理答案...",
+    "description": "agent status"
+  },
+  "status_empty_output_limit": {
+    "message": "$provider$ 回傳內容為空且疑似達到輸出上限，正在放寬輸出限制後自動重試一次...",
+    "description": "agent status: empty output limit",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_empty_output_retry": {
+    "message": "$provider$ 回傳內容為空，正在自動重試一次...",
+    "description": "agent status: empty output retry",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_will_retry_after": {
+    "message": "$provider$ $reason$，將在 $delay$ 後重試（$retry$/$max$）...",
+    "description": "agent retry status",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "reason": {
+        "content": "$2",
+        "example": "Service busy"
+      },
+      "delay": {
+        "content": "$3",
+        "example": "2 sec"
+      },
+      "retry": {
+        "content": "$4",
+        "example": "1"
+      },
+      "max": {
+        "content": "$5",
+        "example": "3"
+      }
+    }
+  },
+  "status_provider_no_tool_calling_fallback": {
+    "message": "$provider$ 端點不支援 tool calling，正在退回一般文字模式...",
+    "description": "agent status: fallback",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "OpenRouter"
+      }
+    }
+  },
+  "status_provider_selected_tools": {
+    "message": "$provider$ 已選擇工具 $tools$，準備執行...",
+    "description": "agent status: tools selected",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "tools": {
+        "content": "$2",
+        "example": "get_page_metadata"
+      }
+    }
+  },
+  "status_executing_tool_indexed": {
+    "message": "正在執行工具 $tool$ ($index$/$total$)...",
+    "description": "agent status: executing tool indexed",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "total": {
+        "content": "$3",
+        "example": "2"
+      }
+    }
+  },
+  "status_tool_executed_handoff": {
+    "message": "已執行工具 $tools$，正在把結果交回 $provider$...",
+    "description": "agent status: tool handoff",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "get_page_metadata"
+      },
+      "provider": {
+        "content": "$2",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_tool_executed_handoff_gemini": {
+    "message": "已執行工具 $tools$，正在把結果交回 Gemini...",
+    "description": "gemini agent status: tool handoff",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "get_page_metadata"
+      }
+    }
+  },
+  "err_tool_round_limit": {
+    "message": "工具呼叫輪數已達上限，已中止以避免無限循環。",
+    "description": "agent error"
+  },
+  "err_gemini_tool_round_limit": {
+    "message": "Gemini 工具呼叫輪數已達上限，已中止以避免無限循環。",
+    "description": "gemini agent error"
+  },
+  "trace_capture_context": {
+    "message": "我先擷取目前畫面，再整理頁面上下文。",
+    "description": "trace badge"
+  },
+  "trace_organize_context": {
+    "message": "我先整理一下頁面上下文。",
+    "description": "trace badge"
+  },
+  "trace_planning": {
+    "message": "正在分析需求與頁面狀態。",
+    "description": "trace badge"
+  },
+  "trace_no_tool_calling": {
+    "message": "這個端點不支援 tool calling，我改用一般文字模式繼續。",
+    "description": "trace badge"
+  },
+  "trace_empty_output_limit": {
+    "message": "這次回應在輸出上限前就被截斷了，我會放寬輸出額度再試一次。",
+    "description": "trace badge"
+  },
+  "trace_empty_output": {
+    "message": "這次沒有拿到可顯示內容，我再試一次。",
+    "description": "trace badge"
+  },
+  "trace_unstable_retry": {
+    "message": "服務暫時不穩定，我會稍候自動重試。",
+    "description": "trace badge"
+  },
+  "trace_executing_tool_text": {
+    "message": "🛠️ 正在執行 $tool$",
+    "description": "tool call trace text",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "trace_tool_result_text": {
+    "message": "📥 $tool$ 已回傳$success$。$summary$\\n\\n$payload$",
+    "description": "tool result trace text",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      },
+      "success": {
+        "content": "$2",
+        "example": ""
+      },
+      "summary": {
+        "content": "$3",
+        "example": ""
+      },
+      "payload": {
+        "content": "$4",
+        "example": "{...}"
+      }
+    }
+  },
+  "trace_result_failed_suffix": {
+    "message": "（失敗）",
+    "description": "tool result failed suffix"
+  },
+  "trace_result_summary_label": {
+    "message": "結果摘要：",
+    "description": "result summary label"
+  },
+  "trace_tool_returned": {
+    "message": "$tool$ 已回傳",
+    "description": "tool returned summary",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "agent_elapsed_label": {
+    "message": "費時：$duration$",
+    "description": "elapsed duration label",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "12.3s"
+      }
+    }
+  },
+  "agent_finished": {
+    "message": "頁問已經打完收工，共執行 $count$ 個步驟，$duration$",
+    "description": "agent finished - content.js:5248 (chrome.i18n.getMessage does not parse ICU; plain $count$ form)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "費時：12.3s"
+      }
+    }
+  },
+  "agent_stopped_early": {
+    "message": "頁問提早收工，共執行 $count$ 個步驟，$duration$",
+    "description": "agent stopped early - content.js:5249 (chrome.i18n.getMessage does not parse ICU; plain $count$ form)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "費時：12.3s"
+      }
+    }
+  },
+  "err_request_timeout_short": {
+    "message": "請求逾時",
+    "description": "error short reason"
+  },
+  "err_request_timeout": {
+    "message": "$provider$ 請求逾時，可能是服務忙碌或網路不穩。",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_retry_suffix": {
+    "message": "$msg$ 已重試 $count$ 次仍失敗。",
+    "description": "retry suffix",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Request timed out."
+      },
+      "count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "err_network_error_short": {
+    "message": "網路連線異常",
+    "description": "error short reason"
+  },
+  "err_network_error": {
+    "message": "無法連線到 $provider$ 服務，可能是網路不穩或服務暫時無回應。",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_response_format_short": {
+    "message": "回應格式異常",
+    "description": "error short reason"
+  },
+  "err_response_format": {
+    "message": "$provider$ 回傳了無法解析的資料，可能是服務暫時異常。",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_auth_failed_short": {
+    "message": "驗證失敗",
+    "description": "error short reason"
+  },
+  "err_insufficient_permissions_short": {
+    "message": "權限不足",
+    "description": "error short reason"
+  },
+  "err_insufficient_permissions": {
+    "message": "$provider$ 拒絕了這次請求，請檢查 API 權限或模型存取設定。",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_resource_not_found_short": {
+    "message": "找不到資源",
+    "description": "error short reason"
+  },
+  "err_resource_not_found": {
+    "message": "$provider$ 找不到指定的模型、端點或部署設定。",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_bad_request_short": {
+    "message": "請求格式錯誤",
+    "description": "error short reason"
+  },
+  "err_bad_request": {
+    "message": "$provider$ 拒絕了這次請求，可能是參數格式不正確。$apiMsg$",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "apiMsg": {
+        "content": "$2",
+        "example": " Invalid model"
+      }
+    }
+  },
+  "err_quota_exhausted_short": {
+    "message": "配額已用盡",
+    "description": "error short reason"
+  },
+  "err_quota_exhausted": {
+    "message": "$provider$ 額度或用量限制已達上限$suffix$。可能是上下文超出現有模型的 Context Window 限制或允許的 TPM (Token per minute) 上限。有些免費模型允許的 TPM 較小，例如 gemma-4-26b-a4b-it 的 TPM 就只有 16K 而已，所以執行「代理」模式比較容易超出限制，請更換模型或使用「詢問」模式減少輸入內容。錯誤訊息:\\n$apiMsg$",
+    "description": "error user message (quota)",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "suffix": {
+        "content": "$2",
+        "example": ""
+      },
+      "apiMsg": {
+        "content": "$3",
+        "example": " Quota exceeded"
+      }
+    }
+  },
+  "err_service_busy_short": {
+    "message": "服務忙碌或請求過多",
+    "description": "error short reason"
+  },
+  "err_service_busy": {
+    "message": "$provider$ 服務目前忙碌或請求頻率過高$suffix$。$apiMsg$",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "suffix": {
+        "content": "$2",
+        "example": ""
+      },
+      "apiMsg": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_service_unavailable_short": {
+    "message": "服務暫時異常",
+    "description": "error short reason"
+  },
+  "err_service_unavailable": {
+    "message": "$provider$ 服務暫時異常$suffix$。$apiMsg$",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "suffix": {
+        "content": "$2",
+        "example": ""
+      },
+      "apiMsg": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_request_failed_short": {
+    "message": "請求失敗",
+    "description": "error short reason"
+  },
+  "err_unknown_error_short": {
+    "message": "未知錯誤",
+    "description": "error short reason"
+  },
+  "err_unknown_error": {
+    "message": "$provider$ API 呼叫失敗，原因不明。",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_stream_unsupported": {
+    "message": "此瀏覽器不支援讀取串流回應。",
+    "description": "stream error"
+  },
+  "err_stream_parse_failed": {
+    "message": "$provider$ 回傳了無法解析的串流資料：$data$",
+    "description": "stream parse error",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "data": {
+        "content": "$2",
+        "example": "..."
+      }
+    }
+  },
+  "err_stream_api_error": {
+    "message": "API 串流錯誤：$msg$",
+    "description": "stream api error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Internal error"
+      }
+    }
+  },
+  "err_api_reported_error": {
+    "message": "API 回報錯誤：$msg$",
+    "description": "api reported error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Internal error"
+      }
+    }
+  },
+  "resp_refused": {
+    "message": "$provider$ 拒絕回應這次請求：$refusal$",
+    "description": "provider response refused",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "refusal": {
+        "content": "$2",
+        "example": "I can't help with that."
+      }
+    }
+  },
+  "resp_output_limit": {
+    "message": "$provider$ 已達輸出長度上限，請縮小問題範圍後再試。",
+    "description": "provider response output limit",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_content_filtered": {
+    "message": "$provider$ 因內容過濾而未回傳文字內容，請調整提問內容後再試。",
+    "description": "provider response filtered",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_tool_call_no_text": {
+    "message": "$provider$ 回傳了工具呼叫狀態，但沒有提供可顯示的文字內容。",
+    "description": "provider response tool call no text",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_function_call_no_text": {
+    "message": "$provider$ 回傳了函式呼叫狀態，但沒有提供可顯示的文字內容。",
+    "description": "provider response function call no text",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_not_displayable_retry": {
+    "message": "$provider$ 已完成回應，但內容不是可顯示的文字。請再試一次，或縮小問題範圍。",
+    "description": "provider response not displayable",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_no_candidates": {
+    "message": "$provider$ 沒有回傳任何候選內容，可能是模型暫時沒有產生答案，請稍後再試。",
+    "description": "provider response no candidates",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_result_not_text": {
+    "message": "$provider$ 已回傳結果，但內容不是可顯示的文字。請再試一次，或縮小問題範圍。",
+    "description": "provider response result not text",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "gemini_safety_blocked": {
+    "message": "Gemini 因安全性限制而未處理這次請求$suffix$，請調整提問內容後再試。",
+    "description": "gemini safety blocked",
+    "placeholders": {
+      "suffix": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_blocked_term": {
+    "message": "Gemini 因請求內容包含封鎖詞而未處理這次請求，請調整提問內容後再試。",
+    "description": "gemini blocked term"
+  },
+  "gemini_prohibited_content": {
+    "message": "Gemini 判定這次請求屬於禁止內容，因此未回傳答案。",
+    "description": "gemini prohibited content"
+  },
+  "gemini_image_safety": {
+    "message": "Gemini 因圖片內容觸發安全性限制，因此未回傳答案。",
+    "description": "gemini image safety"
+  },
+  "gemini_not_processed": {
+    "message": "Gemini 沒有處理這次請求，請稍後再試。",
+    "description": "gemini not processed"
+  },
+  "gemini_output_limit": {
+    "message": "Gemini 已達輸出長度上限$finish$，請縮小問題範圍後再試。",
+    "description": "gemini output limit",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_safety_no_text": {
+    "message": "Gemini 因安全性限制而未回傳文字內容$suffix$，請調整提問內容後再試。",
+    "description": "gemini safety no text",
+    "placeholders": {
+      "suffix": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_citation_limit": {
+    "message": "Gemini 因引用內容限制而未回傳文字內容$finish$。",
+    "description": "gemini citation limit",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_language_limit": {
+    "message": "Gemini 因語言限制而未回傳文字內容$finish$，請改用繁體中文或英文後再試。",
+    "description": "gemini language limit",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_response_blocked_term": {
+    "message": "Gemini 因回應內容觸發封鎖詞限制而未回傳文字內容。",
+    "description": "gemini response blocked term"
+  },
+  "gemini_response_prohibited": {
+    "message": "Gemini 因回應內容觸發禁止內容限制而未回傳文字內容。",
+    "description": "gemini response prohibited"
+  },
+  "gemini_response_sensitive_pii": {
+    "message": "Gemini 因回應內容可能包含敏感個人資訊而未回傳文字內容。",
+    "description": "gemini response sensitive pii"
+  },
+  "gemini_invalid_tool_call": {
+    "message": "Gemini 回傳了格式不正確的工具呼叫$finish$，請再試一次。",
+    "description": "gemini invalid tool call",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_no_text": {
+    "message": "Gemini 沒有產生可顯示的文字內容$finish$，請稍後再試。",
+    "description": "gemini no text",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_no_candidates_blocked": {
+    "message": "Gemini 沒有回傳任何候選內容，可能是請求被系統攔下或模型暫時沒有產生答案。",
+    "description": "gemini no candidates blocked"
+  },
+  "gemini_result_not_text": {
+    "message": "Gemini 已回傳結果，但內容不是可顯示的文字$finish$。請再試一次，或縮小問題範圍。",
+    "description": "gemini result not text",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_empty_output_limit_retry": {
+    "message": "Gemini 回傳內容為空且疑似達到輸出上限，正在以模型最大輸出上限自動重試一次...",
+    "description": "gemini empty output limit retry"
+  },
+  "gemini_empty_output_retry": {
+    "message": "Gemini 回傳內容為空，正在自動重試一次...",
+    "description": "gemini empty output retry"
+  },
+  "err_setup_gemini_key": {
+    "message": "請點擊擴充功能圖示設定您的 Gemini API Key。",
+    "description": "api key missing"
+  },
+  "err_decrypt_gemini_key": {
+    "message": "無法解密 Gemini API Key，請重新設定。",
+    "description": "api key decrypt fail"
+  },
+  "err_setup_openai_key": {
+    "message": "請點擊擴充功能圖示設定您的 OpenAI API Key。",
+    "description": "api key missing"
+  },
+  "err_decrypt_openai_key": {
+    "message": "無法解密 OpenAI API Key，請重新設定。",
+    "description": "api key decrypt fail"
+  },
+  "err_setup_azure_key": {
+    "message": "請點擊擴充功能圖示設定您的 Azure OpenAI API Key。",
+    "description": "api key missing"
+  },
+  "err_setup_azure_endpoint": {
+    "message": "請點擊擴充功能圖示設定您的 Azure OpenAI Endpoint。",
+    "description": "endpoint missing"
+  },
+  "err_setup_azure_deployment": {
+    "message": "請點擊擴充功能圖示設定您的 Azure OpenAI Deployment Name。",
+    "description": "deployment missing"
+  },
+  "err_decrypt_azure_key": {
+    "message": "無法解密 Azure OpenAI API Key，請重新設定。",
+    "description": "api key decrypt fail"
+  },
+  "err_setup_anthropic_key": {
+    "message": "請點擊擴充功能圖示設定您的 Anthropic API Key。",
+    "description": "api key missing"
+  },
+  "err_decrypt_anthropic_key": {
+    "message": "無法解密 Anthropic API Key，請重新設定。",
+    "description": "api key decrypt fail"
+  },
+  "err_setup_provider": {
+    "message": "請點擊擴充功能圖示設定您的 AI 提供者。",
+    "description": "provider missing"
+  },
+  "err_gemini_invalid_key": {
+    "message": "無效的 Gemini API Key，請檢查您的 Gemini API Key 設定。",
+    "description": "gemini invalid key"
+  },
+  "err_gemini_permission": {
+    "message": "Gemini 拒絕了這次請求，請檢查 API 權限或模型存取設定。",
+    "description": "gemini permission"
+  },
+  "err_gemini_model_not_found": {
+    "message": "找不到指定的 Gemini 模型，請檢查模型設定。",
+    "description": "gemini model not found"
+  },
+  "err_gemini_busy": {
+    "message": "Gemini 服務目前忙碌或請求頻率過高，請稍後再試。",
+    "description": "gemini busy"
+  },
+  "err_gemini_unavailable": {
+    "message": "Gemini 服務暫時不可用，請稍後再試。",
+    "description": "gemini unavailable"
+  },
+  "err_openai_invalid_key": {
+    "message": "無效的 API Key，請檢查您的 OpenAI API Key 設定。",
+    "description": "openai invalid key"
+  },
+  "err_openai_permission": {
+    "message": "OpenAI 拒絕了這次請求，請檢查 API 權限或模型存取設定。",
+    "description": "openai permission"
+  },
+  "err_openai_model_not_found": {
+    "message": "找不到指定的 OpenAI 模型，請檢查模型設定。",
+    "description": "openai model not found"
+  },
+  "err_openai_rate_limit": {
+    "message": "API 請求頻率過高，請稍後再試。",
+    "description": "openai rate limit"
+  },
+  "err_openai_unavailable": {
+    "message": "OpenAI 服務暫時不可用，請稍後再試。",
+    "description": "openai unavailable"
+  },
+  "err_azure_invalid_key": {
+    "message": "無效的 API Key，請檢查您的 Azure OpenAI API Key 設定。",
+    "description": "azure invalid key"
+  },
+  "err_azure_permission": {
+    "message": "Azure OpenAI 拒絕了這次請求，請檢查 API 權限或模型存取設定。",
+    "description": "azure permission"
+  },
+  "err_azure_deployment_not_found": {
+    "message": "找不到指定的部署，請檢查您的 Endpoint 和 Deployment Name 設定。",
+    "description": "azure deployment not found"
+  },
+  "err_azure_unavailable": {
+    "message": "Azure OpenAI 服務暫時不可用，請稍後再試。",
+    "description": "azure unavailable"
+  },
+  "err_anthropic_invalid_key": {
+    "message": "無效的 API Key，請檢查您的 Anthropic API Key 設定。",
+    "description": "anthropic invalid key"
+  },
+  "err_anthropic_permission": {
+    "message": "Anthropic 拒絕了這次請求，請檢查權限或模型存取設定。",
+    "description": "anthropic permission"
+  },
+  "err_anthropic_model_not_found": {
+    "message": "找不到指定的 Anthropic 模型，請檢查模型設定。",
+    "description": "anthropic model not found"
+  },
+  "err_anthropic_unavailable": {
+    "message": "Anthropic 服務暫時不可用，請稍後再試。",
+    "description": "anthropic unavailable"
+  },
+  "err_generic_prefix": {
+    "message": "錯誤: $msg$",
+    "description": "generic error prefix",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Request failed."
+      }
+    }
+  },
+  "status_ask_gemini_plan": {
+    "message": "正在請 Gemini 規劃任務...",
+    "description": "gemini plan status"
+  },
+  "status_ask_gemini_analyze": {
+    "message": "正在請 Gemini 分析頁面並回答問題...",
+    "description": "gemini analyze status"
+  },
+  "status_gemini_got_final_reply": {
+    "message": "[AskPage] Gemini 已取得最終回覆，正在整理答案...",
+    "description": "gemini debug log"
+  },
+  "status_provider_got_final_reply": {
+    "message": "[AskPage] $provider$ 已取得最終回覆，正在整理答案...",
+    "description": "provider debug log",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "notice_endpoint_no_tool_calling": {
+    "message": "⚠️ **目前這個 $provider$ 端點未完整支援 tool calling**\\n\\n已自動改用一般文字模式，因此這次無法直接操作頁面 DOM 或表單。\\n\\n$answer$",
+    "description": "endpoint no tool calling fallback",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "OpenRouter"
+      },
+      "answer": {
+        "content": "$2",
+        "example": "..."
+      }
+    }
+  },
+  "notice_anthropic_no_tool_calling": {
+    "message": "⚠️ **目前 Anthropic 提供者未完整支援 agent 模式下的 tool calling**\\n\\n已自動改用一般文字模式，因此這次無法直接操作頁面 DOM 或表單。\\n\\n$answer$",
+    "description": "anthropic no tool calling fallback",
+    "placeholders": {
+      "answer": {
+        "content": "$1",
+        "example": "..."
+      }
+    }
+  },
+  "err_gpt56_responses_api_required": {
+    "message": "GPT-5.6 搭配 function tools 時必須使用 Responses API，無法使用 Chat Completions。",
+    "description": "GPT-5.6 error"
+  },
+  "tool_unknown_tool": {
+    "message": "未知工具：$name$",
+    "description": "tool execution error",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "foo"
+      }
+    }
+  },
+  "tool_unknown_tool_display": {
+    "message": "未知工具",
+    "description": "unknown tool display name"
+  },
+  "tool_exec_failed": {
+    "message": "工具 $name$ 執行失敗：$msg$",
+    "description": "tool execution error",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "run_js"
+      },
+      "msg": {
+        "content": "$2",
+        "example": "SyntaxError"
+      }
+    }
+  },
+  "tool_args_parse_failed": {
+    "message": "工具參數解析失敗：$err$",
+    "description": "tool args parse error",
+    "placeholders": {
+      "err": {
+        "content": "$1",
+        "example": "Unexpected token"
+      }
+    }
+  },
+  "tool_page_metadata_obtained": {
+    "message": "已取得頁面 metadata：$title$",
+    "description": "tool result",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Example Page"
+      }
+    }
+  },
+  "tool_selection_obtained": {
+    "message": "已取得選取範圍內容。",
+    "description": "tool result"
+  },
+  "tool_no_selection": {
+    "message": "目前沒有可用的選取範圍。",
+    "description": "tool result"
+  },
+  "tool_form_fields_found": {
+    "message": "已找到 $count$ 個表單欄位。",
+    "description": "tool result",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "tool_fields_param_empty": {
+    "message": "fields 參數至少要有一筆欄位指示。",
+    "description": "tool error"
+  },
+  "tool_field_not_found": {
+    "message": "找不到符合條件的欄位：$target$",
+    "description": "tool error",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#email"
+      }
+    }
+  },
+  "tool_field_disabled": {
+    "message": "欄位目前是 disabled，無法填寫：$target$",
+    "description": "tool error",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#email"
+      }
+    }
+  },
+  "tool_field_filled": {
+    "message": "已填寫 $target$",
+    "description": "tool result",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#email"
+      }
+    }
+  },
+  "tool_checkbox_toggled": {
+    "message": "已$action$ $target$",
+    "description": "checkbox toggle result",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "checked"
+      },
+      "target": {
+        "content": "$2",
+        "example": "#subscribe"
+      }
+    }
+  },
+  "tool_action_checked": {
+    "message": "勾選",
+    "description": "checkbox action checked"
+  },
+  "tool_action_unchecked": {
+    "message": "取消勾選",
+    "description": "checkbox action unchecked"
+  },
+  "tool_option_not_found": {
+    "message": "找不到可匹配的選項：$target$",
+    "description": "tool error",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#country"
+      }
+    }
+  },
+  "tool_option_selected": {
+    "message": "已選取 $text$",
+    "description": "tool result",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "Taiwan"
+      }
+    }
+  },
+  "tool_radio_not_found": {
+    "message": "找不到可匹配的 radio 選項：$target$",
+    "description": "tool error",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#gender"
+      }
+    }
+  },
+  "tool_field_type_unsupported": {
+    "message": "目前不支援此欄位型別：$type$",
+    "description": "tool error",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "range"
+      }
+    }
+  },
+  "tool_form_fill_summary": {
+    "message": "已成功填寫 $success$ 個欄位$failure$。",
+    "description": "form fill summary",
+    "placeholders": {
+      "success": {
+        "content": "$1",
+        "example": "3"
+      },
+      "failure": {
+        "content": "$2",
+        "example": "，失敗 1 個"
+      }
+    }
+  },
+  "tool_form_fill_failure_partial": {
+    "message": "，失敗 $count$ 個",
+    "description": "form fill failure partial",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "tool_unknown_field": {
+    "message": "未知欄位",
+    "description": "fallback field name"
+  },
+  "tool_js_executed": {
+    "message": "已執行 JavaScript。",
+    "description": "tool result"
+  },
+  "tool_code_param_empty": {
+    "message": "code 參數不可為空。",
+    "description": "tool error"
+  },
+  "tool_main_world_exec_failed": {
+    "message": "主世界 JavaScript 執行失敗。",
+    "description": "tool error"
+  },
+  "tool_list_more_than_three": {
+    "message": "$names$ 等 $count$ 個工具",
+    "description": "tool list more than 3",
+    "placeholders": {
+      "names": {
+        "content": "$1",
+        "example": "run_js、get_page_metadata"
+      },
+      "count": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "tool_exec_summary_single_success": {
+    "message": "剛剛調用 $tools$ 工具成功",
+    "description": "tool exec summary single success",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "tool_exec_summary_single_failed": {
+    "message": "剛剛調用 $tools$ 工具失敗",
+    "description": "tool exec summary single failed",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "tool_exec_summary_all_success": {
+    "message": "剛剛調用 $tools$ 工具全部成功",
+    "description": "tool exec summary all success",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js、get_page_metadata"
+      }
+    }
+  },
+  "tool_exec_summary_all_failed": {
+    "message": "剛剛調用 $tools$ 工具全部失敗",
+    "description": "tool exec summary all failed",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js、get_page_metadata"
+      }
+    }
+  },
+  "tool_exec_summary_mixed": {
+    "message": "剛剛調用 $tools$ 工具，成功 $success$ 個、失敗 $failure$ 個",
+    "description": "tool exec summary mixed",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js、get_page_metadata"
+      },
+      "success": {
+        "content": "$2",
+        "example": "1"
+      },
+      "failure": {
+        "content": "$3",
+        "example": "1"
+      }
+    }
+  },
+  "retry_delay_seconds": {
+    "message": "$count$ 秒",
+    "description": "retry delay display",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "phrase_not_displayable_text": {
+    "message": "內容不是可顯示的文字",
+    "description": "detection phrase"
+  },
+  "phrase_no_displayable_text": {
+    "message": "沒有產生可顯示的文字內容",
+    "description": "detection phrase"
+  },
+  "phrase_agent_finished_marker": {
+    "message": "頁問已經打完收工",
+    "description": "completion trace marker (kept synced with agent_finished)"
+  },
+  "phrase_agent_stopped_early_marker": {
+    "message": "頁問提早收工",
+    "description": "completion trace marker (kept synced with agent_stopped_early)"
+  },
+  "tool_def_get_page_metadata": {
+    "message": "當使用者要求「取得頁面資訊」、「取得網頁資訊」、「頁面資訊」、「網頁資料」或需要目前頁面的 metadata/context 時使用；取得 page title、SEO metadata、OpenGraph、Twitter Card、page url、canonical/alternate links、JSON-LD、headings 與頁面統計。",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_inspect_selection": {
+    "message": "取得目前頁面選取範圍的文字與 HTML。當需要處理使用者選取內容時使用。",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_inspect_form_fields": {
+    "message": "列出目前頁面的可編輯表單欄位，包含 label、name、id、placeholder、型別與選項。填表前優先使用。",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_inspect_form_fields_limit": {
+    "message": "最多回傳幾個欄位，預設 40。",
+    "description": "tool param description"
+  },
+  "tool_def_inspect_form_fields_include_hidden": {
+    "message": "是否包含隱藏欄位，預設 false。",
+    "description": "tool param description"
+  },
+  "tool_def_inspect_form_fields_include_disabled": {
+    "message": "是否包含 disabled 欄位，預設 true。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields": {
+    "message": "根據 selector 或欄位名稱模糊比對填寫表單。支援文字輸入、下拉選單、核取方塊與 radio button。",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_fill_form_fields_fields": {
+    "message": "要填寫的欄位清單。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_selector": {
+    "message": "直接指定欄位 CSS selector。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_field": {
+    "message": "欄位名稱或模糊搜尋文字。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_label": {
+    "message": "欄位標籤文字。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_name": {
+    "message": "欄位 name。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_id": {
+    "message": "欄位 id。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_placeholder": {
+    "message": "欄位 placeholder。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_value": {
+    "message": "要寫入的值，文字欄位直接使用；select/radio 可同時拿來當選項 key 或 value。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_text": {
+    "message": "要寫入的顯示文字或選項文字。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_checked": {
+    "message": "checkbox 要設定的狀態。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_option_text": {
+    "message": "select/radio 要選取的選項文字。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_option_value": {
+    "message": "select/radio 要選取的選項 value。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_value_key": {
+    "message": "select/radio 的 key 或 value。",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_value_text": {
+    "message": "select/radio 的顯示文字。",
+    "description": "tool param description"
+  },
+  "tool_def_run_js": {
+    "message": "在目前頁面的主世界執行通用 JavaScript。可用來讀取 DOM、查詢頁面資料、點擊元素、修改內容、注入 CSS、調整網頁排版、呼叫頁面腳本，並支援 await。當使用者要求修改、重排、套用樣式或操作目前網頁時，請直接使用此工具執行，不要只提供程式碼或建議。頁問對話框是擴充功能 UI，不是網頁內容；不可選取、讀取、修改或套用樣式到 #askpage-dialog-host 或其 shadow DOM，也不要用 html/body 的 filter、transform、opacity 等祖先效果影響擴充功能 UI。若要把結果回傳給模型，請使用 return。",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_run_js_code": {
+    "message": "要執行的 JavaScript 程式碼。可以使用 document、window、selection、console 與 buildElementSelector。",
+    "description": "tool param description"
+  },
+  "content_annotation_cancel": {
+    "message": "取消",
+    "description": "annotation cancel button"
+  },
+  "cmd_summary_variables_error": {
+    "message": "摘要提示包含範本變數，請移除 ${變數} 佔位符或切換至代理模式。"
+  },
+  "modal_mode_unspecified": {
+    "message": "不指定"
+  },
+  "modal_prompt_content_help": {
+    "message": "使用 ${變數名} 產生填空，例如：Hi, I'm ${name} from ${country:TW}。"
+  },
+  "modal_show_variable_labels": {
+    "message": "展開提示詞時顯示變數名稱"
+  },
+  "modal_show_variable_labels_hint": {
+    "message": "未勾選時，未填寫的變數只會以空白提示顯示變數名稱，一旦輸入內容就會消失；勾選後則會持續顯示「變數名稱：」的標籤。"
+  },
+  "trace_will_retry_prefix": {
+    "message": "後重試",
+    "description": "retry detection prefix for status matching"
+  },
+  "trace_executing_tool_html": {
+    "message": "🛠️ 正在執行 <span class=\"askpage-tool-name\">$tool$</span>",
+    "description": "tool call trace HTML",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "trace_tool_result_html": {
+    "message": "📥 <span class=\"askpage-tool-name\">$tool$</span> 已回傳$success$$summary$",
+    "description": "tool result trace HTML",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      },
+      "success": {
+        "content": "$2",
+        "example": ""
+      },
+      "summary": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_context_window_short": {
+    "message": "對話內容超過 Context Window",
+    "description": "error short reason"
+  },
+  "err_context_window": {
+    "message": "$provider$ 回報目前頁面快照與完整對話已超過模型的 Context Window$suffix$。請自行執行 /clear 開始新對話；AskPage 不會自動清除或裁切既有對話。$apiMsg$",
+    "description": "context window error message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "suffix": {
+        "content": "$2",
+        "example": ""
+      },
+      "apiMsg": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_api_message_label": {
+    "message": "\n錯誤訊息：$msg$",
+    "description": "error message label prefix",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "quota exceeded"
+      }
+    }
+  },
+  "http_status_suffix": {
+    "message": "（HTTP $status$$statusText$）",
+    "description": "HTTP status suffix for error messages",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "429"
+      },
+      "statusText": {
+        "content": "$2",
+        "example": " Too Many Requests"
+      }
+    }
+  },
+  "cmd_variables_hint": {
+    "message": "**$question$ 提示內容包含 ${變數}，請輸入命令後按 Tab 展開並填寫變數。**",
+    "description": "variable hint message",
+    "placeholders": {
+      "question": {
+        "content": "$1",
+        "example": "/greet"
+      }
+    }
+  },
+  "trace_tool_colon_msg": {
+    "message": "：$msg$",
+    "description": "colon separator before truncated tool result message",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "success"
+      }
+    }
+  }
+}

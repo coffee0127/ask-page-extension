@@ -9,6 +9,34 @@ const rootDir = path.resolve(__dirname, '..');
 const marked = require(path.join(rootDir, 'lib', 'marked.min.js'));
 const contentScript = fs.readFileSync(path.join(rootDir, 'content.js'), 'utf8');
 
+// Stub for chrome.i18n.getMessage that reads from _locales/zh_TW/messages.json so
+// the token-usage formatting assertions still see the same zh-TW output as before
+// the i18n refactor.
+const zhMessages = JSON.parse(fs.readFileSync(path.join(rootDir, '_locales', 'zh_TW', 'messages.json'), 'utf8'));
+function stubGetMessage(key, substitutions) {
+    const entry = zhMessages[key];
+    if (!entry) {
+        return '';
+    }
+    let message = entry.message || '';
+    const placeholders = entry.placeholders || {};
+    // Replace $name$ placeholders (ordered by their $N content) with substitutions[i].
+    const ordered = Object.entries(placeholders)
+        .map(([name, meta]) => {
+            const m = /^\$(\d+)$/.exec(meta.content || '');
+            return { name, index: m ? Number(m[1]) - 1 : -1 };
+        })
+        .filter((p) => p.index >= 0)
+        .sort((a, b) => a.index - b.index);
+    if (substitutions && substitutions.length) {
+        ordered.forEach((p) => {
+            const value = substitutions[p.index] != null ? String(substitutions[p.index]) : '';
+            message = message.replace(new RegExp(`\\$${p.name}\\$`, 'gi'), value);
+        });
+    }
+    return message;
+}
+
 const sandbox = {
     console,
     marked,
@@ -26,6 +54,12 @@ const sandbox = {
                 addListener() {}
             },
             sendMessage() {}
+        },
+        i18n: {
+            getMessage: stubGetMessage,
+            getUILanguage() {
+                return 'zh-TW';
+            }
         }
     },
     document: {

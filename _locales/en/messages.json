@@ -1,0 +1,3193 @@
+{
+  "ext_name": {
+    "message": "AskPage",
+    "description": "Extension name shown in Chrome UI"
+  },
+  "ext_description": {
+    "message": "Ask questions about the current page using Gemini API, OpenAI API, Azure OpenAI API or OpenAI Compatible API",
+    "description": "Extension description in manifest.json"
+  },
+  "ext_short_name": {
+    "message": "AskPage",
+    "description": "Short extension name"
+  },
+  "cmd_toggle_dialog": {
+    "message": "Open AskPage dialog",
+    "description": "Keyboard shortcut command description: toggle dialog"
+  },
+  "cmd_switch_provider": {
+    "message": "Switch AI provider",
+    "description": "Keyboard shortcut command description: switch provider"
+  },
+  "popup_title": {
+    "message": "AskPage: Settings migrated",
+    "description": "popup.html <title>"
+  },
+  "popup_heading": {
+    "message": "AskPage",
+    "description": "popup.html heading"
+  },
+  "popup_settings_migrated_msg": {
+    "message": "Settings upgraded to support multi-model configuration, redirecting to full settings page...",
+    "description": "popup.html migration notice"
+  },
+  "popup_open_settings_btn": {
+    "message": "Open Settings Page",
+    "description": "popup.html button to open settings page"
+  },
+  "settings_title": {
+    "message": "AskPage: Settings",
+    "description": "settings.html <title> and h1"
+  },
+  "settings_subtitle": {
+    "message": "Configure your AI provider, custom slash commands and system prompt",
+    "description": "settings.html subtitle under h1"
+  },
+  "btn_reset": {
+    "message": "🔄 Reset",
+    "description": "settings.html reset button (keep emoji)"
+  },
+  "btn_export": {
+    "message": "📤 Export",
+    "description": "settings.html export button"
+  },
+  "btn_import": {
+    "message": "📥 Import",
+    "description": "settings.html import button"
+  },
+  "lang_select_title": {
+    "message": "Language",
+    "description": "settings.html language switcher tooltip/aria-label"
+  },
+  "lang_en_label": {
+    "message": "English",
+    "description": "language switcher option label for English (option text uses native name; key kept for potential future use)"
+  },
+  "lang_zh_tw_label": {
+    "message": "Traditional Chinese",
+    "description": "language switcher option label for Traditional Chinese (option text uses native name; key kept for potential future use)"
+  },
+  "tab_provider": {
+    "message": "AI Provider",
+    "description": "settings tab label"
+  },
+  "tab_commands": {
+    "message": "Custom Slash Commands",
+    "description": "settings tab label"
+  },
+  "tab_system_prompt": {
+    "message": "Adjust System Prompt",
+    "description": "settings tab label"
+  },
+  "settings_provider_card_title": {
+    "message": "AI Provider Settings",
+    "description": "card title"
+  },
+  "settings_provider_card_desc": {
+    "message": "Configure multiple AI providers and enable one or more models. Click a model name to set it as the active model.",
+    "description": "card description"
+  },
+  "btn_add_provider": {
+    "message": "➕ Add AI Provider",
+    "description": "add provider button"
+  },
+  "settings_commands_card_title": {
+    "message": "Slash Command Management",
+    "description": "card title"
+  },
+  "settings_commands_card_desc": {
+    "message": "Manage built-in and custom slash commands",
+    "description": "card description"
+  },
+  "btn_add_custom_command": {
+    "message": "➕ Add Custom Slash Command",
+    "description": "add custom command button"
+  },
+  "settings_system_prompt_card_desc": {
+    "message": "This content is appended to the end of the built-in system prompt. Leave blank to skip. The built-in system prompt is not overwritten.",
+    "description": "card description"
+  },
+  "settings_additional_prompt_label": {
+    "message": "Additional Prompt",
+    "description": "label for customSystemPrompt textarea"
+  },
+  "settings_additional_prompt_placeholder": {
+    "message": "Enter content to append to the end of the system prompt...",
+    "description": "placeholder for customSystemPrompt textarea"
+  },
+  "settings_additional_prompt_hint": {
+    "message": "After saving, all AI providers will apply this additional prompt when sending requests.",
+    "description": "hint under customSystemPrompt textarea"
+  },
+  "char_count_suffix": {
+    "message": "$count$ characters",
+    "description": "character count label",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "footer_credit": {
+    "message": "Will 保哥的技術交流中心",
+    "description": "settings.html footer credit - kept in Chinese per user edit (do NOT translate)"
+  },
+  "footer_text": {
+    "message": "© 2026 Designed, developed and maintained by $credit$ v$version$",
+    "description": "settings.html footer text",
+    "placeholders": {
+      "credit": {
+        "content": "$1",
+        "example": "Will 保哥的技術交流中心"
+      },
+      "version": {
+        "content": "$2",
+        "example": "0.34.0"
+      }
+    }
+  },
+  "modal_edit_command_title": {
+    "message": "Edit Slash Command",
+    "description": "modal title default text"
+  },
+  "modal_command_name_label": {
+    "message": "Command Name",
+    "description": "label"
+  },
+  "modal_command_name_placeholder": {
+    "message": "e.g. /help",
+    "description": "placeholder"
+  },
+  "modal_command_name_hint": {
+    "message": "Command must start with / and contain only letters, numbers, underscores and hyphens",
+    "description": "hint"
+  },
+  "modal_prompt_content_label": {
+    "message": "Prompt Content",
+    "description": "label"
+  },
+  "modal_prompt_content_placeholder": {
+    "message": "Enter the prompt content to send to the AI when the user runs this command...",
+    "description": "placeholder"
+  },
+  "modal_mode_label": {
+    "message": "Mode",
+    "description": "modal mode section label"
+  },
+  "modal_mode_agent": {
+    "message": "Agent",
+    "description": "radio label"
+  },
+  "modal_mode_inquiry": {
+    "message": "Ask",
+    "description": "radio label"
+  },
+  "modal_mode_hint": {
+    "message": "Mode switches automatically when the command is used.",
+    "description": "hint"
+  },
+  "modal_enable_screenshot": {
+    "message": "Enable screenshot mode",
+    "description": "checkbox label"
+  },
+  "modal_screenshot_hint": {
+    "message": "Screenshot mode is applied automatically when the command runs.",
+    "description": "hint"
+  },
+  "btn_cancel": {
+    "message": "Cancel",
+    "description": "shared cancel button"
+  },
+  "btn_save": {
+    "message": "Save",
+    "description": "shared save button"
+  },
+  "modal_add_provider_title": {
+    "message": "Add AI Provider",
+    "description": "provider modal title (add)"
+  },
+  "modal_edit_provider_title": {
+    "message": "Edit AI Provider",
+    "description": "provider modal title (edit)"
+  },
+  "modal_provider_type_label": {
+    "message": "Provider Type",
+    "description": "label"
+  },
+  "modal_provider_type_openai_compatible": {
+    "message": "OpenAI-Compatible Endpoint",
+    "description": "option label"
+  },
+  "modal_provider_name_label": {
+    "message": "Provider Name",
+    "description": "label"
+  },
+  "modal_provider_name_placeholder": {
+    "message": "e.g. My Gemini account",
+    "description": "placeholder"
+  },
+  "modal_gemini_apikey_placeholder": {
+    "message": "Enter your Gemini API Key",
+    "description": "placeholder"
+  },
+  "modal_openai_apikey_placeholder": {
+    "message": "Enter your OpenAI API Key",
+    "description": "placeholder"
+  },
+  "modal_azure_apikey_placeholder": {
+    "message": "Enter your Azure OpenAI API Key",
+    "description": "placeholder"
+  },
+  "modal_azure_endpoint_placeholder": {
+    "message": "e.g. https://your-resource.openai.azure.com",
+    "description": "placeholder"
+  },
+  "modal_azure_deployment_placeholder": {
+    "message": "e.g. gpt-4o-mini",
+    "description": "placeholder"
+  },
+  "modal_openai_compatible_endpoint_placeholder": {
+    "message": "e.g. http://localhost:11434/v1",
+    "description": "placeholder"
+  },
+  "modal_openai_compatible_apikey_label": {
+    "message": "API Key (optional)",
+    "description": "label"
+  },
+  "modal_openai_compatible_apikey_placeholder": {
+    "message": "Leave blank if not required",
+    "description": "placeholder"
+  },
+  "modal_openai_compatible_model_placeholder": {
+    "message": "e.g. llama3, mistral",
+    "description": "placeholder"
+  },
+  "modal_anthropic_apikey_placeholder": {
+    "message": "Enter your Anthropic API Key",
+    "description": "placeholder"
+  },
+  "modal_deepseek_apikey_placeholder": {
+    "message": "Enter your DeepSeek API Key",
+    "description": "placeholder"
+  },
+  "modal_openrouter_apikey_placeholder": {
+    "message": "Enter your OpenRouter API Key",
+    "description": "placeholder"
+  },
+  "modal_groq_apikey_placeholder": {
+    "message": "Enter your Groq API Key",
+    "description": "placeholder"
+  },
+  "modal_mistral_apikey_placeholder": {
+    "message": "Enter your Mistral API Key",
+    "description": "placeholder"
+  },
+  "modal_ollama_endpoint_placeholder": {
+    "message": "e.g. http://localhost:11434/v1",
+    "description": "placeholder"
+  },
+  "modal_ollama_model_placeholder": {
+    "message": "e.g. llama3.3, deepseek-r1",
+    "description": "placeholder"
+  },
+  "modal_ollama_cloud_apikey_placeholder": {
+    "message": "Enter your Ollama API Key",
+    "description": "placeholder"
+  },
+  "modal_ollama_cloud_apikey_hint": {
+    "message": "Create a key at $link$.",
+    "description": "hint with Ollama API Keys link",
+    "placeholders": {
+      "link": {
+        "content": "$1",
+        "example": "Ollama API Keys"
+      }
+    }
+  },
+  "modal_ollama_cloud_models_hint": {
+    "message": "Built-in curated $link$ model IDs; you can also load the latest full list.",
+    "description": "hint with Ollama Cloud search link",
+    "placeholders": {
+      "link": {
+        "content": "$1",
+        "example": "Ollama Cloud"
+      }
+    }
+  },
+  "label_enabled_models": {
+    "message": "Models (multi-select, at least one)",
+    "description": "label for enabled models multi-select"
+  },
+  "label_model_name": {
+    "message": "Model Name",
+    "description": "label for model name"
+  },
+  "btn_load_all_models": {
+    "message": "🔍 Load available models",
+    "description": "button to fetch models"
+  },
+  "btn_enter_model_manually": {
+    "message": "✏️ Enter model manually",
+    "description": "button to add custom model"
+  },
+  "btn_load_local_models": {
+    "message": "🔍 Load local models",
+    "description": "button to load Ollama local models"
+  },
+  "btn_load_latest_cloud_models": {
+    "message": "🔍 Load latest cloud models",
+    "description": "button to load Ollama Cloud models"
+  },
+  "btn_load_endpoint_models": {
+    "message": "🔍 Load endpoint models",
+    "description": "button to load endpoint models"
+  },
+  "btn_test_connection": {
+    "message": "⚡ Test Connection",
+    "description": "provider test connection button"
+  },
+  "status_system_prompt_saved": {
+    "message": "✅ System prompt auto-saved!",
+    "description": "status message"
+  },
+  "status_settings_reset": {
+    "message": "Settings reset!",
+    "description": "status message"
+  },
+  "status_settings_exported": {
+    "message": "Settings exported!",
+    "description": "status message"
+  },
+  "status_settings_imported_reloading": {
+    "message": "Settings imported! Reloading...",
+    "description": "status message"
+  },
+  "err_import_invalid_format": {
+    "message": "Import failed: invalid file format",
+    "description": "status error"
+  },
+  "status_provider_saved": {
+    "message": "Provider saved!",
+    "description": "status message"
+  },
+  "status_provider_deleted": {
+    "message": "Provider deleted",
+    "description": "status message"
+  },
+  "status_switched_model": {
+    "message": "Switched active model to $model$",
+    "description": "status message",
+    "placeholders": {
+      "model": {
+        "content": "$1",
+        "example": "gemini-2.0-flash"
+      }
+    }
+  },
+  "status_models_loaded": {
+    "message": "Successfully loaded $count$ models!",
+    "description": "status message",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "status_testing": {
+    "message": "⏳ Testing...",
+    "description": "test connection in-progress label"
+  },
+  "status_processing": {
+    "message": "⏳ Processing...",
+    "description": "generic processing label"
+  },
+  "status_connection_success": {
+    "message": "🟢 Success",
+    "description": "test connection success"
+  },
+  "status_connection_failed": {
+    "message": "🔴 Failed: $msg$",
+    "description": "test connection failed",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Unauthorized"
+      }
+    }
+  },
+  "status_command_saved": {
+    "message": "Command saved",
+    "description": "status message"
+  },
+  "status_command_deleted": {
+    "message": "Command deleted",
+    "description": "status message"
+  },
+  "status_manual_model_added": {
+    "message": "Manually added and selected model: $model$",
+    "description": "status message",
+    "placeholders": {
+      "model": {
+        "content": "$1",
+        "example": "gpt-4o"
+      }
+    }
+  },
+  "status_model_selected": {
+    "message": "Selected model: $model$",
+    "description": "status message",
+    "placeholders": {
+      "model": {
+        "content": "$1",
+        "example": "gpt-4o"
+      }
+    }
+  },
+  "alert_reset_confirm": {
+    "message": "Are you sure you want to reset all settings?\\n\\nThis will clear AI providers, API keys, slash commands, prompt history and all other settings.",
+    "description": "reset confirmation dialog"
+  },
+  "alert_import_confirm": {
+    "message": "Are you sure you want to import this settings file? This will overwrite your current settings.",
+    "description": "import confirmation dialog"
+  },
+  "alert_delete_command_confirm": {
+    "message": "Are you sure you want to delete command $cmd$?",
+    "description": "delete command confirm",
+    "placeholders": {
+      "cmd": {
+        "content": "$1",
+        "example": "/help"
+      }
+    }
+  },
+  "alert_delete_provider_confirm": {
+    "message": "Are you sure you want to delete provider \"$name$\"?",
+    "description": "delete provider confirm",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Gemini account"
+      }
+    }
+  },
+  "alert_enter_gemini_apikey": {
+    "message": "Please enter Gemini API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_gemini_model": {
+    "message": "Please select at least one Gemini model",
+    "description": "alert"
+  },
+  "alert_enter_openai_apikey": {
+    "message": "Please enter OpenAI API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_openai_model": {
+    "message": "Please select at least one OpenAI model",
+    "description": "alert"
+  },
+  "alert_fill_azure_fields": {
+    "message": "Please fill in the Azure OpenAI API Key, Endpoint and Deployment Name",
+    "description": "alert"
+  },
+  "alert_fill_api_endpoint": {
+    "message": "Please fill in the API Endpoint",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_model": {
+    "message": "Please select at least one model",
+    "description": "alert"
+  },
+  "alert_fill_model_name": {
+    "message": "Please fill in the model name",
+    "description": "alert"
+  },
+  "alert_enter_anthropic_apikey": {
+    "message": "Please enter Anthropic API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_anthropic_model": {
+    "message": "Please select at least one Anthropic model",
+    "description": "alert"
+  },
+  "alert_enter_deepseek_apikey": {
+    "message": "Please enter DeepSeek API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_deepseek_model": {
+    "message": "Please select at least one DeepSeek model",
+    "description": "alert"
+  },
+  "alert_enter_openrouter_apikey": {
+    "message": "Please enter OpenRouter API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_openrouter_model": {
+    "message": "Please select at least one OpenRouter model",
+    "description": "alert"
+  },
+  "alert_enter_groq_apikey": {
+    "message": "Please enter Groq API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_groq_model": {
+    "message": "Please select at least one Groq model",
+    "description": "alert"
+  },
+  "alert_enter_mistral_apikey": {
+    "message": "Please enter Mistral API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_mistral_model": {
+    "message": "Please select at least one Mistral model",
+    "description": "alert"
+  },
+  "alert_fill_ollama_endpoint_model": {
+    "message": "Please fill in the Ollama API Endpoint and model name",
+    "description": "alert"
+  },
+  "alert_enter_ollama_cloud_apikey": {
+    "message": "Please enter Ollama Cloud API Key",
+    "description": "alert"
+  },
+  "alert_select_at_least_one_ollama_cloud_model": {
+    "message": "Please select at least one Ollama Cloud model",
+    "description": "alert"
+  },
+  "alert_model_name_empty": {
+    "message": "Model name cannot be empty",
+    "description": "alert"
+  },
+  "alert_operation_failed": {
+    "message": "Operation failed: $msg$",
+    "description": "alert",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "err_enter_gemini_apikey_first": {
+    "message": "Please enter Gemini API Key first",
+    "description": "thrown error"
+  },
+  "err_enter_openai_apikey_first": {
+    "message": "Please enter OpenAI API Key first",
+    "description": "thrown error"
+  },
+  "err_enter_anthropic_apikey_first": {
+    "message": "Please enter Anthropic API Key first",
+    "description": "thrown error"
+  },
+  "err_enter_deepseek_apikey_first": {
+    "message": "Please enter DeepSeek API Key first",
+    "description": "thrown error"
+  },
+  "err_enter_openrouter_apikey_first": {
+    "message": "Please enter OpenRouter API Key first",
+    "description": "thrown error"
+  },
+  "err_enter_groq_apikey_first": {
+    "message": "Please enter Groq API Key first",
+    "description": "thrown error"
+  },
+  "err_enter_mistral_apikey_first": {
+    "message": "Please enter Mistral API Key first",
+    "description": "thrown error"
+  },
+  "err_enter_ollama_cloud_apikey_first": {
+    "message": "Please enter Ollama Cloud API Key first",
+    "description": "thrown error"
+  },
+  "err_fill_azure_fields": {
+    "message": "Please fill in the Azure OpenAI API Key, Endpoint and Deployment Name",
+    "description": "thrown error"
+  },
+  "err_fill_ollama_model_name": {
+    "message": "Please fill in the Ollama model name",
+    "description": "thrown error"
+  },
+  "err_fill_api_endpoint": {
+    "message": "Please fill in the API Endpoint",
+    "description": "thrown error"
+  },
+  "err_fill_api_endpoint_first": {
+    "message": "Please enter the API Endpoint first",
+    "description": "thrown error"
+  },
+  "err_unknown_provider_type": {
+    "message": "Unknown provider type",
+    "description": "thrown error"
+  },
+  "err_api_error_status": {
+    "message": "API error: $status$ $text$",
+    "description": "thrown error",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "401"
+      },
+      "text": {
+        "content": "$2",
+        "example": "Unauthorized"
+      }
+    }
+  },
+  "err_no_models_found": {
+    "message": "No available model name found",
+    "description": "thrown error"
+  },
+  "err_cannot_connect_ollama": {
+    "message": "Cannot connect to the Ollama service",
+    "description": "thrown error"
+  },
+  "modal_edit_builtin_command": {
+    "message": "Edit built-in command",
+    "description": "modal title"
+  },
+  "modal_edit_custom_command": {
+    "message": "Edit custom command",
+    "description": "modal title"
+  },
+  "modal_new_custom_command": {
+    "message": "Add custom command",
+    "description": "modal title"
+  },
+  "err_enter_command_name": {
+    "message": "Please enter a command name",
+    "description": "validation error"
+  },
+  "err_command_name_format": {
+    "message": "Command name format is invalid. It must start with / and contain only letters, numbers, underscores and hyphens.",
+    "description": "validation error"
+  },
+  "err_command_name_dup_builtin": {
+    "message": "Command name cannot duplicate a built-in command",
+    "description": "validation error"
+  },
+  "err_command_name_dup_custom": {
+    "message": "Command name is already used by an existing custom command",
+    "description": "validation error"
+  },
+  "err_enter_prompt_content": {
+    "message": "Please enter prompt content",
+    "description": "validation error"
+  },
+  "err_cannot_delete_builtin": {
+    "message": "Cannot delete a built-in command",
+    "description": "alert error"
+  },
+  "provider_list_empty": {
+    "message": "No AI provider added yet. Click the \"Add AI Provider\" button below.",
+    "description": "empty provider list message"
+  },
+  "provider_model_unspecified": {
+    "message": "(model not specified)",
+    "description": "shown when ollama model empty"
+  },
+  "provider_endpoint_label": {
+    "message": "Endpoint: $endpoint$",
+    "description": "provider endpoint detail",
+    "placeholders": {
+      "endpoint": {
+        "content": "$1",
+        "example": "http://localhost:11434/v1"
+      }
+    }
+  },
+  "provider_endpoint_ollama_cloud": {
+    "message": "Endpoint: https://ollama.com/v1",
+    "description": "fixed ollama cloud endpoint"
+  },
+  "btn_edit": {
+    "message": "✏️ Edit",
+    "description": "provider edit button"
+  },
+  "btn_delete": {
+    "message": "🗑️ Delete",
+    "description": "provider delete button"
+  },
+  "builtin_badge": {
+    "message": "Built-in",
+    "description": "badge for built-in command"
+  },
+  "prompt_enter_manual_model_name": {
+    "message": "Enter the model name to add manually:",
+    "description": "prompt dialog"
+  },
+  "prompt_loaded_models_hint": {
+    "message": "The following model names were loaded successfully. Copy or type the model name you want to select:\\n\\n$list$",
+    "description": "prompt dialog listing loaded models",
+    "placeholders": {
+      "list": {
+        "content": "$1",
+        "example": "gpt-4o\\ngpt-5"
+      }
+    }
+  },
+  "bg_js_exec_failed": {
+    "message": "JavaScript execution failed: $msg$",
+    "description": "background.js error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "SyntaxError"
+      }
+    }
+  },
+  "bg_unknown_error": {
+    "message": "Unknown error",
+    "description": "fallback error message"
+  },
+  "bg_no_user_scripts_api": {
+    "message": "The current environment doesn't provide User Scripts API. This usually means the extension hasn't been reloaded after a permission update, or your browser build doesn't support this API.",
+    "description": "background.js error"
+  },
+  "bg_browser_no_user_scripts": {
+    "message": "Current browser does not support User Scripts API, please upgrade to Chrome 135+.",
+    "description": "background.js error"
+  },
+  "bg_browser_too_old": {
+    "message": "Current browser version is too old to run run_js. Please upgrade to Chrome 135+.",
+    "description": "background.js error"
+  },
+  "bg_allow_user_scripts_required": {
+    "message": "run_js requires enabling \"Allow User Scripts\" on the extension details page before use.",
+    "description": "background.js error"
+  },
+  "bg_enable_user_scripts_hint": {
+    "message": "run_js requires User Scripts to be enabled. Open chrome://extensions, enable Developer Mode, then reload the current page.$err$",
+    "description": "background.js error",
+    "placeholders": {
+      "err": {
+        "content": "$1",
+        "example": " (Permission denied)"
+      }
+    }
+  },
+  "bg_js_executed_main_world": {
+    "message": "JavaScript executed in page main world.",
+    "description": "background.js result message"
+  },
+  "bg_no_js_result": {
+    "message": "No JavaScript execution result obtained.",
+    "description": "background.js error"
+  },
+  "bg_invalid_ollama_sw_request": {
+    "message": "Invalid Ollama Cloud Service Worker request.",
+    "description": "background.js error"
+  },
+  "bg_disallowed_ollama_endpoint": {
+    "message": "Disallowed Ollama Cloud API endpoint.",
+    "description": "background.js error"
+  },
+  "bg_ollama_key_empty": {
+    "message": "Ollama Cloud API Key cannot be empty.",
+    "description": "background.js error"
+  },
+  "bg_ollama_body_invalid": {
+    "message": "Ollama Cloud request body format is incorrect.",
+    "description": "background.js error"
+  },
+  "bg_ollama_one_request_only": {
+    "message": "Each Ollama Cloud connection can only handle one request.",
+    "description": "background.js error"
+  },
+  "bg_no_tab_found": {
+    "message": "Cannot find current tab, cannot execute JavaScript.",
+    "description": "background.js error"
+  },
+  "bg_code_param_empty": {
+    "message": "code parameter cannot be empty.",
+    "description": "background.js error"
+  },
+  "bg_main_world_js_failed": {
+    "message": "Main world JavaScript execution failed.",
+    "description": "background.js error"
+  },
+  "bg_ollama_sw_disallowed_origin": {
+    "message": "Ollama Cloud Service Worker does not allow calling other origins.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_disallowed_endpoint": {
+    "message": "Ollama Cloud Service Worker does not allow calling this API endpoint.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_failed": {
+    "message": "Ollama Cloud Service Worker request failed.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_post_only": {
+    "message": "Ollama Cloud Service Worker only allows POST requests.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_invalid_json": {
+    "message": "Ollama Cloud request body is not valid JSON.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_dup_response": {
+    "message": "Ollama Cloud Service Worker returned response info more than once.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_invalid_http_status": {
+    "message": "Ollama Cloud Service Worker returned an invalid HTTP status.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_no_response": {
+    "message": "Ollama Cloud Service Worker has not provided response info yet.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_no_http_response": {
+    "message": "Ollama Cloud Service Worker provided no HTTP response.",
+    "description": "content.js error (ollama SW)"
+  },
+  "bg_ollama_sw_disconnected": {
+    "message": "Ollama Cloud Service Worker connection lost.",
+    "description": "content.js error (ollama SW)"
+  },
+  "content_loading": {
+    "message": "Loading...",
+    "description": "loading model state label"
+  },
+  "content_model_not_set": {
+    "message": ", model not set",
+    "description": "model not set suffix in placeholder"
+  },
+  "content_model_not_set_short": {
+    "message": "model not set",
+    "description": "model not set short label"
+  },
+  "content_shift_enter_hint": {
+    "message": "Shift+Enter for newline",
+    "description": "input hint"
+  },
+  "content_input_placeholder_active": {
+    "message": "Answering your question with $provider$$modeltext$ ($hint$)",
+    "description": "input placeholder when active",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "modeltext": {
+        "content": "$2",
+        "example": " (gemini-2.0-flash)"
+      },
+      "hint": {
+        "content": "$3",
+        "example": "Shift+Enter for newline"
+      }
+    }
+  },
+  "content_provider_model_display": {
+    "message": "$provider$ · $model$",
+    "description": "provider display with model",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "model": {
+        "content": "$2",
+        "example": "gemini-2.0-flash"
+      }
+    }
+  },
+  "content_provider_model_unset": {
+    "message": "$provider$ · model not set",
+    "description": "provider display without model",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "content_screenshot_mode_label": {
+    "message": "Screenshot Mode",
+    "description": "toggle label"
+  },
+  "content_screenshot_active_text": {
+    "message": "Screenshot",
+    "description": "toggle active text"
+  },
+  "content_screenshot_inactive_text": {
+    "message": "Screenshot",
+    "description": "toggle inactive text"
+  },
+  "content_screenshot_active_state": {
+    "message": "With Screenshot",
+    "description": "toggle active state label"
+  },
+  "content_screenshot_inactive_state": {
+    "message": "No Screenshot",
+    "description": "toggle inactive state label"
+  },
+  "content_mode_switch_label": {
+    "message": "Mode Switch",
+    "description": "toggle label"
+  },
+  "content_mode_switch_active_text": {
+    "message": "Agent",
+    "description": "toggle active text"
+  },
+  "content_mode_switch_inactive_text": {
+    "message": "Ask",
+    "description": "toggle inactive text"
+  },
+  "content_dialog_drag_hint": {
+    "message": "Drag the title bar to move the dialog",
+    "description": "dialog drag title"
+  },
+  "content_brand_name": {
+    "message": "AskPage",
+    "description": "brand name in dialog header"
+  },
+  "content_toggle_title": {
+    "message": "$label$: currently $current$, click to switch to $next$",
+    "description": "toggle button title",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Screenshot Mode"
+      },
+      "current": {
+        "content": "$2",
+        "example": "No Screenshot"
+      },
+      "next": {
+        "content": "$3",
+        "example": "With Screenshot"
+      }
+    }
+  },
+  "content_ai_provider_btn": {
+    "message": "AI Provider",
+    "description": "switch provider button text/title/aria"
+  },
+  "content_options_btn": {
+    "message": "Open Settings",
+    "description": "options button title/aria"
+  },
+  "err_open_options_failed": {
+    "message": "❌ **Unable to open settings**\\n\\nPlease try again later.",
+    "description": "error when opening options fails"
+  },
+  "err_open_settings_failed": {
+    "message": "❌ **Unable to open settings**\\n\\nPlease try again later.",
+    "description": "error when opening settings fails"
+  },
+  "content_input_placeholder": {
+    "message": "Type a question and press Enter; you can also paste or drag up to 4 images as context",
+    "description": "input placeholder"
+  },
+  "content_image_strip_title": {
+    "message": "Image context (paste via Ctrl+V or drag reference images)",
+    "description": "image strip title"
+  },
+  "content_image_strip_title_full": {
+    "message": "Image context (upload, paste, drag, or annotate current screen)",
+    "description": "image strip title (full)"
+  },
+  "content_image_meta": {
+    "message": "Supports PNG / JPG / WebP images, max 10MB per file",
+    "description": "image meta text"
+  },
+  "content_image_meta_count": {
+    "message": "Supports PNG / JPG / WebP images, max 10MB per file · $current$/$max$",
+    "description": "image meta with count",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "2"
+      },
+      "max": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "content_upload_image": {
+    "message": "Upload Image",
+    "description": "upload image button text"
+  },
+  "content_upload_image_title": {
+    "message": "Select an image and add it to the current question context",
+    "description": "upload image button title"
+  },
+  "content_upload_image_aria": {
+    "message": "Upload image and add to image context",
+    "description": "upload image button aria"
+  },
+  "content_annotate_screen": {
+    "message": "Annotate Screen",
+    "description": "annotate screen button text"
+  },
+  "content_annotate_screen_title": {
+    "message": "Temporarily hide the dialog, select or annotate the current screen, then add to image context",
+    "description": "annotate screen button title"
+  },
+  "content_annotate_screen_aria": {
+    "message": "Annotate screen and add to image context",
+    "description": "annotate screen button aria"
+  },
+  "content_ask_button": {
+    "message": "Ask",
+    "description": "single-char ask button glyph"
+  },
+  "content_ask_button_aria": {
+    "message": "Submit question",
+    "description": "ask button aria-label"
+  },
+  "cmd_clear_desc": {
+    "message": "Clear conversation history",
+    "description": "/clear command description"
+  },
+  "cmd_summary_desc": {
+    "message": "Summarize this page",
+    "description": "/summary command description"
+  },
+  "cmd_screenshot_desc": {
+    "message": "Toggle screenshot feature",
+    "description": "/screenshot command description"
+  },
+  "cmd_screenshot_disable": {
+    "message": "Disable screenshot",
+    "description": "/screenshot desc when enabled"
+  },
+  "cmd_screenshot_enable": {
+    "message": "Enable screenshot",
+    "description": "/screenshot desc when disabled"
+  },
+  "cmd_agent_desc": {
+    "message": "Toggle ask/agent mode (agent mode uses page HTML and tool calling)",
+    "description": "/agent command description"
+  },
+  "cmd_agent_switch_to_ask": {
+    "message": "Switch to ask mode (content Q&A only)",
+    "description": "/agent desc when agent mode active"
+  },
+  "cmd_agent_switch_to_agent": {
+    "message": "Switch to agent mode (tool calling allowed)",
+    "description": "/agent desc when ask mode active"
+  },
+  "cmd_custom_desc": {
+    "message": "Custom command",
+    "description": "custom command desc fallback"
+  },
+  "cmd_usage_builtin_commands_title": {
+    "message": "Built-in commands",
+    "description": "usage panel subtitle"
+  },
+  "cmd_usage_clear_detail": {
+    "message": "Clear history (Ctrl+L)",
+    "description": "usage /clear detail"
+  },
+  "cmd_usage_summary_detail": {
+    "message": "Summarize the whole page",
+    "description": "usage /summary detail"
+  },
+  "cmd_custom_count_label": {
+    "message": "Custom commands ($count$)",
+    "description": "usage custom commands count",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "cmd_custom_count_aria": {
+    "message": "Open Settings to view all custom commands",
+    "description": "custom command count link title/aria"
+  },
+  "cmd_custom_plain": {
+    "message": "Custom commands",
+    "description": "usage custom commands plain"
+  },
+  "usage_built_in_help": {
+    "message": "**Built-in slash commands:**\\n- /clear - Clear history (Ctrl+L also works)\\n- /summary - Summarize the whole page",
+    "description": "help text for built-in commands"
+  },
+  "usage_screenshot_enabled": {
+    "message": "📸 **Screenshot mode is currently enabled**\\nThe system will automatically attach a screenshot of the current viewport as auxiliary context when you ask.",
+    "description": "usage screenshot enabled notice"
+  },
+  "usage_screenshot_disabled": {
+    "message": "📝 **Screenshot mode is currently disabled**\\nAskPage only analyzes the text content of the current page and will not attach a screenshot.",
+    "description": "usage screenshot disabled notice"
+  },
+  "usage_agent_enabled": {
+    "message": "🤖 **Agent mode is currently enabled**\\nThe system uses multi-step agent tool calling to analyze and operate the current page.",
+    "description": "usage agent enabled notice"
+  },
+  "usage_inquiry_enabled": {
+    "message": "💬 **Ask mode is currently enabled**\\nThe system only answers questions based on page content and will not call page tools.",
+    "description": "usage inquiry enabled notice"
+  },
+  "usage_screenshot_status_on": {
+    "message": "Screenshot: on",
+    "description": "status line"
+  },
+  "usage_screenshot_status_off": {
+    "message": "Screenshot: off",
+    "description": "status line"
+  },
+  "usage_screenshot_on_desc": {
+    "message": "Automatically attach a viewport screenshot when asking.",
+    "description": "status desc"
+  },
+  "usage_screenshot_off_desc": {
+    "message": "Only analyze page text, no automatic screenshot.",
+    "description": "status desc"
+  },
+  "usage_agent_status_on": {
+    "message": "Agent: on",
+    "description": "status line"
+  },
+  "usage_inquiry_status_on": {
+    "message": "Ask: on",
+    "description": "status line"
+  },
+  "usage_agent_on_desc": {
+    "message": "Use multi-step tool calling to analyze and operate the current page.",
+    "description": "status desc"
+  },
+  "usage_inquiry_on_desc": {
+    "message": "Answer based on page content, no page tools.",
+    "description": "status desc"
+  },
+  "usage_selected_detected_title": {
+    "message": "Selected text detected",
+    "description": "usage title when text selected"
+  },
+  "usage_hint_title": {
+    "message": "Usage tip",
+    "description": "usage title default"
+  },
+  "usage_selected_context": {
+    "message": "The selected text will be used as the main analysis target. <span class=\"askpage-usage-count\">$count$ characters</span>",
+    "description": "usage selected context",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "usage_no_selection_hint": {
+    "message": "Ask about the current page directly, or select a text range first.",
+    "description": "usage hint when no selection"
+  },
+  "usage_custom_commands_header": {
+    "message": "\\n\\n**Your custom commands:**\\n",
+    "description": "custom commands header in usage text"
+  },
+  "usage_detected_text_banner": {
+    "message": "🎯 **Selected text detected** ($count$ characters)\\n\\nYou can ask directly; the system will use the selected text as the analysis target.\\n\\n**Selected content:**\\n$selected$$notice$\\n\\n💡 $builtin$$custom$",
+    "description": "detected text banner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "120"
+      },
+      "selected": {
+        "content": "$2",
+        "example": "selected text..."
+      },
+      "notice": {
+        "content": "$3",
+        "example": ""
+      },
+      "builtin": {
+        "content": "$4",
+        "example": "**Built-in..."
+      },
+      "custom": {
+        "content": "$5",
+        "example": ""
+      }
+    }
+  },
+  "usage_tip_banner": {
+    "message": "💡 **Usage tip:**\\n\\nYou can ask about this page directly, or select a text range on the page first.$notice$\\n\\n$builtin$$custom$",
+    "description": "usage tip banner",
+    "placeholders": {
+      "notice": {
+        "content": "$1",
+        "example": ""
+      },
+      "builtin": {
+        "content": "$2",
+        "example": "**Built-in..."
+      },
+      "custom": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_unknown_command": {
+    "message": "❌ **Unknown command: $cmd$**\\n\\nAvailable commands:\\n- `/clear` - Clear history\\n- `/summary` - Summarize the whole page\\n- `/screenshot` - Toggle screenshot feature\\n- `/agent` - Toggle ask/agent mode\\n\\nYou can also add custom commands in settings.",
+    "description": "unknown command error",
+    "placeholders": {
+      "cmd": {
+        "content": "$1",
+        "example": "/foo"
+      }
+    }
+  },
+  "cmd_summary_default_prompt": {
+    "message": "Please summarize this article and output in Markdown, including \"Title\", \"Key Summary\", \"Conclusion\".",
+    "description": "default prompt sent to LLM for /summary"
+  },
+  "content_screenshot_feature": {
+    "message": "Screenshot Feature",
+    "description": "screenshot feature label"
+  },
+  "content_screenshot_failed_log": {
+    "message": "[AskPage] Screenshot failed: $err$",
+    "description": "console error",
+    "placeholders": {
+      "err": {
+        "content": "$1",
+        "example": "Permission denied"
+      }
+    }
+  },
+  "content_annotation_aria": {
+    "message": "AskPage screen annotation mode",
+    "description": "overlay aria-label for annotation mode"
+  },
+  "content_annotation_panel_text": {
+    "message": "Move the mouse to box-select DOM elements; click to select. Hold the left button and drag to draw lines only, without selecting DOM.",
+    "description": "annotation panel instructions"
+  },
+  "code_copy_button": {
+    "message": "📋 Copy code",
+    "description": "code block copy button title"
+  },
+  "code_copy_to_clipboard": {
+    "message": "Copy to clipboard",
+    "description": "copy button title"
+  },
+  "code_collapse": {
+    "message": "Collapse",
+    "description": "collapse toggle text"
+  },
+  "code_expand": {
+    "message": "Expand",
+    "description": "expand toggle text"
+  },
+  "code_streaming_status": {
+    "message": "Generating...",
+    "description": "CSS pseudo-element content shown on a code block while the AI response is streaming"
+  },
+  "code_collapse_code": {
+    "message": "Collapse code",
+    "description": "collapse code title"
+  },
+  "code_expand_full": {
+    "message": "Expand full code",
+    "description": "expand full code title"
+  },
+  "code_expand_all": {
+    "message": "Expand all",
+    "description": "expand all toggle text"
+  },
+  "code_open_in_codepen": {
+    "message": "Open in CodePen",
+    "description": "codepen button title"
+  },
+  "code_opened": {
+    "message": "Opened",
+    "description": "codepen opened state"
+  },
+  "code_open_failed": {
+    "message": "Failed",
+    "description": "codepen open failed state"
+  },
+  "code_copy_failed_log": {
+    "message": "Copy failed: $err$",
+    "description": "console error",
+    "placeholders": {
+      "err": {
+        "content": "$1",
+        "example": "NotAllowedError"
+      }
+    }
+  },
+  "code_lang_plaintext": {
+    "message": "Plain text",
+    "description": "plaintext language label"
+  },
+  "code_lang_code": {
+    "message": "Code",
+    "description": "default code label"
+  },
+  "code_lang_auto_detected": {
+    "message": "Auto-detected: $label$",
+    "description": "auto-detected language label",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "JavaScript"
+      }
+    }
+  },
+  "token_usage_cached": {
+    "message": "cached $n$",
+    "description": "cached input tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "1000"
+      }
+    }
+  },
+  "token_usage_cache_write": {
+    "message": "cache write $n$",
+    "description": "cache creation tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
+  "token_usage_input_label": {
+    "message": "Input",
+    "description": "token usage input label"
+  },
+  "token_usage_input_line": {
+    "message": "- Input: $extras$",
+    "description": "token usage input line",
+    "placeholders": {
+      "extras": {
+        "content": "$1",
+        "example": "1000、cached 500"
+      }
+    }
+  },
+  "token_usage_reasoning": {
+    "message": "reasoning $n$",
+    "description": "reasoning tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
+  },
+  "token_usage_accepted_prediction": {
+    "message": "accepted prediction $n$",
+    "description": "accepted prediction tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "token_usage_rejected_prediction": {
+    "message": "rejected prediction $n$",
+    "description": "rejected prediction tokens",
+    "placeholders": {
+      "n": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "token_usage_output_label": {
+    "message": "Output",
+    "description": "token usage output label"
+  },
+  "token_usage_output_line": {
+    "message": "- Output: $extras$",
+    "description": "token usage output line",
+    "placeholders": {
+      "extras": {
+        "content": "$1",
+        "example": "500、reasoning 200"
+      }
+    }
+  },
+  "token_usage_tool_input_label": {
+    "message": "Tool input",
+    "description": "token usage tool input label"
+  },
+  "token_usage_total_label": {
+    "message": "Total",
+    "description": "token usage total label"
+  },
+  "token_usage_summary_header": {
+    "message": "Token usage stats:",
+    "description": "token usage summary header"
+  },
+  "image_preview_title_default": {
+    "message": "Image preview - AskPage",
+    "description": "default image preview title"
+  },
+  "image_preview_heading_default": {
+    "message": "Image preview",
+    "description": "default image preview heading"
+  },
+  "image_preview_alt_default": {
+    "message": "AskPage image preview",
+    "description": "default image preview alt"
+  },
+  "image_preview_size_meta": {
+    "message": "Image size: about $size$ KB",
+    "description": "image preview size meta",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "120"
+      }
+    }
+  },
+  "image_strip_remove_aria": {
+    "message": "Remove image $index$",
+    "description": "remove image button aria/title",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_strip_open_full_aria": {
+    "message": "Click to open image $index$ full size",
+    "description": "image link title",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_strip_open_full_aria_open": {
+    "message": "Open image $index$ full size",
+    "description": "image link aria",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_preview_title_indexed": {
+    "message": "Image preview $index$ - AskPage",
+    "description": "indexed image preview title",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_preview_heading_indexed": {
+    "message": "Image preview $index$",
+    "description": "indexed image preview heading",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_preview_alt_indexed": {
+    "message": "AskPage question image $index$",
+    "description": "indexed image preview alt",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "image_strip_alt_indexed": {
+    "message": "Question image $index$",
+    "description": "image alt text",
+    "placeholders": {
+      "index": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "err_image_too_large": {
+    "message": "Image file exceeds the 10MB limit.",
+    "description": "error"
+  },
+  "err_image_invalid_content": {
+    "message": "The file content read is not a valid image.",
+    "description": "error"
+  },
+  "err_image_read_failed": {
+    "message": "Unable to read image content.",
+    "description": "error"
+  },
+  "err_drag_image_fetch_failed": {
+    "message": "Unable to read dragged image ($status$ $statusText$).",
+    "description": "error",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "404"
+      },
+      "statusText": {
+        "content": "$2",
+        "example": "Not Found"
+      }
+    }
+  },
+  "err_drag_not_image": {
+    "message": "Dragged content is not an image.",
+    "description": "error"
+  },
+  "notice_no_images_detected": {
+    "message": "No images detected to add.",
+    "description": "image notice warning"
+  },
+  "notice_images_already_added": {
+    "message": "These images have already been added to the current question.",
+    "description": "image notice info"
+  },
+  "notice_max_images": {
+    "message": "You can attach at most $max$ images.",
+    "description": "image notice warning",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "notice_max_images_partial": {
+    "message": "You can attach at most $max$ images. The first $count$ have been added.",
+    "description": "image notice warning",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "4"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "notice_images_added_ready": {
+    "message": "Added $count$ images, ready to send to the model.",
+    "description": "image notice info",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "notice_enable_screenshot_first": {
+    "message": "Please enable the screenshot feature before annotating the current screen.",
+    "description": "image notice warning"
+  },
+  "notice_annotation_started": {
+    "message": "Annotation mode started: click a page element, or hold the left button and drag to draw a line.",
+    "description": "image notice info"
+  },
+  "notice_annotation_cancelled": {
+    "message": "Annotation cancelled or no screen captured, no image added to context.",
+    "description": "image notice info"
+  },
+  "notice_no_annotation_screenshot": {
+    "message": "No annotatable screenshot obtained to add.",
+    "description": "image notice emptyMessage"
+  },
+  "notice_annotation_added": {
+    "message": "Annotated screenshot added; the screen will not be captured again when submitting.",
+    "description": "image notice info"
+  },
+  "notice_choose_image_file": {
+    "message": "Please choose an available image file.",
+    "description": "image notice warning"
+  },
+  "notice_switch_to_agent_first": {
+    "message": "Please switch to agent mode first to manually attach image context.",
+    "description": "image notice warning"
+  },
+  "notice_no_image_files": {
+    "message": "No image files available to add.",
+    "description": "image notice emptyMessage"
+  },
+  "notice_upload_failed": {
+    "message": "Unable to upload image: $msg$",
+    "description": "image notice error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "notice_no_clipboard_images": {
+    "message": "No usable images in the clipboard.",
+    "description": "image notice emptyMessage"
+  },
+  "notice_paste_failed": {
+    "message": "Unable to paste image: $msg$",
+    "description": "image notice error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "notice_no_drag_images": {
+    "message": "No usable images in the dragged content.",
+    "description": "image notice emptyMessage"
+  },
+  "notice_drag_failed": {
+    "message": "Unable to add dragged image: $msg$",
+    "description": "image notice error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "msg_screenshot_enabled": {
+    "message": "📸 **Screenshot mode enabled**",
+    "description": "screenshot toggle on"
+  },
+  "msg_screenshot_disabled": {
+    "message": "⭕ **Screenshot mode disabled**",
+    "description": "screenshot toggle off"
+  },
+  "msg_screenshot_testing_start": {
+    "message": "✅ **Screenshot feature enabled**\\n\\n🔄 Testing screenshot feature...",
+    "description": "screenshot test start"
+  },
+  "msg_screenshot_test_success": {
+    "message": "📸 **Screenshot test successful!**\\n\\n**Screenshot info:**\\n- 📏 Image size: $size$ KB\\n- 🔗 Format: PNG (Base64)\\n- 📊 Data length: $dataLen$ characters\\n- 🎯 Base64 data length: $base64Len$ characters\\n\\n**Captured screenshot preview:**",
+    "description": "screenshot test success detail",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "120"
+      },
+      "dataLen": {
+        "content": "$2",
+        "example": "100000"
+      },
+      "base64Len": {
+        "content": "$3",
+        "example": "90000"
+      }
+    }
+  },
+  "msg_screenshot_enabled_ready": {
+    "message": "✨ **Screenshot feature enabled!** When you ask now, the system will automatically include a screenshot for analysis. This setting is remembered until the page is reloaded.",
+    "description": "screenshot enabled ready"
+  },
+  "msg_screenshot_test_failed": {
+    "message": "❌ **Screenshot test failed**\\n\\nScreenshot feature is enabled, but the capture failed. Please check the browser permission settings.",
+    "description": "screenshot test failed"
+  },
+  "msg_screenshot_disabled_notice": {
+    "message": "⭕ **Screenshot feature disabled**\\n\\nThe system will no longer capture screenshots automatically. Your questions will use text content only for analysis. This setting is remembered until the page is reloaded.",
+    "description": "screenshot disabled notice"
+  },
+  "msg_agent_mode_enabled": {
+    "message": "🤖 **Agent mode enabled**",
+    "description": "agent toggle on"
+  },
+  "msg_inquiry_mode_enabled": {
+    "message": "💬 **Ask mode enabled**",
+    "description": "inquiry toggle on"
+  },
+  "msg_agent_enabled_notice": {
+    "message": "✅ **Agent mode enabled**\\n\\nSwitched to agent mode. The system will use page HTML and tool calling to analyze and operate the current page. This setting persists until reload.",
+    "description": "agent enabled notice"
+  },
+  "msg_inquiry_enabled_notice": {
+    "message": "💬 **Ask mode enabled**\\n\\nSwitched to ask mode. The system only answers questions based on page content and will not call page tools. Manually attached image context is also disabled. This setting persists until reload.",
+    "description": "inquiry enabled notice"
+  },
+  "screenshot_preview_title": {
+    "message": "Screenshot preview - AskPage",
+    "description": "screenshot preview title"
+  },
+  "screenshot_preview_heading": {
+    "message": "Screenshot preview",
+    "description": "screenshot preview heading"
+  },
+  "screenshot_preview_alt": {
+    "message": "AskPage screenshot preview",
+    "description": "screenshot preview alt"
+  },
+  "screenshot_open_full_title": {
+    "message": "Click to open full screenshot",
+    "description": "screenshot link title"
+  },
+  "screenshot_open_full_aria": {
+    "message": "Open the full screenshot captured at question time",
+    "description": "screenshot link aria"
+  },
+  "screenshot_image_alt": {
+    "message": "Screenshot of the screen at question time",
+    "description": "screenshot image alt"
+  },
+  "screenshot_view_original_title": {
+    "message": "Click to view original size",
+    "description": "screenshot image title"
+  },
+  "screenshot_size_info_loading": {
+    "message": "📊 Size info: $w$×$h$ | File size: $kb$ KB",
+    "description": "screenshot size info (loading)",
+    "placeholders": {
+      "w": {
+        "content": "$1",
+        "example": "Loading..."
+      },
+      "h": {
+        "content": "$2",
+        "example": "Loading..."
+      },
+      "kb": {
+        "content": "$3",
+        "example": "120"
+      }
+    }
+  },
+  "screenshot_copy_base64_title": {
+    "message": "Copy screenshot Base64 data",
+    "description": "copy screenshot button title"
+  },
+  "content_user_preview_label": {
+    "message": "You: $text$",
+    "description": "user message preview label",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "what is this page?"
+      }
+    }
+  },
+  "status_tool_selected": {
+    "message": "Tool selected",
+    "description": "agent status: tool selected"
+  },
+  "status_executing_tool": {
+    "message": "Executing tool",
+    "description": "agent status: executing tool"
+  },
+  "status_tool_executed": {
+    "message": "Tool executed",
+    "description": "agent status: tool executed"
+  },
+  "status_capturing_context": {
+    "message": "Capturing screen and organizing page context",
+    "description": "agent status"
+  },
+  "status_organizing_context": {
+    "message": "Organizing page context",
+    "description": "agent status"
+  },
+  "status_organizing_image_context": {
+    "message": "Organizing images and page context...",
+    "description": "agent status with images"
+  },
+  "status_planning_task": {
+    "message": "Planning task",
+    "description": "agent status: planning"
+  },
+  "status_endpoint_no_tool_calling": {
+    "message": "Endpoint does not support tool calling",
+    "description": "agent status"
+  },
+  "status_ask_plan_task": {
+    "message": "Asking $provider$ to plan the task...",
+    "description": "agent status",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_ask_analyze_page": {
+    "message": "Asking $provider$ to analyze the page and answer...",
+    "description": "agent status",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_got_final_reply": {
+    "message": "Got final reply, organizing answer...",
+    "description": "agent status"
+  },
+  "status_empty_output_limit": {
+    "message": "$provider$ returned empty content and likely hit the output limit, automatically retrying with relaxed output limits...",
+    "description": "agent status: empty output limit",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_empty_output_retry": {
+    "message": "$provider$ returned empty content, automatically retrying once...",
+    "description": "agent status: empty output retry",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_will_retry_after": {
+    "message": "$provider$ $reason$, will retry in $delay$ ($retry$/$max$)...",
+    "description": "agent retry status",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "reason": {
+        "content": "$2",
+        "example": "Service busy"
+      },
+      "delay": {
+        "content": "$3",
+        "example": "2 sec"
+      },
+      "retry": {
+        "content": "$4",
+        "example": "1"
+      },
+      "max": {
+        "content": "$5",
+        "example": "3"
+      }
+    }
+  },
+  "status_provider_no_tool_calling_fallback": {
+    "message": "$provider$ endpoint does not support tool calling, falling back to text mode...",
+    "description": "agent status: fallback",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "OpenRouter"
+      }
+    }
+  },
+  "status_provider_selected_tools": {
+    "message": "$provider$ selected tools $tools$, preparing to execute...",
+    "description": "agent status: tools selected",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "tools": {
+        "content": "$2",
+        "example": "get_page_metadata"
+      }
+    }
+  },
+  "status_executing_tool_indexed": {
+    "message": "Executing tool $tool$ ($index$/$total$)...",
+    "description": "agent status: executing tool indexed",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "total": {
+        "content": "$3",
+        "example": "2"
+      }
+    }
+  },
+  "status_tool_executed_handoff": {
+    "message": "Tool $tools$ executed, handing the result back to $provider$...",
+    "description": "agent status: tool handoff",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "get_page_metadata"
+      },
+      "provider": {
+        "content": "$2",
+        "example": "Gemini"
+      }
+    }
+  },
+  "status_tool_executed_handoff_gemini": {
+    "message": "Tool $tools$ executed, handing the result back to Gemini...",
+    "description": "gemini agent status: tool handoff",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "get_page_metadata"
+      }
+    }
+  },
+  "err_tool_round_limit": {
+    "message": "Tool call round limit reached, aborted to avoid infinite loop.",
+    "description": "agent error"
+  },
+  "err_gemini_tool_round_limit": {
+    "message": "Gemini tool call round limit reached, aborted to avoid infinite loop.",
+    "description": "gemini agent error"
+  },
+  "trace_capture_context": {
+    "message": "I'll capture the current screen, then organize the page context.",
+    "description": "trace badge"
+  },
+  "trace_organize_context": {
+    "message": "Let me organize the page context first.",
+    "description": "trace badge"
+  },
+  "trace_planning": {
+    "message": "Analyzing the requirements and page state.",
+    "description": "trace badge"
+  },
+  "trace_no_tool_calling": {
+    "message": "This endpoint doesn't support tool calling, I'll continue in text mode.",
+    "description": "trace badge"
+  },
+  "trace_empty_output_limit": {
+    "message": "This response was truncated before the output limit, I'll relax the output budget and retry.",
+    "description": "trace badge"
+  },
+  "trace_empty_output": {
+    "message": "No displayable content this time, I'll retry.",
+    "description": "trace badge"
+  },
+  "trace_unstable_retry": {
+    "message": "The service is temporarily unstable, I'll auto-retry shortly.",
+    "description": "trace badge"
+  },
+  "trace_executing_tool_text": {
+    "message": "🛠️ Executing $tool$",
+    "description": "tool call trace text",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "trace_tool_result_text": {
+    "message": "📥 $tool$ returned$success$.$summary$\\n\\n$payload$",
+    "description": "tool result trace text",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      },
+      "success": {
+        "content": "$2",
+        "example": ""
+      },
+      "summary": {
+        "content": "$3",
+        "example": ""
+      },
+      "payload": {
+        "content": "$4",
+        "example": "{...}"
+      }
+    }
+  },
+  "trace_result_failed_suffix": {
+    "message": "(failed)",
+    "description": "tool result failed suffix"
+  },
+  "trace_result_summary_label": {
+    "message": "Result summary: ",
+    "description": "result summary label"
+  },
+  "trace_tool_returned": {
+    "message": "$tool$ returned",
+    "description": "tool returned summary",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "agent_elapsed_label": {
+    "message": "Elapsed: $duration$",
+    "description": "elapsed duration label",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "12.3s"
+      }
+    }
+  },
+  "agent_finished": {
+    "message": "AskPage finished, executed $count$ steps, $duration$",
+    "description": "agent finished - content.js:5248 (chrome.i18n.getMessage does not parse ICU; plain $count$ form)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "費時：12.3s"
+      }
+    }
+  },
+  "agent_stopped_early": {
+    "message": "AskPage stopped early, executed $count$ steps, $duration$",
+    "description": "agent stopped early - content.js:5249 (chrome.i18n.getMessage does not parse ICU; plain $count$ form)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "費時：12.3s"
+      }
+    }
+  },
+  "err_request_timeout_short": {
+    "message": "Request timed out",
+    "description": "error short reason"
+  },
+  "err_request_timeout": {
+    "message": "$provider$ request timed out. The service may be busy or the network is unstable.",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_retry_suffix": {
+    "message": "$msg$ Retried $count$ times and still failed.",
+    "description": "retry suffix",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Request timed out."
+      },
+      "count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "err_network_error_short": {
+    "message": "Network connection error",
+    "description": "error short reason"
+  },
+  "err_network_error": {
+    "message": "Cannot connect to $provider$ service. The network may be unstable or the service is temporarily unresponsive.",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_response_format_short": {
+    "message": "Unexpected response format",
+    "description": "error short reason"
+  },
+  "err_response_format": {
+    "message": "$provider$ returned data that cannot be parsed. The service may be temporarily abnormal.",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_auth_failed_short": {
+    "message": "Authentication failed",
+    "description": "error short reason"
+  },
+  "err_insufficient_permissions_short": {
+    "message": "Insufficient permissions",
+    "description": "error short reason"
+  },
+  "err_insufficient_permissions": {
+    "message": "$provider$ rejected this request. Please check the API permissions or model access settings.",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_resource_not_found_short": {
+    "message": "Resource not found",
+    "description": "error short reason"
+  },
+  "err_resource_not_found": {
+    "message": "$provider$ could not find the specified model, endpoint or deployment.",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_bad_request_short": {
+    "message": "Bad request",
+    "description": "error short reason"
+  },
+  "err_bad_request": {
+    "message": "$provider$ rejected this request. The parameter format may be incorrect.$apiMsg$",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "apiMsg": {
+        "content": "$2",
+        "example": " Invalid model"
+      }
+    }
+  },
+  "err_quota_exhausted_short": {
+    "message": "Quota exhausted",
+    "description": "error short reason"
+  },
+  "err_quota_exhausted": {
+    "message": "$provider$ quota or usage limit reached$suffix$. The context may exceed the model's Context Window or allowed TPM (Token per minute) limit. Some free models have a small TPM, e.g. gemma-4-26b-a4b-it only has 16K TPM, so running \"agent\" mode is more likely to exceed the limit. Please switch models or use \"ask\" mode to reduce input. Error message:\\n$apiMsg$",
+    "description": "error user message (quota)",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "suffix": {
+        "content": "$2",
+        "example": ""
+      },
+      "apiMsg": {
+        "content": "$3",
+        "example": " Quota exceeded"
+      }
+    }
+  },
+  "err_service_busy_short": {
+    "message": "Service busy / too many requests",
+    "description": "error short reason"
+  },
+  "err_service_busy": {
+    "message": "$provider$ is currently busy or the request rate is too high$suffix$.$apiMsg$",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "suffix": {
+        "content": "$2",
+        "example": ""
+      },
+      "apiMsg": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_service_unavailable_short": {
+    "message": "Service temporarily unavailable",
+    "description": "error short reason"
+  },
+  "err_service_unavailable": {
+    "message": "$provider$ service is temporarily unavailable$suffix$.$apiMsg$",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "suffix": {
+        "content": "$2",
+        "example": ""
+      },
+      "apiMsg": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_request_failed_short": {
+    "message": "Request failed",
+    "description": "error short reason"
+  },
+  "err_unknown_error_short": {
+    "message": "Unknown error",
+    "description": "error short reason"
+  },
+  "err_unknown_error": {
+    "message": "$provider$ API call failed for an unknown reason.",
+    "description": "error user message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "err_stream_unsupported": {
+    "message": "This browser does not support reading streaming responses.",
+    "description": "stream error"
+  },
+  "err_stream_parse_failed": {
+    "message": "$provider$ returned unparseable streaming data: $data$",
+    "description": "stream parse error",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "data": {
+        "content": "$2",
+        "example": "..."
+      }
+    }
+  },
+  "err_stream_api_error": {
+    "message": "API stream error: $msg$",
+    "description": "stream api error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Internal error"
+      }
+    }
+  },
+  "err_api_reported_error": {
+    "message": "API reported error: $msg$",
+    "description": "api reported error",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Internal error"
+      }
+    }
+  },
+  "resp_refused": {
+    "message": "$provider$ refused to respond to this request: $refusal$",
+    "description": "provider response refused",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "refusal": {
+        "content": "$2",
+        "example": "I can't help with that."
+      }
+    }
+  },
+  "resp_output_limit": {
+    "message": "$provider$ reached the output length limit. Please narrow the question scope and try again.",
+    "description": "provider response output limit",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_content_filtered": {
+    "message": "$provider$ did not return text content due to content filtering. Please adjust your question and try again.",
+    "description": "provider response filtered",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_tool_call_no_text": {
+    "message": "$provider$ returned a tool call status but no displayable text content.",
+    "description": "provider response tool call no text",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_function_call_no_text": {
+    "message": "$provider$ returned a function call status but no displayable text content.",
+    "description": "provider response function call no text",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_not_displayable_retry": {
+    "message": "$provider$ completed the response but the content is not displayable text. Please try again or narrow the question scope.",
+    "description": "provider response not displayable",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_no_candidates": {
+    "message": "$provider$ returned no candidate content. The model may have temporarily produced no answer. Please try again later.",
+    "description": "provider response no candidates",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "resp_result_not_text": {
+    "message": "$provider$ returned a result, but the content is not displayable text. Please try again or narrow the question scope.",
+    "description": "provider response result not text",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "gemini_safety_blocked": {
+    "message": "Gemini did not process this request due to safety restrictions$suffix$. Please adjust your question and try again.",
+    "description": "gemini safety blocked",
+    "placeholders": {
+      "suffix": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_blocked_term": {
+    "message": "Gemini did not process this request because it contains blocked terms. Please adjust your question and try again.",
+    "description": "gemini blocked term"
+  },
+  "gemini_prohibited_content": {
+    "message": "Gemini classified this request as prohibited content, so it returned no answer.",
+    "description": "gemini prohibited content"
+  },
+  "gemini_image_safety": {
+    "message": "Gemini did not return an answer because the image content triggered a safety restriction.",
+    "description": "gemini image safety"
+  },
+  "gemini_not_processed": {
+    "message": "Gemini did not process this request. Please try again later.",
+    "description": "gemini not processed"
+  },
+  "gemini_output_limit": {
+    "message": "Gemini reached the output length limit$finish$. Please narrow the question scope and try again.",
+    "description": "gemini output limit",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_safety_no_text": {
+    "message": "Gemini did not return text content due to safety restrictions$suffix$. Please adjust your question and try again.",
+    "description": "gemini safety no text",
+    "placeholders": {
+      "suffix": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_citation_limit": {
+    "message": "Gemini did not return text content due to citation content restrictions$finish$.",
+    "description": "gemini citation limit",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_language_limit": {
+    "message": "Gemini did not return text content due to language restrictions$finish$. Please switch to Traditional Chinese or English and try again.",
+    "description": "gemini language limit",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_response_blocked_term": {
+    "message": "Gemini did not return text content because the response triggered a blocked term restriction.",
+    "description": "gemini response blocked term"
+  },
+  "gemini_response_prohibited": {
+    "message": "Gemini did not return text content because the response triggered a prohibited content restriction.",
+    "description": "gemini response prohibited"
+  },
+  "gemini_response_sensitive_pii": {
+    "message": "Gemini did not return text content because the response may contain sensitive personal information.",
+    "description": "gemini response sensitive pii"
+  },
+  "gemini_invalid_tool_call": {
+    "message": "Gemini returned a malformed tool call$finish$. Please try again.",
+    "description": "gemini invalid tool call",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_no_text": {
+    "message": "Gemini produced no displayable text content$finish$. Please try again later.",
+    "description": "gemini no text",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_no_candidates_blocked": {
+    "message": "Gemini returned no candidate content. The request may have been blocked by the system or the model temporarily produced no answer.",
+    "description": "gemini no candidates blocked"
+  },
+  "gemini_result_not_text": {
+    "message": "Gemini returned a result, but the content is not displayable text$finish$. Please try again or narrow the question scope.",
+    "description": "gemini result not text",
+    "placeholders": {
+      "finish": {
+        "content": "$1",
+        "example": ""
+      }
+    }
+  },
+  "gemini_empty_output_limit_retry": {
+    "message": "Gemini returned empty content and likely hit the output limit, automatically retrying once with the model's max output limit...",
+    "description": "gemini empty output limit retry"
+  },
+  "gemini_empty_output_retry": {
+    "message": "Gemini returned empty content, automatically retrying once...",
+    "description": "gemini empty output retry"
+  },
+  "err_setup_gemini_key": {
+    "message": "Please click the extension icon to set your Gemini API Key.",
+    "description": "api key missing"
+  },
+  "err_decrypt_gemini_key": {
+    "message": "Unable to decrypt Gemini API Key. Please set it again.",
+    "description": "api key decrypt fail"
+  },
+  "err_setup_openai_key": {
+    "message": "Please click the extension icon to set your OpenAI API Key.",
+    "description": "api key missing"
+  },
+  "err_decrypt_openai_key": {
+    "message": "Unable to decrypt OpenAI API Key. Please set it again.",
+    "description": "api key decrypt fail"
+  },
+  "err_setup_azure_key": {
+    "message": "Please click the extension icon to set your Azure OpenAI API Key.",
+    "description": "api key missing"
+  },
+  "err_setup_azure_endpoint": {
+    "message": "Please click the extension icon to set your Azure OpenAI Endpoint.",
+    "description": "endpoint missing"
+  },
+  "err_setup_azure_deployment": {
+    "message": "Please click the extension icon to set your Azure OpenAI Deployment Name.",
+    "description": "deployment missing"
+  },
+  "err_decrypt_azure_key": {
+    "message": "Unable to decrypt Azure OpenAI API Key. Please set it again.",
+    "description": "api key decrypt fail"
+  },
+  "err_setup_anthropic_key": {
+    "message": "Please click the extension icon to set your Anthropic API Key.",
+    "description": "api key missing"
+  },
+  "err_decrypt_anthropic_key": {
+    "message": "Unable to decrypt Anthropic API Key. Please set it again.",
+    "description": "api key decrypt fail"
+  },
+  "err_setup_provider": {
+    "message": "Please click the extension icon to set your AI provider.",
+    "description": "provider missing"
+  },
+  "err_gemini_invalid_key": {
+    "message": "Invalid Gemini API Key. Please check your Gemini API Key settings.",
+    "description": "gemini invalid key"
+  },
+  "err_gemini_permission": {
+    "message": "Gemini rejected this request. Please check the API permissions or model access settings.",
+    "description": "gemini permission"
+  },
+  "err_gemini_model_not_found": {
+    "message": "Specified Gemini model not found. Please check the model settings.",
+    "description": "gemini model not found"
+  },
+  "err_gemini_busy": {
+    "message": "Gemini service is currently busy or the request rate is too high. Please try again later.",
+    "description": "gemini busy"
+  },
+  "err_gemini_unavailable": {
+    "message": "Gemini service is temporarily unavailable. Please try again later.",
+    "description": "gemini unavailable"
+  },
+  "err_openai_invalid_key": {
+    "message": "Invalid API Key. Please check your OpenAI API Key settings.",
+    "description": "openai invalid key"
+  },
+  "err_openai_permission": {
+    "message": "OpenAI rejected this request. Please check the API permissions or model access settings.",
+    "description": "openai permission"
+  },
+  "err_openai_model_not_found": {
+    "message": "Specified OpenAI model not found. Please check the model settings.",
+    "description": "openai model not found"
+  },
+  "err_openai_rate_limit": {
+    "message": "API request rate is too high. Please try again later.",
+    "description": "openai rate limit"
+  },
+  "err_openai_unavailable": {
+    "message": "OpenAI service is temporarily unavailable. Please try again later.",
+    "description": "openai unavailable"
+  },
+  "err_azure_invalid_key": {
+    "message": "Invalid API Key. Please check your Azure OpenAI API Key settings.",
+    "description": "azure invalid key"
+  },
+  "err_azure_permission": {
+    "message": "Azure OpenAI rejected this request. Please check the API permissions or model access settings.",
+    "description": "azure permission"
+  },
+  "err_azure_deployment_not_found": {
+    "message": "Specified deployment not found. Please check your Endpoint and Deployment Name settings.",
+    "description": "azure deployment not found"
+  },
+  "err_azure_unavailable": {
+    "message": "Azure OpenAI service is temporarily unavailable. Please try again later.",
+    "description": "azure unavailable"
+  },
+  "err_anthropic_invalid_key": {
+    "message": "Invalid API Key. Please check your Anthropic API Key settings.",
+    "description": "anthropic invalid key"
+  },
+  "err_anthropic_permission": {
+    "message": "Anthropic rejected this request. Please check the permissions or model access settings.",
+    "description": "anthropic permission"
+  },
+  "err_anthropic_model_not_found": {
+    "message": "Specified Anthropic model not found. Please check the model settings.",
+    "description": "anthropic model not found"
+  },
+  "err_anthropic_unavailable": {
+    "message": "Anthropic service is temporarily unavailable. Please try again later.",
+    "description": "anthropic unavailable"
+  },
+  "err_generic_prefix": {
+    "message": "Error: $msg$",
+    "description": "generic error prefix",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "Request failed."
+      }
+    }
+  },
+  "status_ask_gemini_plan": {
+    "message": "Asking Gemini to plan the task...",
+    "description": "gemini plan status"
+  },
+  "status_ask_gemini_analyze": {
+    "message": "Asking Gemini to analyze the page and answer...",
+    "description": "gemini analyze status"
+  },
+  "status_gemini_got_final_reply": {
+    "message": "[AskPage] Gemini got final reply, organizing answer...",
+    "description": "gemini debug log"
+  },
+  "status_provider_got_final_reply": {
+    "message": "[AskPage] $provider$ got final reply, organizing answer...",
+    "description": "provider debug log",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      }
+    }
+  },
+  "notice_endpoint_no_tool_calling": {
+    "message": "⚠️ **This $provider$ endpoint does not fully support tool calling**\\n\\nAutomatically switched to text mode, so the page DOM or forms cannot be operated directly this time.\\n\\n$answer$",
+    "description": "endpoint no tool calling fallback",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "OpenRouter"
+      },
+      "answer": {
+        "content": "$2",
+        "example": "..."
+      }
+    }
+  },
+  "notice_anthropic_no_tool_calling": {
+    "message": "⚠️ **The Anthropic provider does not fully support tool calling in agent mode**\\n\\nAutomatically switched to text mode, so the page DOM or forms cannot be operated directly this time.\\n\\n$answer$",
+    "description": "anthropic no tool calling fallback",
+    "placeholders": {
+      "answer": {
+        "content": "$1",
+        "example": "..."
+      }
+    }
+  },
+  "err_gpt56_responses_api_required": {
+    "message": "GPT-5.6 must use the Responses API with function tools; Chat Completions is not supported.",
+    "description": "GPT-5.6 error"
+  },
+  "tool_unknown_tool": {
+    "message": "Unknown tool: $name$",
+    "description": "tool execution error",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "foo"
+      }
+    }
+  },
+  "tool_unknown_tool_display": {
+    "message": "Unknown tool",
+    "description": "unknown tool display name"
+  },
+  "tool_exec_failed": {
+    "message": "Tool $name$ execution failed: $msg$",
+    "description": "tool execution error",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "run_js"
+      },
+      "msg": {
+        "content": "$2",
+        "example": "SyntaxError"
+      }
+    }
+  },
+  "tool_args_parse_failed": {
+    "message": "Tool parameter parsing failed: $err$",
+    "description": "tool args parse error",
+    "placeholders": {
+      "err": {
+        "content": "$1",
+        "example": "Unexpected token"
+      }
+    }
+  },
+  "tool_page_metadata_obtained": {
+    "message": "Got page metadata: $title$",
+    "description": "tool result",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Example Page"
+      }
+    }
+  },
+  "tool_selection_obtained": {
+    "message": "Got selected range content.",
+    "description": "tool result"
+  },
+  "tool_no_selection": {
+    "message": "No selection available right now.",
+    "description": "tool result"
+  },
+  "tool_form_fields_found": {
+    "message": "Found $count$ form fields.",
+    "description": "tool result",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "tool_fields_param_empty": {
+    "message": "The fields parameter must contain at least one field instruction.",
+    "description": "tool error"
+  },
+  "tool_field_not_found": {
+    "message": "No matching field found: $target$",
+    "description": "tool error",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#email"
+      }
+    }
+  },
+  "tool_field_disabled": {
+    "message": "The field is disabled and cannot be filled: $target$",
+    "description": "tool error",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#email"
+      }
+    }
+  },
+  "tool_field_filled": {
+    "message": "Filled $target$",
+    "description": "tool result",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#email"
+      }
+    }
+  },
+  "tool_checkbox_toggled": {
+    "message": "$action$ $target$",
+    "description": "checkbox toggle result",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "checked"
+      },
+      "target": {
+        "content": "$2",
+        "example": "#subscribe"
+      }
+    }
+  },
+  "tool_action_checked": {
+    "message": "checked",
+    "description": "checkbox action checked"
+  },
+  "tool_action_unchecked": {
+    "message": "unchecked",
+    "description": "checkbox action unchecked"
+  },
+  "tool_option_not_found": {
+    "message": "No matching option found: $target$",
+    "description": "tool error",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#country"
+      }
+    }
+  },
+  "tool_option_selected": {
+    "message": "Selected $text$",
+    "description": "tool result",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "Taiwan"
+      }
+    }
+  },
+  "tool_radio_not_found": {
+    "message": "No matching radio option found: $target$",
+    "description": "tool error",
+    "placeholders": {
+      "target": {
+        "content": "$1",
+        "example": "#gender"
+      }
+    }
+  },
+  "tool_field_type_unsupported": {
+    "message": "This field type is not supported: $type$",
+    "description": "tool error",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "range"
+      }
+    }
+  },
+  "tool_form_fill_summary": {
+    "message": "Successfully filled $success$ fields$failure$.",
+    "description": "form fill summary",
+    "placeholders": {
+      "success": {
+        "content": "$1",
+        "example": "3"
+      },
+      "failure": {
+        "content": "$2",
+        "example": "，失敗 1 個"
+      }
+    }
+  },
+  "tool_form_fill_failure_partial": {
+    "message": ", failed $count$",
+    "description": "form fill failure partial",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "tool_unknown_field": {
+    "message": "unknown field",
+    "description": "fallback field name"
+  },
+  "tool_js_executed": {
+    "message": "Executed JavaScript.",
+    "description": "tool result"
+  },
+  "tool_code_param_empty": {
+    "message": "code parameter cannot be empty.",
+    "description": "tool error"
+  },
+  "tool_main_world_exec_failed": {
+    "message": "Main world JavaScript execution failed.",
+    "description": "tool error"
+  },
+  "tool_list_more_than_three": {
+    "message": "$names$ and $count$ more tools",
+    "description": "tool list more than 3",
+    "placeholders": {
+      "names": {
+        "content": "$1",
+        "example": "run_js、get_page_metadata"
+      },
+      "count": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "tool_exec_summary_single_success": {
+    "message": "Just called the $tools$ tool successfully",
+    "description": "tool exec summary single success",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "tool_exec_summary_single_failed": {
+    "message": "Just called the $tools$ tool, failed",
+    "description": "tool exec summary single failed",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "tool_exec_summary_all_success": {
+    "message": "Just called the $tools$ tools, all succeeded",
+    "description": "tool exec summary all success",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js、get_page_metadata"
+      }
+    }
+  },
+  "tool_exec_summary_all_failed": {
+    "message": "Just called the $tools$ tools, all failed",
+    "description": "tool exec summary all failed",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js、get_page_metadata"
+      }
+    }
+  },
+  "tool_exec_summary_mixed": {
+    "message": "Just called the $tools$ tools, $success$ succeeded, $failure$ failed",
+    "description": "tool exec summary mixed",
+    "placeholders": {
+      "tools": {
+        "content": "$1",
+        "example": "run_js、get_page_metadata"
+      },
+      "success": {
+        "content": "$2",
+        "example": "1"
+      },
+      "failure": {
+        "content": "$3",
+        "example": "1"
+      }
+    }
+  },
+  "retry_delay_seconds": {
+    "message": "$count$ sec",
+    "description": "retry delay display",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "phrase_not_displayable_text": {
+    "message": "content is not displayable text",
+    "description": "detection phrase"
+  },
+  "phrase_no_displayable_text": {
+    "message": "no displayable text content produced",
+    "description": "detection phrase"
+  },
+  "phrase_agent_finished_marker": {
+    "message": "AskPage finished",
+    "description": "completion trace marker (kept synced with agent_finished)"
+  },
+  "phrase_agent_stopped_early_marker": {
+    "message": "AskPage stopped early",
+    "description": "completion trace marker (kept synced with agent_stopped_early)"
+  },
+  "tool_def_get_page_metadata": {
+    "message": "Use when the user asks to \"get page info\", \"get web page info\", \"page info\", \"web page data\", or needs the current page's metadata/context. Gets page title, SEO metadata, OpenGraph, Twitter Card, page url, canonical/alternate links, JSON-LD, headings and page statistics.",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_inspect_selection": {
+    "message": "Gets the text and HTML of the current page selection. Use when you need to handle the user's selected content.",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_inspect_form_fields": {
+    "message": "Lists the editable form fields on the current page, including label, name, id, placeholder, type and options. Use this before filling a form.",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_inspect_form_fields_limit": {
+    "message": "Maximum number of fields to return, default 40.",
+    "description": "tool param description"
+  },
+  "tool_def_inspect_form_fields_include_hidden": {
+    "message": "Whether to include hidden fields, default false.",
+    "description": "tool param description"
+  },
+  "tool_def_inspect_form_fields_include_disabled": {
+    "message": "Whether to include disabled fields, default true.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields": {
+    "message": "Fill a form by selector or field name fuzzy match. Supports text inputs, dropdowns, checkboxes and radio buttons.",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_fill_form_fields_fields": {
+    "message": "The list of fields to fill.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_selector": {
+    "message": "Specify the field CSS selector directly.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_field": {
+    "message": "Field name or fuzzy search text.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_label": {
+    "message": "Field label text.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_name": {
+    "message": "Field name.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_id": {
+    "message": "Field id.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_placeholder": {
+    "message": "Field placeholder.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_value": {
+    "message": "The value to write. Used directly for text fields; for select/radio can also serve as the option key or value.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_text": {
+    "message": "The display text or option text to write.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_checked": {
+    "message": "The state to set for the checkbox.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_option_text": {
+    "message": "The option text to select for select/radio.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_option_value": {
+    "message": "The option value to select for select/radio.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_value_key": {
+    "message": "The key or value for select/radio.",
+    "description": "tool param description"
+  },
+  "tool_def_fill_form_fields_value_text": {
+    "message": "The display text for select/radio.",
+    "description": "tool param description"
+  },
+  "tool_def_run_js": {
+    "message": "Execute general JavaScript in the main world of the current page. Can be used to read DOM, query page data, click elements, modify content, inject CSS, adjust page layout, call page scripts, and supports await. When the user asks to modify, rearrange, apply styles, or operate the current page, execute it directly with this tool instead of just providing code or suggestions. The AskPage dialog is extension UI, not page content; do not select, read, modify, or apply styles to #askpage-dialog-host or its shadow DOM, and do not use html/body filter, transform, opacity or other ancestor effects to affect the extension UI. To return a result to the model, use return.",
+    "description": "tool definition description sent to LLM"
+  },
+  "tool_def_run_js_code": {
+    "message": "The JavaScript code to execute. You can use document, window, selection, console and buildElementSelector.",
+    "description": "tool param description"
+  },
+  "content_annotation_cancel": {
+    "message": "Cancel",
+    "description": "annotation cancel button"
+  },
+  "cmd_summary_variables_error": {
+    "message": "Summary prompt contains template variables. Please remove ${variable} placeholders or switch to agent mode."
+  },
+  "modal_mode_unspecified": {
+    "message": "Unspecified"
+  },
+  "modal_prompt_content_help": {
+    "message": "Use ${variable_name} to create fill-in-the-blank prompts, e.g., Hi, I'm ${name} from ${country:TW}."
+  },
+  "modal_show_variable_labels": {
+    "message": "Show variable labels when expanding prompt"
+  },
+  "modal_show_variable_labels_hint": {
+    "message": "When unchecked, unfilled variables show only a blank placeholder with the variable name; once you type, the name disappears. When checked, the \"Variable:\" label persists."
+  },
+  "trace_will_retry_prefix": {
+    "message": "will retry in",
+    "description": "retry detection prefix for status matching"
+  },
+  "trace_executing_tool_html": {
+    "message": "🛠️ Executing <span class=\"askpage-tool-name\">$tool$</span>",
+    "description": "tool call trace HTML",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      }
+    }
+  },
+  "trace_tool_result_html": {
+    "message": "📥 <span class=\"askpage-tool-name\">$tool$</span> returned$success$$summary$",
+    "description": "tool result trace HTML",
+    "placeholders": {
+      "tool": {
+        "content": "$1",
+        "example": "run_js"
+      },
+      "success": {
+        "content": "$2",
+        "example": ""
+      },
+      "summary": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_context_window_short": {
+    "message": "Context window exceeded",
+    "description": "error short reason"
+  },
+  "err_context_window": {
+    "message": "$provider$ reports the page snapshot and full conversation exceed the model's Context Window$suffix$. Please run /clear to start a new conversation; AskPage will not auto-clear or truncate existing conversation.$apiMsg$",
+    "description": "context window error message",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Gemini"
+      },
+      "suffix": {
+        "content": "$2",
+        "example": ""
+      },
+      "apiMsg": {
+        "content": "$3",
+        "example": ""
+      }
+    }
+  },
+  "err_api_message_label": {
+    "message": "\nError message: $msg$",
+    "description": "error message label prefix",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "quota exceeded"
+      }
+    }
+  },
+  "http_status_suffix": {
+    "message": " (HTTP $status$$statusText$)",
+    "description": "HTTP status suffix for error messages",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "429"
+      },
+      "statusText": {
+        "content": "$2",
+        "example": " Too Many Requests"
+      }
+    }
+  },
+  "cmd_variables_hint": {
+    "message": "**$question$ The prompt contains ${variables}. Please type the command and press Tab to expand and fill in the variables.**",
+    "description": "variable hint message",
+    "placeholders": {
+      "question": {
+        "content": "$1",
+        "example": "/greet"
+      }
+    }
+  },
+  "trace_tool_colon_msg": {
+    "message": ": $msg$",
+    "description": "colon separator before truncated tool result message",
+    "placeholders": {
+      "msg": {
+        "content": "$1",
+        "example": "success"
+      }
+    }
+  }
+}

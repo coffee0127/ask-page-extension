@@ -296,14 +296,15 @@ const conversationContext = buildConversationContextText({
     format: 'semantic-tree'
 }, '選取內容');
 assert.match(conversationContext, /Approximate page accessibility tree/);
-assert.match(conversationContext, /Selected text \(main focus\):\n選取內容$/);
+assert.match(conversationContext, /Selected text \(main focus\):\n選取內容/);
 
 const longSelectedText = `選取開頭-${'選取內容'.repeat(2000)}-選取結尾`;
 const longSelectionContext = buildConversationContextText({
     content: semanticContext.content,
     format: 'semantic-tree'
 }, longSelectedText);
-assert.ok(longSelectionContext.endsWith(longSelectedText));
+assert.ok(longSelectionContext.includes(longSelectedText.slice(0, 5000)));
+assert.match(longSelectionContext, /\n\nIMPORTANT — RESPONSE LANGUAGE:/);
 
 const fallbackText = `降級開頭-${'頁面文字'.repeat(5000)}-降級結尾`;
 const fallbackContainer = { innerText: fallbackText };

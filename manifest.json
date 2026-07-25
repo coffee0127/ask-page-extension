@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "頁問 AskPage",
+  "default_locale": "en",
+  "name": "__MSG_ext_name__",
+  "short_name": "__MSG_ext_short_name__",
   "version": "0.36.0",
-  "description": "使用 Gemini API、OpenAI API、Azure OpenAI API 或 OpenAI Compatible API 詢問關於目前頁面的問題",
-  "permissions": [
+  "description": "__MSG_ext_description__",  "permissions": [
     "storage",
     "activeTab",
     "userScripts"
@@ -36,6 +37,7 @@
         "lib/highlight.min.js",
         "lib/marked.min.js",
         "lib/purify.min.js",
+        "lib/i18n.js",
         "content.js"
       ]
     }
@@ -46,14 +48,14 @@
         "default": "Ctrl+Shift+Y",
         "mac": "Command+Shift+Y"
       },
-      "description": "Open AskPage dialog"
+      "description": "__MSG_cmd_toggle_dialog__"
     },
     "switch-provider": {
       "suggested_key": {
         "default": "Ctrl+Shift+S",
         "mac": "MacCtrl+Shift+S"
       },
-      "description": "Switch AI provider"
+      "description": "__MSG_cmd_switch_provider__"
     }
   },
   "web_accessible_resources": [
@@ -66,7 +68,9 @@
         "icons/icon48.png",
         "icons/icon128.png",
         "lib/marked.min.js",
-        "lib/purify.min.js"
+        "lib/purify.min.js",
+        "_locales/en/messages.json",
+        "_locales/zh_TW/messages.json"
       ],
       "matches": [
         "<all_urls>"

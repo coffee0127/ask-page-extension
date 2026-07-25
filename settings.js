@@ -1,4 +1,19 @@
 // AES-256-GCM encryption functions (reused from popup.js)
+//
+// i18n: settings.js uses askpageI18n.t() so the settings page respects the
+// runtime locale switcher (askpageI18n loads _locales/<locale>/messages.json
+// via fetch and bypasses chrome.i18n.getMessage, which is bound to the browser
+// UI locale and cannot be switched at runtime). When askpageI18n is not
+// available (e.g. the Node test sandbox), fall back to chrome.i18n.getMessage
+// so the page still renders. content.js / background.js are intentionally NOT
+// migrated - they run in contexts where askpageI18n is not loaded and continue
+// to use chrome.i18n.getMessage (browser-locale-bound).
+const t = (typeof askpageI18n !== 'undefined' && askpageI18n && typeof askpageI18n.t === 'function')
+    ? askpageI18n.t
+    : (typeof chrome !== 'undefined' && chrome.i18n && typeof chrome.i18n.getMessage === 'function')
+        ? chrome.i18n.getMessage.bind(chrome.i18n)
+        : function () { return ''; };
+
 async function generateEncryptionKey() {
     const key = await crypto.subtle.generateKey(
         { name: 'AES-GCM', length: 256 },
@@ -93,7 +108,8 @@ async function getOrCreateEncryptionKey() {
 }
 
 // DOM elements - 將在 DOMContentLoaded 中初始化
-let resetButton, exportButton, importButton, importFileInput, statusDiv, appVersionSpan;
+let resetButton, exportButton, importButton, importFileInput, statusDiv, footerTextEl;
+let langSelect;
 let commandsList, addCommandBtn, commandModal, modalTitle, modalCommandName, modalCommandPrompt;
 let modalCommandModeAgent, modalCommandModeInquiry, modalCommandModeUnspecified, modalCommandScreenshotEnabled, modalCommandShowVariableLabels;
 let modalSave, modalCancel, modalCommandNameError, modalCommandPromptError;
@@ -127,13 +143,22 @@ const CUSTOM_COMMAND_MODE_UNSPECIFIED = 'unspecified';
 const DEFAULT_CUSTOM_COMMAND_MODE = CUSTOM_COMMAND_MODE_UNSPECIFIED;
 const CUSTOM_COMMAND_PREVIEW_LENGTH = 50;
 
-// Built-in commands that cannot be deleted or modified
-const BUILT_IN_COMMANDS = [
-    { cmd: '/clear', desc: '清除提問歷史紀錄', builtin: true },
-    { cmd: '/summary', desc: '總結本頁內容', builtin: true, editable: true },
-    { cmd: '/screenshot', desc: '切換截圖功能狀態', builtin: true },
-    { cmd: '/agent', desc: '切換詢問 / 代理模式（代理模式會使用頁面 HTML 與工具調用）', builtin: true }
-];
+// Custom summary prompt for the built-in /summary command; persisted separately
+// from customCommands and merged into getBuiltInCommands() at render time so
+// the built-in list stays a fresh per-render array.
+let customSummaryPrompt = '';
+
+// Built-in commands that cannot be deleted or modified. Generated per render
+// so descriptions follow the runtime locale switcher rather than the language
+// active at module load.
+function getBuiltInCommands() {
+    return [
+        { cmd: '/clear', desc: t('cmd_clear_desc'), builtin: true },
+        { cmd: '/summary', desc: t('cmd_summary_desc'), builtin: true, editable: true, prompt: customSummaryPrompt },
+        { cmd: '/screenshot', desc: t('cmd_screenshot_desc'), builtin: true },
+        { cmd: '/agent', desc: t('cmd_agent_desc'), builtin: true }
+    ];
+}
 
 const PREDEFINED_MODELS = {
     gemini: [
@@ -280,13 +305,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     exportButton = document.getElementById('export');
     importButton = document.getElementById('import');
     importFileInput = document.getElementById('importFile');
+    langSelect = document.getElementById('langSelect');
     statusDiv = document.getElementById('status');
-    appVersionSpan = document.getElementById('appVersion');
+    footerTextEl = document.getElementById('footerText');
 
-    // Display version
+    // Display version + footer credit via i18n (credit link HTML is the $credit$ substitution)
     const manifest = chrome.runtime.getManifest();
-    if (appVersionSpan) {
-        appVersionSpan.textContent = manifest.version;
+    if (footerTextEl) {
+        const creditText = t('footer_credit');
+        const creditHtml = `<a href="https://www.facebook.com/will.fans/" target="_blank" rel="noopener noreferrer">${creditText}</a>`;
+        footerTextEl.innerHTML = t('footer_text', [creditHtml, String(manifest.version)]);
     }
 
     commandsList = document.getElementById('commandsList');
@@ -348,7 +376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         clearTimeout(promptSaveTimeout);
         promptSaveTimeout = setTimeout(async () => {
             await saveCustomSystemPrompt();
-            showStatus('系統提示已自動儲存！', 'success');
+            showStatus(t('status_system_prompt_saved'), 'success');
         }, 500);
     });
 
@@ -386,9 +414,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Reset settings functionality
     resetButton.addEventListener('click', () => {
-        if (confirm('確定要重置所有設定嗎？\n\n這會清除 AI 提供者、API Key、斜線命令、提問歷史與所有其他設定。')) {
+        if (confirm(t('alert_reset_confirm'))) {
             chrome.storage.local.clear(() => {
-                showStatus('設定已重置！', 'success');
+                showStatus(t('status_settings_reset'), 'success');
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
@@ -407,7 +435,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             a.download = `ask-page-settings-${timestamp}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            showStatus('設定已匯出！', 'success');
+            showStatus(t('status_settings_exported'), 'success');
         });
     });
 
@@ -415,6 +443,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     importButton.addEventListener('click', () => {
         importFileInput.click();
     });
+
+    // Language switcher: initialize to the current effective locale and update
+    // the pref on change. askpageI18n.setLocale persists ASKPAGE_LOCALE_PREF,
+    // reloads the messages bundle, and fires onChange; i18n-bootstrap listens
+    // to onChange and re-applies all data-i18n* elements. Some settings.js
+    // callers use t() at render time (renderCommands, renderProviders), so we
+    // also re-render the dynamic sections after a locale switch.
+    if (langSelect) {
+        const syncLangSelect = () => {
+            const current = (typeof askpageI18n !== 'undefined' && askpageI18n && typeof askpageI18n.getLocale === 'function')
+                ? askpageI18n.getLocale()
+                : 'en';
+            if (langSelect.value !== current) {
+                langSelect.value = current;
+            }
+        };
+        syncLangSelect();
+        // Keep the select in sync if the locale changes elsewhere.
+        if (typeof askpageI18n !== 'undefined' && askpageI18n && typeof askpageI18n.onChange === 'function') {
+            askpageI18n.onChange(syncLangSelect);
+        }
+        langSelect.addEventListener('change', async () => {
+            const value = langSelect.value;
+            if (typeof askpageI18n !== 'undefined' && askpageI18n && typeof askpageI18n.setLocale === 'function') {
+                await askpageI18n.setLocale(value);
+                // Re-render dynamic sections whose text comes from t() at render
+                // time. Provider active-highlight state lives only in block-local
+                // vars on initial load, so re-read it from storage to preserve it.
+                renderCommands();
+                chrome.storage.local.get(['ACTIVE_PROVIDER_ID', 'ACTIVE_MODEL'], (activeResult) => {
+                    renderProviders(activeResult.ACTIVE_PROVIDER_ID || '', activeResult.ACTIVE_MODEL || '');
+                });
+            }
+        });
+    }
 
     // Handle File Import
     importFileInput.addEventListener('change', (e) => {
@@ -432,9 +495,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     throw new Error('Invalid settings format');
                 }
 
-                if (confirm('確定要匯入此設定檔嗎？這將會覆蓋您目前的設定。')) {
+                if (confirm(t('alert_import_confirm'))) {
                     chrome.storage.local.set(settings, () => {
-                        showStatus('設定匯入成功！正在重新載入...', 'success');
+                        showStatus(t('status_settings_imported_reloading'), 'success');
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -442,7 +505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (error) {
                 console.error('Import error:', error);
-                showStatus('匯入失敗：檔案格式錯誤', 'error');
+                showStatus(t('err_import_invalid_format'), 'error');
             }
             // Reset input value to allow importing same file again
             importFileInput.value = '';
@@ -491,7 +554,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isBuiltIn = Boolean(command && command.builtin);
 
         if (command) {
-            modalTitle.textContent = command.builtin ? '編輯內建命令' : '編輯自訂命令';
+            modalTitle.textContent = command.builtin ? t('modal_edit_builtin_command') : t('modal_edit_custom_command');
             modalCommandName.value = command.cmd;
             modalCommandName.disabled = command.builtin;
             modalCommandPrompt.value = command.prompt || '';
@@ -506,7 +569,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 modalCommandScreenshotEnabled.checked = false;
             }
         } else {
-            modalTitle.textContent = '新增自訂命令';
+            modalTitle.textContent = t('modal_new_custom_command');
             modalCommandName.value = '';
             modalCommandName.disabled = false;
             modalCommandPrompt.value = '';
@@ -541,7 +604,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Check if command already exists
     function findExistingCommand(name, excludeCurrent = false) {
-        const allCommands = [...BUILT_IN_COMMANDS, ...customCommands];
+        const allCommands = [...getBuiltInCommands(), ...customCommands];
         return allCommands.find(cmd =>
             cmd.cmd === name &&
             (!excludeCurrent || !currentEditingCommand || cmd.cmd !== currentEditingCommand.cmd)
@@ -572,18 +635,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (!name) {
-            return showEmptyError ? '請輸入命令名稱' : '';
+            return showEmptyError ? t('err_enter_command_name') : '';
         }
 
         if (!isValidCommandName(name)) {
-            return '命令名稱格式不正確，必須以 / 開頭且只能包含字母、數字、底線和連字符';
+            return t('err_command_name_format');
         }
 
         const existingCommand = findExistingCommand(name, excludeCurrent);
         if (existingCommand) {
             return existingCommand.builtin ?
-                '命令名稱不能與內建命令重複' :
-                '命令名稱已被既有自訂命令使用';
+                t('err_command_name_dup_builtin') :
+                t('err_command_name_dup_custom');
         }
 
         return '';
@@ -696,23 +759,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveCustomCommands();
         renderCommands();
         closeModal();
-        showStatus('命令已儲存', 'success');
+        showStatus(t('status_command_saved'), 'success');
     }
 
     // Delete custom command
     function deleteCommand(command) {
         if (command.builtin) {
-            showStatus('無法刪除內建命令', 'error');
+            showStatus(t('err_cannot_delete_builtin'), 'error');
             return;
         }
 
-        if (confirm(`確定要刪除命令 ${command.cmd} 嗎？`)) {
+        if (confirm(t('alert_delete_command_confirm', [String(command.cmd)]))) {
             const index = customCommands.findIndex(cmd => cmd.cmd === command.cmd);
             if (index !== -1) {
                 customCommands.splice(index, 1);
                 saveCustomCommands();
                 renderCommands();
-                showStatus('命令已刪除', 'success');
+                showStatus(t('status_command_deleted'), 'success');
             }
         }
     }
@@ -724,7 +787,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function updateCustomSystemPromptCount() {
         const textLength = customSystemPromptTextarea.value.length;
-        customSystemPromptCount.textContent = `${textLength} 字元`;
+        customSystemPromptCount.textContent = t('char_count_suffix', [String(textLength)]);
     }
 
     async function saveCustomSystemPrompt() {
@@ -737,7 +800,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         commandsList.innerHTML = '';
 
         // Render built-in commands
-        BUILT_IN_COMMANDS.forEach(command => {
+        getBuiltInCommands().forEach(command => {
             const commandElement = createCommandElement(command);
             commandsList.appendChild(commandElement);
         });
@@ -767,15 +830,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
                 <div class="command-actions">
-                    ${isBuiltIn ? '<span class="built-in-badge">內建</span>' : ''}
-                    ${isEditable ? `<button class="btn-secondary btn-small" data-action="edit" data-command="${command.cmd}">
-                        <span class="icon">✏️</span>
-                        編輯
-                    </button>` : ''}
-                    ${!isBuiltIn ? `<button class="btn-danger btn-small" data-action="delete" data-command="${command.cmd}">
-                        <span class="icon">🗑️</span>
-                        刪除
-                    </button>` : ''}
+                    ${isBuiltIn ? `<span class="built-in-badge">${t('builtin_badge')}</span>` : ''}
+                    ${isEditable ? `<button class="btn-secondary btn-small" data-action="edit" data-command="${command.cmd}">${t('btn_edit')}</button>` : ''}
+                    ${!isBuiltIn ? `<button class="btn-danger btn-small" data-action="delete" data-command="${command.cmd}">${t('btn_delete')}</button>` : ''}
                 </div>
             </div>
         `;
@@ -898,7 +955,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const cmdName = button.dataset.command;
 
         if (action === 'edit') {
-            let command = BUILT_IN_COMMANDS.find(cmd => cmd.cmd === cmdName);
+            let command = getBuiltInCommands().find(cmd => cmd.cmd === cmdName);
             if (!command) {
                 command = customCommands.find(cmd => cmd.cmd === cmdName);
             }
@@ -949,10 +1006,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         customCommands = normalizeCustomCommands(result[CUSTOM_COMMANDS_STORAGE]);
 
         // Load custom summary prompt for built-in /summary command
-        const summaryCommand = BUILT_IN_COMMANDS.find(cmd => cmd.cmd === '/summary');
+        const summaryCommand = getBuiltInCommands().find(cmd => cmd.cmd === '/summary');
         if (summaryCommand) {
-            const customSummaryPrompt = result[CUSTOM_SUMMARY_PROMPT_STORAGE];
-            if (customSummaryPrompt) {
+            const storedSummaryPrompt = result[CUSTOM_SUMMARY_PROMPT_STORAGE];
+            if (storedSummaryPrompt) {
+                customSummaryPrompt = String(storedSummaryPrompt);
                 summaryCommand.prompt = customSummaryPrompt;
             }
             summaryCommand.showVariableLabels = result[CUSTOM_SUMMARY_SHOW_VARIABLE_LABELS_STORAGE] === true;
@@ -980,7 +1038,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (providers.length === 0) {
             providersList.innerHTML = `
                 <div style="text-align: center; padding: 24px; color: var(--text-secondary);">
-                    尚未新增任何 AI 提供者，請點擊下方的「新增 AI 提供者」按鈕。
+                    ${t('provider_list_empty')}
                 </div>
             `;
             return;
@@ -1040,18 +1098,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 modelsHtml = `<span class="model-badge ${isActive ? 'active' : ''}" data-action="set-active" data-provider-id="${p.id}" data-model="${p.azureDeployment}">${isActive ? '✓ ' : ''}${p.azureDeployment}</span>`;
             } else if (p.type === 'ollama') {
                 const isActive = (p.id === activeProviderId && p.ollamaModel === activeModel);
-                modelsHtml = `<span class="model-badge ${isActive ? 'active' : ''}" data-action="set-active" data-provider-id="${p.id}" data-model="${p.ollamaModel}">${isActive ? '✓ ' : ''}${p.ollamaModel || '(未指定模型)'}</span>`;
+                modelsHtml = `<span class="model-badge ${isActive ? 'active' : ''}" data-action="set-active" data-provider-id="${p.id}" data-model="${p.ollamaModel}">${isActive ? '✓ ' : ''}${p.ollamaModel || t('provider_model_unspecified')}</span>`;
             }
 
             let details = '';
             if (p.type === 'azure') {
-                details = `<div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">端點: ${p.azureEndpoint || ''}</div>`;
+                details = `<div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">${t('provider_endpoint_label', [String(p.azureEndpoint || '')])}</div>`;
             } else if (p.type === 'ollama') {
-                details = `<div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">端點: ${p.ollamaEndpoint || 'http://localhost:11434/v1'}</div>`;
+                details = `<div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">${t('provider_endpoint_label', [String(p.ollamaEndpoint || 'http://localhost:11434/v1')])}</div>`;
             } else if (p.type === 'ollama-cloud') {
-                details = '<div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">端點: https://ollama.com/v1</div>';
+                details = `<div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">${t('provider_endpoint_ollama_cloud')}</div>`;
             } else if (p.type === 'openai-compatible') {
-                details = `<div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">端點: ${p.openaiCompatibleEndpoint || ''}</div>`;
+                details = `<div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">${t('provider_endpoint_label', [String(p.openaiCompatibleEndpoint || '')])}</div>`;
             }
 
             div.innerHTML = `
@@ -1068,10 +1126,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     <div class="command-actions" style="flex-shrink: 0; margin-left: 16px; display: flex; gap: 8px;">
                         <button class="btn-secondary btn-small" data-action="edit-provider" data-id="${p.id}">
-                            ✏️ 編輯
+                            ${t('btn_edit')}
                         </button>
                         <button class="btn-danger btn-small" data-action="delete-provider" data-id="${p.id}">
-                            🗑️ 刪除
+                            ${t('btn_delete')}
                         </button>
                     </div>
                 </div>
@@ -1127,7 +1185,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         modalOpenaiCompatibleModelsListGroup.style.display = 'none';
 
         if (provider) {
-            providerModalTitle.textContent = '編輯 AI 提供者';
+            providerModalTitle.textContent = t('modal_edit_provider_title');
             modalProviderName.value = provider.name || '';
             modalProviderType.value = provider.type;
 
@@ -1193,7 +1251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderModalModelsList(modalOllamaCloudModelsList, combinedModels, configuredModels);
             }
         } else {
-            providerModalTitle.textContent = '新增 AI 提供者';
+            providerModalTitle.textContent = t('modal_add_provider_title');
             modalProviderName.value = modalProviderType.options[modalProviderType.selectedIndex].text;
 
             // Set Gemini defaults
@@ -1290,7 +1348,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (type === 'gemini') {
             apiKeyRaw = modalGeminiApiKey.value.trim();
             if (!apiKeyRaw) {
-                alert('請輸入 Gemini API Key');
+                alert(t('alert_enter_gemini_apikey'));
                 return;
             }
             const selectedModels = [];
@@ -1298,14 +1356,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedModels.push(cb.value);
             });
             if (selectedModels.length === 0) {
-                alert('請至少勾選一個 Gemini 模型');
+                alert(t('alert_select_at_least_one_gemini_model'));
                 return;
             }
             providerData.models = selectedModels;
         } else if (type === 'openai') {
             apiKeyRaw = modalOpenaiApiKey.value.trim();
             if (!apiKeyRaw) {
-                alert('請輸入 OpenAI API Key');
+                alert(t('alert_enter_openai_apikey'));
                 return;
             }
             const selectedModels = [];
@@ -1313,7 +1371,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedModels.push(cb.value);
             });
             if (selectedModels.length === 0) {
-                alert('請至少勾選一個 OpenAI 模型');
+                alert(t('alert_select_at_least_one_openai_model'));
                 return;
             }
             providerData.models = selectedModels;
@@ -1324,7 +1382,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const apiVersion = modalAzureApiVersion.value;
 
             if (!apiKeyRaw || !endpoint || !deployment) {
-                alert('請填寫 Azure OpenAI 的 API Key、Endpoint 與 Deployment Name');
+                alert(t('alert_fill_azure_fields'));
                 return;
             }
             providerData.azureEndpoint = endpoint;
@@ -1336,7 +1394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             apiKeyRaw = modalOpenaiCompatibleApiKey.value.trim();
 
             if (!endpoint) {
-                alert('請填寫 API Endpoint');
+                alert(t('alert_fill_api_endpoint'));
                 return;
             }
 
@@ -1346,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     selectedModels.push(cb.value);
                 });
                 if (selectedModels.length === 0) {
-                    alert('請至少勾選一個模型');
+                    alert(t('alert_select_at_least_one_model'));
                     return;
                 }
                 providerData.openaiCompatibleEndpoint = endpoint;
@@ -1355,12 +1413,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 const modelStr = modalOpenaiCompatibleModel.value.trim();
                 if (!modelStr) {
-                    alert('請填寫模型名稱');
+                    alert(t('alert_fill_model_name'));
                     return;
                 }
                 const models = modelStr.split(/[,，]/).map(m => m.trim()).filter(Boolean);
                 if (models.length === 0) {
-                    alert('請填寫模型名稱');
+                    alert(t('alert_fill_model_name'));
                     return;
                 }
                 providerData.openaiCompatibleEndpoint = endpoint;
@@ -1370,7 +1428,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else if (type === 'anthropic') {
             apiKeyRaw = modalAnthropicApiKey.value.trim();
             if (!apiKeyRaw) {
-                alert('請輸入 Anthropic API Key');
+                alert(t('alert_enter_anthropic_apikey'));
                 return;
             }
             const selectedModels = [];
@@ -1378,14 +1436,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedModels.push(cb.value);
             });
             if (selectedModels.length === 0) {
-                alert('請至少勾選一個 Anthropic 模型');
+                alert(t('alert_select_at_least_one_anthropic_model'));
                 return;
             }
             providerData.models = selectedModels;
         } else if (type === 'deepseek') {
             apiKeyRaw = modalDeepseekApiKey.value.trim();
             if (!apiKeyRaw) {
-                alert('請輸入 DeepSeek API Key');
+                alert(t('alert_enter_deepseek_apikey'));
                 return;
             }
             const selectedModels = [];
@@ -1393,14 +1451,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedModels.push(cb.value);
             });
             if (selectedModels.length === 0) {
-                alert('請至少勾選一個 DeepSeek 模型');
+                alert(t('alert_select_at_least_one_deepseek_model'));
                 return;
             }
             providerData.models = selectedModels;
         } else if (type === 'openrouter') {
             apiKeyRaw = modalOpenrouterApiKey.value.trim();
             if (!apiKeyRaw) {
-                alert('請輸入 OpenRouter API Key');
+                alert(t('alert_enter_openrouter_apikey'));
                 return;
             }
             const selectedModels = [];
@@ -1408,14 +1466,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedModels.push(cb.value);
             });
             if (selectedModels.length === 0) {
-                alert('請至少勾選一個 OpenRouter 模型');
+                alert(t('alert_select_at_least_one_openrouter_model'));
                 return;
             }
             providerData.models = selectedModels;
         } else if (type === 'groq') {
             apiKeyRaw = modalGroqApiKey.value.trim();
             if (!apiKeyRaw) {
-                alert('請輸入 Groq API Key');
+                alert(t('alert_enter_groq_apikey'));
                 return;
             }
             const selectedModels = [];
@@ -1423,14 +1481,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedModels.push(cb.value);
             });
             if (selectedModels.length === 0) {
-                alert('請至少勾選一個 Groq 模型');
+                alert(t('alert_select_at_least_one_groq_model'));
                 return;
             }
             providerData.models = selectedModels;
         } else if (type === 'mistral') {
             apiKeyRaw = modalMistralApiKey.value.trim();
             if (!apiKeyRaw) {
-                alert('請輸入 Mistral API Key');
+                alert(t('alert_enter_mistral_apikey'));
                 return;
             }
             const selectedModels = [];
@@ -1438,7 +1496,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedModels.push(cb.value);
             });
             if (selectedModels.length === 0) {
-                alert('請至少勾選一個 Mistral 模型');
+                alert(t('alert_select_at_least_one_mistral_model'));
                 return;
             }
             providerData.models = selectedModels;
@@ -1447,7 +1505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const model = modalOllamaModel.value.trim();
 
             if (!endpoint || !model) {
-                alert('請填寫 Ollama API Endpoint 與模型名稱');
+                alert(t('alert_fill_ollama_endpoint_model'));
                 return;
             }
             providerData.ollamaEndpoint = endpoint;
@@ -1457,7 +1515,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else if (type === 'ollama-cloud') {
             apiKeyRaw = modalOllamaCloudApiKey.value.trim();
             if (!apiKeyRaw) {
-                alert('請輸入 Ollama Cloud API Key');
+                alert(t('alert_enter_ollama_cloud_apikey'));
                 return;
             }
             const selectedModels = [];
@@ -1465,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedModels.push(cb.value);
             });
             if (selectedModels.length === 0) {
-                alert('請至少勾選一個 Ollama Cloud 模型');
+                alert(t('alert_select_at_least_one_ollama_cloud_model'));
                 return;
             }
             providerData.models = selectedModels;
@@ -1517,7 +1575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         providerModal.style.display = 'none';
         currentEditingProvider = null;
         renderProviders(activeProviderId, activeModel);
-        showStatus('提供者已儲存！', 'success');
+        showStatus(t('status_provider_saved'), 'success');
     }
 
     async function testProviderConnection() {
@@ -1530,7 +1588,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Disable button and show status
         modalProviderTest.disabled = true;
         const originalText = modalProviderTest.textContent;
-        modalProviderTest.textContent = '⏳ 測試中...';
+        modalProviderTest.textContent = t('status_testing');
 
         try {
             let response;
@@ -1542,20 +1600,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (type === 'gemini') {
                 const apiKey = modalGeminiApiKey.value.trim();
                 if (!apiKey) {
-                    throw new Error('請先輸入 Gemini API Key');
+                    throw new Error(t('err_enter_gemini_apikey_first'));
                 }
                 url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
             } else if (type === 'openai') {
                 const apiKey = modalOpenaiApiKey.value.trim();
                 if (!apiKey) {
-                    throw new Error('請先輸入 OpenAI API Key');
+                    throw new Error(t('err_enter_openai_apikey_first'));
                 }
                 url = 'https://api.openai.com/v1/models';
                 headers['Authorization'] = `Bearer ${apiKey}`;
             } else if (type === 'anthropic') {
                 const apiKey = modalAnthropicApiKey.value.trim();
                 if (!apiKey) {
-                    throw new Error('請先輸入 Anthropic API Key');
+                    throw new Error(t('err_enter_anthropic_apikey_first'));
                 }
                 url = 'https://api.anthropic.com/v1/models';
                 headers['x-api-key'] = apiKey;
@@ -1564,35 +1622,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (type === 'deepseek') {
                 const apiKey = modalDeepseekApiKey.value.trim();
                 if (!apiKey) {
-                    throw new Error('請先輸入 DeepSeek API Key');
+                    throw new Error(t('err_enter_deepseek_apikey_first'));
                 }
                 url = 'https://api.deepseek.com/v1/models';
                 headers['Authorization'] = `Bearer ${apiKey}`;
             } else if (type === 'openrouter') {
                 const apiKey = modalOpenrouterApiKey.value.trim();
                 if (!apiKey) {
-                    throw new Error('請先輸入 OpenRouter API Key');
+                    throw new Error(t('err_enter_openrouter_apikey_first'));
                 }
                 url = 'https://openrouter.ai/api/v1/models';
                 headers['Authorization'] = `Bearer ${apiKey}`;
             } else if (type === 'groq') {
                 const apiKey = modalGroqApiKey.value.trim();
                 if (!apiKey) {
-                    throw new Error('請先輸入 Groq API Key');
+                    throw new Error(t('err_enter_groq_apikey_first'));
                 }
                 url = 'https://api.groq.com/openai/v1/models';
                 headers['Authorization'] = `Bearer ${apiKey}`;
             } else if (type === 'mistral') {
                 const apiKey = modalMistralApiKey.value.trim();
                 if (!apiKey) {
-                    throw new Error('請先輸入 Mistral API Key');
+                    throw new Error(t('err_enter_mistral_apikey_first'));
                 }
                 url = 'https://api.mistral.ai/v1/models';
                 headers['Authorization'] = `Bearer ${apiKey}`;
             } else if (type === 'ollama-cloud') {
                 const apiKey = modalOllamaCloudApiKey.value.trim();
                 if (!apiKey) {
-                    throw new Error('請先輸入 Ollama Cloud API Key');
+                    throw new Error(t('err_enter_ollama_cloud_apikey_first'));
                 }
                 url = 'https://ollama.com/v1/models';
                 headers['Authorization'] = `Bearer ${apiKey}`;
@@ -1603,7 +1661,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const apiVersion = modalAzureApiVersion.value;
 
                 if (!apiKey || !endpoint || !deployment) {
-                    throw new Error('請填寫 Azure OpenAI 的 API Key、Endpoint 與 Deployment Name');
+                    throw new Error(t('err_fill_azure_fields'));
                 }
 
                 const useResponsesApi = shouldUseResponsesApi(deployment);
@@ -1638,7 +1696,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const endpoint = modalOllamaEndpoint.value.trim() || 'http://localhost:11434/v1';
                 const model = modalOllamaModel.value.trim();
                 if (!model) {
-                    throw new Error('請填寫 Ollama 模型名稱');
+                    throw new Error(t('err_fill_ollama_model_name'));
                 }
                 url = `${endpoint}/models`;
             } else if (type === 'openai-compatible') {
@@ -1646,7 +1704,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const apiKey = modalOpenaiCompatibleApiKey.value.trim();
 
                 if (!endpoint) {
-                    throw new Error('請填寫 API Endpoint');
+                    throw new Error(t('err_fill_api_endpoint'));
                 }
 
                 url = endpoint.endsWith('/models') ? endpoint : `${endpoint.replace(/\/$/, '')}/models`;
@@ -1654,7 +1712,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     headers['Authorization'] = `Bearer ${apiKey}`;
                 }
             } else {
-                throw new Error('未知的提供者類型');
+                throw new Error(t('err_unknown_provider_type'));
             }
 
             // Perform request
@@ -1701,14 +1759,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // Connection test succeeded!
-            modalProviderTestResult.textContent = '🟢 連線測試成功';
+            modalProviderTestResult.textContent = t('status_connection_success');
             modalProviderTestResult.style.color = 'var(--success-color)';
             modalProviderTestResult.style.display = 'inline-block';
         } catch (err) {
             console.error('Connection test failed details:', err);
 
             const errorMsg = err.message || err;
-            modalProviderTestResult.textContent = `🔴 連線失敗: ${errorMsg}`;
+            modalProviderTestResult.textContent = t('status_connection_failed', [String(errorMsg)]);
             modalProviderTestResult.style.color = 'var(--danger-color)';
             modalProviderTestResult.style.display = 'inline-block';
         } finally {
@@ -1719,7 +1777,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function deleteProvider(id) {
         const providerName = providers.find(p => p.id === id)?.name || '';
-        if (confirm(`確定要刪除「${providerName}」提供者嗎？`)) {
+        if (confirm(t('alert_delete_provider_confirm', [String(providerName)]))) {
             const index = providers.findIndex(p => p.id === id);
             if (index !== -1) {
                 providers.splice(index, 1);
@@ -1744,7 +1802,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 renderProviders(activeProviderId, activeModel);
-                showStatus('提供者已刪除', 'success');
+                showStatus(t('status_provider_deleted'), 'success');
             }
         }
     }
@@ -1762,7 +1820,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             renderProviders(providerId, model);
-            showStatus(`已切換使用模型為 ${model}`, 'success');
+            showStatus(t('status_switched_model', [String(model)]), 'success');
             return;
         }
 
@@ -1822,7 +1880,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         btn.disabled = true;
         const originalText = btn.textContent;
-        btn.textContent = '⏳ 處理中...';
+        btn.textContent = t('status_processing');
 
         try {
             if (action === 'fetch-models') {
@@ -1834,7 +1892,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (err) {
             console.error('Model action failed', err);
-            alert(`操作失敗: ${err.message || err}`);
+            alert(t('alert_operation_failed', [String(err.message || err)]));
         } finally {
             btn.disabled = false;
             btn.textContent = originalText;
@@ -1865,43 +1923,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 1. Get API Key based on providerType
         if (providerType === 'gemini') {
             apiKey = modalGeminiApiKey.value.trim();
-            if (!apiKey) {throw new Error('請先輸入 Gemini API Key');}
+            if (!apiKey) {throw new Error(t('err_enter_gemini_apikey_first'));}
             url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
         } else if (providerType === 'openai') {
             apiKey = modalOpenaiApiKey.value.trim();
-            if (!apiKey) {throw new Error('請先輸入 OpenAI API Key');}
+            if (!apiKey) {throw new Error(t('err_enter_openai_apikey_first'));}
             url = 'https://api.openai.com/v1/models';
             headers['Authorization'] = `Bearer ${apiKey}`;
         } else if (providerType === 'anthropic') {
             apiKey = modalAnthropicApiKey.value.trim();
-            if (!apiKey) {throw new Error('請先輸入 Anthropic API Key');}
+            if (!apiKey) {throw new Error(t('err_enter_anthropic_apikey_first'));}
             url = 'https://api.anthropic.com/v1/models';
             headers['x-api-key'] = apiKey;
             headers['anthropic-version'] = '2023-06-01';
             headers['anthropic-dangerous-direct-browser-access'] = 'true';
         } else if (providerType === 'deepseek') {
             apiKey = modalDeepseekApiKey.value.trim();
-            if (!apiKey) {throw new Error('請先輸入 DeepSeek API Key');}
+            if (!apiKey) {throw new Error(t('err_enter_deepseek_apikey_first'));}
             url = 'https://api.deepseek.com/v1/models';
             headers['Authorization'] = `Bearer ${apiKey}`;
         } else if (providerType === 'openrouter') {
             apiKey = modalOpenrouterApiKey.value.trim();
-            if (!apiKey) {throw new Error('請先輸入 OpenRouter API Key');}
+            if (!apiKey) {throw new Error(t('err_enter_openrouter_apikey_first'));}
             url = 'https://openrouter.ai/api/v1/models';
             headers['Authorization'] = `Bearer ${apiKey}`;
         } else if (providerType === 'groq') {
             apiKey = modalGroqApiKey.value.trim();
-            if (!apiKey) {throw new Error('請先輸入 Groq API Key');}
+            if (!apiKey) {throw new Error(t('err_enter_groq_apikey_first'));}
             url = 'https://api.groq.com/openai/v1/models';
             headers['Authorization'] = `Bearer ${apiKey}`;
         } else if (providerType === 'mistral') {
             apiKey = modalMistralApiKey.value.trim();
-            if (!apiKey) {throw new Error('請先輸入 Mistral API Key');}
+            if (!apiKey) {throw new Error(t('err_enter_mistral_apikey_first'));}
             url = 'https://api.mistral.ai/v1/models';
             headers['Authorization'] = `Bearer ${apiKey}`;
         } else if (providerType === 'ollama-cloud') {
             apiKey = modalOllamaCloudApiKey.value.trim();
-            if (!apiKey) {throw new Error('請先輸入 Ollama Cloud API Key');}
+            if (!apiKey) {throw new Error(t('err_enter_ollama_cloud_apikey_first'));}
             url = 'https://ollama.com/v1/models';
             headers['Authorization'] = `Bearer ${apiKey}`;
         }
@@ -1910,7 +1968,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(url, { headers });
         if (!response.ok) {
             const errText = await response.text();
-            throw new Error(`API 回傳錯誤: ${response.status} ${errText || ''}`);
+            throw new Error(t('err_api_error_status', [String(response.status), String(errText || '')]));
         }
 
         const data = await response.json();
@@ -1930,7 +1988,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (models.length === 0) {
-            throw new Error('未找到任何可用的模型名稱');
+            throw new Error(t('err_no_models_found'));
         }
 
         // Get container
@@ -1957,15 +2015,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         ]));
 
         renderModalModelsList(container, combinedModels, checkedModels);
-        showStatus(`已成功載入 ${models.length} 個模型！`, 'success');
+        showStatus(t('status_models_loaded', [String(models.length)]), 'success');
     }
 
     function addCustomModelName(providerType) {
-        const modelName = prompt('請輸入要手動新增的模型名稱：');
+        const modelName = prompt(t('prompt_enter_manual_model_name'));
         if (modelName === null) {return;} // User cancelled
         const trimmed = modelName.trim();
         if (!trimmed) {
-            alert('模型名稱不能為空');
+            alert(t('alert_model_name_empty'));
             return;
         }
 
@@ -1996,7 +2054,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Re-render
         renderModalModelsList(container, currentModels, checkedModels);
-        showStatus(`已手動加入並選取模型：${trimmed}`, 'success');
+        showStatus(t('status_manual_model_added', [String(trimmed)]), 'success');
     }
 
     async function fetchCustomEndpointModels(providerType) {
@@ -2008,7 +2066,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             endpoint = modalOllamaEndpoint.value.trim() || 'http://localhost:11434/v1';
         } else if (providerType === 'openai-compatible') {
             endpoint = modalOpenaiCompatibleEndpoint.value.trim();
-            if (!endpoint) {throw new Error('請先輸入 API Endpoint');}
+            if (!endpoint) {throw new Error(t('err_fill_api_endpoint_first'));}
             apiKey = modalOpenaiCompatibleApiKey.value.trim();
             if (apiKey) {
                 headers['Authorization'] = `Bearer ${apiKey}`;
@@ -2030,7 +2088,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (e) {
                 const baseUrl = endpoint.replace(/\/v1\/?$/, '');
                 const response = await fetch(`${baseUrl}/api/tags`);
-                if (!response.ok) {throw new Error('無法連線至 Ollama 服務');}
+                if (!response.ok) {throw new Error(t('err_cannot_connect_ollama'));}
                 const data = await response.json();
                 if (data.models && Array.isArray(data.models)) {
                     models = data.models.map(m => m.name || m.model).filter(Boolean);
@@ -2041,7 +2099,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch(url, { headers });
             if (!response.ok) {
                 const errText = await response.text();
-                throw new Error(`API 回傳錯誤: ${response.status} ${errText || ''}`);
+                throw new Error(t('err_api_error_status', [String(response.status), String(errText || '')]));
             }
             const data = await response.json();
             const list = data.data || data.models || [];
@@ -2051,21 +2109,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (models.length === 0) {
-            throw new Error('未找到任何可用的模型名稱');
+            throw new Error(t('err_no_models_found'));
         }
 
         // Sort alphabetically
         models.sort((a, b) => a.localeCompare(b));
 
         if (providerType === 'ollama') {
-            const promptMsg = '已成功載入下列模型名稱。請複製或直接輸入您要選取的模型名稱：\n\n' + models.join('\n');
+            const promptMsg = t('prompt_loaded_models_hint', [models.join('\n')]);
             const currentVal = modalOllamaModel.value;
             const choice = prompt(promptMsg, currentVal || models[0]);
             if (choice !== null) {
                 const trimmedChoice = choice.trim();
                 if (trimmedChoice) {
                     modalOllamaModel.value = trimmedChoice;
-                    showStatus(`已選取模型：${trimmedChoice}`, 'success');
+                    showStatus(t('status_model_selected', [String(trimmedChoice)]), 'success');
                 }
             }
         } else {
@@ -2093,7 +2151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const combinedModels = Array.from(new Set([...models, ...checkedModels]));
 
             renderModalModelsList(modalOpenaiCompatibleModelsList, combinedModels, checkedModels);
-            showStatus(`已成功載入 ${models.length} 個模型！`, 'success');
+            showStatus(t('status_models_loaded', [String(models.length)]), 'success');
         }
     }
 

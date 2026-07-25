@@ -1,10 +1,45 @@
 'use strict';
 
+const LOCALE_PREF_KEY = 'ASKPAGE_LOCALE_PREF';
+const AVAILABLE_LOCALES = ['en', 'zh_TW'];
+let resolvedUserLocale = null;
+
+// Prefer the runtime locale loader (settings preferred locale) over
+// chrome.i18n.getMessage (bound to browser UI locale). Falls back to
+// chrome.i18n.getMessage if the loader is unavailable (e.g. Node test
+// sandbox) so the page still renders.
+function t(key, substitutions) {
+    if (typeof askpageI18n !== 'undefined' && askpageI18n && askpageI18n.t) {
+        return askpageI18n.t(key, substitutions);
+    }
+    if (typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getMessage) {
+        return chrome.i18n.getMessage(key, substitutions);
+    }
+    return '';
+}
+
 // Log content script loading
 console.log('[AskPage] ===== CONTENT SCRIPT LOADED =====');
 console.log('[AskPage] Content script loaded at:', new Date().toISOString());
 console.log('[AskPage] URL:', window.location.href);
 console.log('[AskPage] Document ready state:', document.readyState);
+
+// Resolve the user's preferred response language early so the first
+// buildSystemPrompt call can use it; getUserResponseLocale() falls back to
+// the browser UI language until this completes.
+resolveUserLocale();
+
+// Re-render the open dialog when the runtime locale changes (e.g. the user
+// switched language in the settings tab). Closing lets the next open show
+// the new locale; conversation history is module-level and preserved.
+if (typeof askpageI18n !== 'undefined' && askpageI18n && typeof askpageI18n.onChange === 'function') {
+    askpageI18n.onChange(() => {
+        if (isDialogVisible) {
+            closeActiveDialog();
+            isDialogVisible = false;
+        }
+    });
+}
 
 // Global state to prevent multiple dialogs
 let isDialogVisible = false;
@@ -22,6 +57,7 @@ const MAX_INPUT_CONTEXT_IMAGES = 4;
 const MAX_INPUT_CONTEXT_IMAGE_FILE_BYTES = 10 * 1024 * 1024;
 const MAX_FORM_FIELD_DISCOVERY = 80;
 const MAX_TOOL_CALL_ROUNDS = 50;
+const MAX_SELECTED_TEXT_CONTEXT_LENGTH = 5000;
 const GEMINI_EMPTY_RESPONSE_RETRY_LIMIT = 1;
 const DEBUG_API_CURL = false;
 const DEFAULT_GEMINI_MAX_OUTPUT_TOKENS = 65536;
@@ -118,19 +154,19 @@ function buildGeminiToolConfig(model = '', includePageTools = false) {
 function getOllamaCloudEndpointFromUrl(url) {
     const parsedUrl = new URL(url);
     if (parsedUrl.origin !== OLLAMA_CLOUD_API_ORIGIN) {
-        throw new Error('Ollama Cloud Service Worker 不允許呼叫其他網域。');
+        throw new Error(t('bg_ollama_sw_disallowed_origin'));
     }
 
     const endpoint = parsedUrl.pathname.replace(/^\/v1\//, '').replace(/^\/+|\/+$/g, '');
     if (!OLLAMA_CLOUD_ALLOWED_ENDPOINTS.has(endpoint)) {
-        throw new Error('Ollama Cloud Service Worker 不允許呼叫這個 API 端點。');
+        throw new Error(t('bg_ollama_sw_disallowed_endpoint'));
     }
 
     return endpoint;
 }
 
 function createOllamaCloudProxyError(errorData = {}) {
-    const error = new Error(errorData.message || 'Ollama Cloud Service Worker 請求失敗。');
+    const error = new Error(errorData.message || t('bg_ollama_sw_failed'));
     error.name = errorData.name || 'Error';
     return error;
 }
@@ -140,12 +176,12 @@ function createOllamaCloudServiceWorkerFetch(apiKey) {
         const endpoint = getOllamaCloudEndpointFromUrl(url);
         const method = String(options.method || 'GET').toUpperCase();
         if (method !== 'POST') {
-            throw new Error('Ollama Cloud Service Worker 僅允許 POST 請求。');
+            throw new Error(t('bg_ollama_sw_post_only'));
         }
 
         const normalizedApiKey = String(apiKey || '').trim();
         if (!normalizedApiKey) {
-            throw new Error('Ollama Cloud API Key 不可為空。');
+            throw new Error(t('bg_ollama_key_empty'));
         }
 
         let requestBody;
@@ -154,11 +190,11 @@ function createOllamaCloudServiceWorkerFetch(apiKey) {
                 ? JSON.parse(options.body)
                 : options.body;
         } catch (_) {
-            throw new Error('Ollama Cloud 請求內容不是有效的 JSON。');
+            throw new Error(t('bg_ollama_sw_invalid_json'));
         }
 
         if (!requestBody || typeof requestBody !== 'object' || Array.isArray(requestBody)) {
-            throw new Error('Ollama Cloud 請求內容格式不正確。');
+            throw new Error(t('bg_ollama_body_invalid'));
         }
 
         return new Promise((resolve, reject) => {
@@ -224,13 +260,13 @@ function createOllamaCloudServiceWorkerFetch(apiKey) {
 
                 if (message.type === 'response-start') {
                     if (responseStarted) {
-                        failRequest(new Error('Ollama Cloud Service Worker 重複回傳回應資訊。'));
+                        failRequest(new Error(t('bg_ollama_sw_dup_response')));
                         return;
                     }
 
                     const status = Number(message.status);
                     if (!Number.isInteger(status) || status < 200 || status > 599) {
-                        failRequest(new Error('Ollama Cloud Service Worker 回傳了無效的 HTTP 狀態。'));
+                        failRequest(new Error(t('bg_ollama_sw_invalid_http_status')));
                         return;
                     }
 
@@ -245,7 +281,7 @@ function createOllamaCloudServiceWorkerFetch(apiKey) {
 
                 if (message.type === 'chunk') {
                     if (!responseStarted) {
-                        failRequest(new Error('Ollama Cloud Service Worker 尚未提供回應資訊。'));
+                        failRequest(new Error(t('bg_ollama_sw_no_response')));
                         return;
                     }
                     if (typeof message.chunk === 'string' && message.chunk) {
@@ -256,7 +292,7 @@ function createOllamaCloudServiceWorkerFetch(apiKey) {
 
                 if (message.type === 'complete') {
                     if (!responseStarted) {
-                        failRequest(new Error('Ollama Cloud Service Worker 未提供 HTTP 回應。'));
+                        failRequest(new Error(t('bg_ollama_sw_no_http_response')));
                         return;
                     }
                     streamFinished = true;
@@ -276,7 +312,7 @@ function createOllamaCloudServiceWorkerFetch(apiKey) {
                     return;
                 }
 
-                const disconnectMessage = chrome.runtime.lastError?.message || 'Ollama Cloud Service Worker 連線已中斷。';
+                const disconnectMessage = chrome.runtime.lastError?.message || t('bg_ollama_sw_disconnected');
                 const disconnectError = new Error(disconnectMessage);
                 disconnectError.name = 'TypeError';
                 failRequest(disconnectError);
@@ -549,7 +585,8 @@ function appendNodeToActiveMessages(messageNode, fallbackMessagesEl, options = {
 
 function isCompletionTraceMessage(messageText) {
     const text = String(messageText || '').trim();
-    return text.includes('頁問已經打完收工') || text.includes('頁問提早收工');
+    return text.includes(t('phrase_agent_finished_marker'))
+        || text.includes(t('phrase_agent_stopped_early_marker'));
 }
 
 function scrollMessagesToMessageTop(messagesElement, messageElement, options = {}) {
@@ -702,6 +739,111 @@ async function getValue(key, defaultValue) {
 
 function setValue(key, value) {
     return chrome.storage.local.set({ [key]: value });
+}
+
+function normalizeAcceptLanguage(lang) {
+    if (!lang) {
+        return null;
+    }
+    const lower = String(lang).toLowerCase();
+    if (lower === 'zh-tw' || lower === 'zh-hant' || lower === 'zh-hant-tw' ||
+        lower.startsWith('zh-tw') || lower.startsWith('zh-hant')) {
+        return 'zh_TW';
+    }
+    if (lower === 'en' || lower.startsWith('en')) {
+        return 'en';
+    }
+    const base = lower.split('-')[0];
+    if (base === 'en') {
+        return 'en';
+    }
+    return null;
+}
+
+function localeForAi(locale) {
+    // Chrome locale code -> BCP 47 tag the LLM recognizes (zh_TW -> zh-TW).
+    return locale === 'zh_TW' ? 'zh-TW' : 'en';
+}
+
+function localeDisplayName(locale) {
+    return locale === 'zh_TW' ? 'Traditional Chinese' : 'English';
+}
+
+// Builds the response-language directive. This is appended AFTER the page
+// context in the system message so the model sees it last and is not pulled
+// toward the language of the (often Chinese) page content. The wording
+// explicitly tells the model to ignore the page content's language.
+function buildResponseLanguageDirective() {
+    const loc = getUserResponseLocale();
+    const tag = localeForAi(loc);
+    const name = localeDisplayName(loc);
+    return `IMPORTANT — RESPONSE LANGUAGE: You MUST write your entire response in ${name} (${tag}). This is the user's preferred language configured in the extension settings and overrides any other signal. Regardless of the language of the provided page content, selected text, screenshots, or the user's question, your answer, headings, labels, and any quoted/translated content must be in ${name}. Do not mix in another language. The only exception is when the user explicitly writes to you in a different language and clearly expects a reply in that language.`;
+}
+
+// Resolve the user's preferred response language from the settings pref
+// (ASKPAGE_LOCALE_PREF), falling back to the first matching browser
+// accept-language, mirroring lib/i18n.js so the in-page dialog matches the
+// settings-page language switcher. Caches into resolvedUserLocale.
+async function resolveUserLocale() {
+    // In sandboxes without chrome.storage (e.g. Node test runner), fall back
+    // silently to the default locale instead of logging a noisy warning.
+    if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+        resolvedUserLocale = AVAILABLE_LOCALES[0];
+        return resolvedUserLocale;
+    }
+    try {
+        const pref = await getValue(LOCALE_PREF_KEY, null);
+        if (pref && AVAILABLE_LOCALES.includes(pref)) {
+            resolvedUserLocale = pref;
+            return pref;
+        }
+        const langs = await new Promise((resolve) => {
+            try {
+                chrome.i18n.getAcceptLanguages((list) => resolve(Array.isArray(list) ? list : []));
+            } catch (e) {
+                resolve([]);
+            }
+        });
+        for (const lang of langs) {
+            const norm = normalizeAcceptLanguage(lang);
+            if (norm && AVAILABLE_LOCALES.includes(norm)) {
+                resolvedUserLocale = norm;
+                return norm;
+            }
+        }
+    } catch (e) {
+        console.warn('[AskPage] resolveUserLocale failed', e);
+    }
+    resolvedUserLocale = AVAILABLE_LOCALES[0];
+    return resolvedUserLocale;
+}
+
+// Synchronous accessor for buildSystemPrompt. Prefers the runtime locale
+// loader's current locale (kept in sync with ASKPAGE_LOCALE_PREF via
+// chrome.storage.onChanged in lib/i18n.js) so the AI response language follows
+// a settings-page switch even on already-open tabs. Falls back to the cached
+// resolvedUserLocale, then the browser UI language.
+function getUserResponseLocale() {
+    if (typeof askpageI18n !== 'undefined' && askpageI18n && typeof askpageI18n.getLocale === 'function') {
+        const loc = askpageI18n.getLocale();
+        const norm = AVAILABLE_LOCALES.includes(loc) ? loc : normalizeAcceptLanguage(loc);
+        if (norm) {
+            return norm;
+        }
+    }
+    if (resolvedUserLocale && AVAILABLE_LOCALES.includes(resolvedUserLocale)) {
+        return resolvedUserLocale;
+    }
+    try {
+        const ui = typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getUILanguage
+            ? chrome.i18n.getUILanguage()
+            : '';
+        const norm = normalizeAcceptLanguage(ui);
+        if (norm) {
+            return norm;
+        }
+    } catch (e) { /* ignore */ }
+    return AVAILABLE_LOCALES[0];
 }
 
 function normalizeCommandUsageMap(value) {
@@ -1029,7 +1171,7 @@ function isGpt56FamilyModel(model = '') {
 
 function assertGpt56ChatCompletionsToolCompatibility(model, useResponsesApi, useTools) {
     if (isGpt56FamilyModel(model) && useTools && !useResponsesApi) {
-        throw new Error('GPT-5.6 搭配 function tools 時必須使用 Responses API，無法使用 Chat Completions。');
+        throw new Error(t('err_gpt56_responses_api_required'));
     }
 }
 
@@ -1426,16 +1568,16 @@ async function updateProviderDisplay() {
     }
 
     if (questionInput) {
-        const modelText = model ? ` (${model})` : '，尚未設定模型';
+        const modelText = model ? ` (${model})` : t('content_model_not_set');
         const inputHintText = agentModeEnabled
-            ? 'Shift+Enter 可換行'  //，也可貼上或拖曳圖片'
-            : 'Shift+Enter 可換行'; //，附圖僅代理模式可用';
-        questionInput.placeholder = `正在使用 ${displayName}${modelText} 回答您的提問 (${inputHintText})`;
+            ? t('content_shift_enter_hint')  //，也可貼上或拖曳圖片'
+            : t('content_shift_enter_hint'); //，附圖僅代理模式可用';
+        questionInput.placeholder = t('content_input_placeholder_active', [String(displayName), String(modelText), String(inputHintText)]);
     }
 
     const providerDisplayModel = getActiveDialogElementById('provider-display-model');
     if (providerDisplayModel) {
-        providerDisplayModel.textContent = model ? `${displayName} · ${model}` : `${displayName} · 尚未設定模型`;
+        providerDisplayModel.textContent = model ? t('content_provider_model_display', [String(displayName), String(model)]) : t('content_provider_model_unset', [String(displayName)]);
     }
 }
 
@@ -1629,7 +1771,7 @@ async function captureAnnotatedViewportScreenshot() {
 
         overlay.id = SCREEN_ANNOTATION_OVERLAY_ID;
         overlay.setAttribute('role', 'dialog');
-        overlay.setAttribute('aria-label', 'AskPage 畫面標注模式');
+        overlay.setAttribute('aria-label', t('content_annotation_aria'));
         overlay.style.cssText = `
             position: fixed;
             inset: 0;
@@ -1685,9 +1827,9 @@ async function captureAnnotatedViewportScreenshot() {
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.28);
             pointer-events: auto;
         `;
-        panelText.textContent = '移動滑鼠可框選 DOM 元素；點擊選取。按住左鍵拖曳時只會畫線，不會選取 DOM。';
+        panelText.textContent = t('content_annotation_panel_text');
         cancelButton.type = 'button';
-        cancelButton.textContent = '取消';
+        cancelButton.textContent = t('content_annotation_cancel');
         cancelButton.setAttribute('data-askpage-annotation-control', 'true');
         cancelButton.style.cssText = `
             border: 1px solid rgba(255, 255, 255, 0.35);
@@ -2392,51 +2534,51 @@ function formatApiTokenUsageSummary(tokenUsage) {
     };
 
     if (hasApiTokenUsageField(fields, 'inputCachedTokens')) {
-        inputExtras.push(`快取 ${formatTokenUsageNumber(fields.inputCachedTokens)}`);
+        inputExtras.push(t('token_usage_cached', [String(formatTokenUsageNumber(fields.inputCachedTokens))]));
     }
     if (hasApiTokenUsageField(fields, 'inputCacheCreationTokens')) {
-        inputExtras.push(`快取寫入 ${formatTokenUsageNumber(fields.inputCacheCreationTokens)}`);
+        inputExtras.push(t('token_usage_cache_write', [String(formatTokenUsageNumber(fields.inputCacheCreationTokens))]));
     }
     if (hasApiTokenUsageField(fields, 'inputTokens')) {
-        const line = getLine('輸入', formatTokenUsageNumber(fields.inputTokens), inputExtras);
+        const line = getLine(t('token_usage_input_label'), formatTokenUsageNumber(fields.inputTokens), inputExtras);
         if (line) {
             usageLines.push(line);
         }
     } else if (inputExtras.length) {
-        usageLines.push(`- 輸入：${inputExtras.join('、')}`);
+        usageLines.push(t('token_usage_input_line', [String(inputExtras.join('、'))]));
     }
 
     if (hasApiTokenUsageField(fields, 'outputReasoningTokens')) {
-        outputExtras.push(`推理 ${formatTokenUsageNumber(fields.outputReasoningTokens)}`);
+        outputExtras.push(t('token_usage_reasoning', [String(formatTokenUsageNumber(fields.outputReasoningTokens))]));
     }
     if (hasApiTokenUsageField(fields, 'acceptedPredictionTokens')) {
-        outputExtras.push(`已接受預測 ${formatTokenUsageNumber(fields.acceptedPredictionTokens)}`);
+        outputExtras.push(t('token_usage_accepted_prediction', [String(formatTokenUsageNumber(fields.acceptedPredictionTokens))]));
     }
     if (hasApiTokenUsageField(fields, 'rejectedPredictionTokens')) {
-        outputExtras.push(`已否決預測 ${formatTokenUsageNumber(fields.rejectedPredictionTokens)}`);
+        outputExtras.push(t('token_usage_rejected_prediction', [String(formatTokenUsageNumber(fields.rejectedPredictionTokens))]));
     }
     if (hasApiTokenUsageField(fields, 'outputTokens')) {
-        const line = getLine('輸出', formatTokenUsageNumber(fields.outputTokens), outputExtras);
+        const line = getLine(t('token_usage_output_label'), formatTokenUsageNumber(fields.outputTokens), outputExtras);
         if (line) {
             usageLines.push(line);
         }
     } else if (outputExtras.length) {
-        usageLines.push(`- 輸出：${outputExtras.join('、')}`);
+        usageLines.push(t('token_usage_output_line', [String(outputExtras.join('、'))]));
     }
 
     if (hasApiTokenUsageField(fields, 'toolInputTokens')) {
-        const line = getLine('工具輸入', formatTokenUsageNumber(fields.toolInputTokens));
+        const line = getLine(t('token_usage_tool_input_label'), formatTokenUsageNumber(fields.toolInputTokens));
         if (line) {
             usageLines.push(line);
         }
     }
     if (hasApiTokenUsageField(fields, 'totalTokens')) {
-        const line = getLine('總計', formatTokenUsageNumber(fields.totalTokens));
+        const line = getLine(t('token_usage_total_label'), formatTokenUsageNumber(fields.totalTokens));
         if (line) {
             usageLines.push(line);
         }
     }
-    return usageLines.length ? `Token 用量統計：\n${usageLines.join('\n')}` : '';
+    return usageLines.length ? `${t('token_usage_summary_header')}\n${usageLines.join('\n')}` : '';
 }
 
 function getResponsesApiTextPartValue(part) {
@@ -2566,7 +2708,7 @@ function formatCodeLanguageLabel(language, isAutoDetected = false) {
         markdown: 'Markdown',
         md: 'Markdown',
         php: 'PHP',
-        plaintext: '純文字',
+        plaintext: t('code_lang_plaintext'),
         powershell: 'PowerShell',
         ps1: 'PowerShell',
         py: 'Python',
@@ -2577,7 +2719,7 @@ function formatCodeLanguageLabel(language, isAutoDetected = false) {
         shell: 'Shell',
         sh: 'Shell',
         sql: 'SQL',
-        text: '純文字',
+        text: t('code_lang_plaintext'),
         ts: 'TypeScript',
         typescript: 'TypeScript',
         xml: 'XML',
@@ -2585,13 +2727,13 @@ function formatCodeLanguageLabel(language, isAutoDetected = false) {
         yml: 'YAML'
     };
     const normalizedLanguage = (language || '').toLowerCase();
-    const baseLabel = labels[normalizedLanguage] || (language ? language.toUpperCase() : '程式碼');
+    const baseLabel = labels[normalizedLanguage] || (language ? language.toUpperCase() : t('code_lang_code'));
 
     if (!language) {
-        return '程式碼';
+        return t('code_lang_code');
     }
 
-    return isAutoDetected ? `自動判斷：${baseLabel}` : baseLabel;
+    return isAutoDetected ? t('code_lang_auto_detected', [String(baseLabel)]) : baseLabel;
 }
 
 function highlightCodeBlock(codeElement) {
@@ -2683,8 +2825,8 @@ function createCodeBlockActionButton(className, label, title) {
 function setCodeBlockExpanded(wrapper, toggleButton, isExpanded) {
     wrapper.classList.toggle('is-collapsed', !isExpanded);
     wrapper.classList.toggle('is-expanded', isExpanded);
-    toggleButton.textContent = isExpanded ? '收合' : '展開';
-    toggleButton.title = isExpanded ? '收合程式碼' : '展開完整程式碼';
+    toggleButton.textContent = isExpanded ? t('code_collapse') : t('code_expand');
+    toggleButton.title = isExpanded ? t('code_collapse_code') : t('code_expand_full');
     toggleButton.setAttribute('aria-label', toggleButton.title);
     toggleButton.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
 }
@@ -2706,13 +2848,13 @@ function appendCollapsibleTextPreview(container, text) {
     content.textContent = textValue;
     toggleButton.type = 'button';
     toggleButton.className = 'askpage-collapsible-text-toggle';
-    toggleButton.textContent = '展開全部';
+    toggleButton.textContent = t('code_expand_all');
     toggleButton.setAttribute('aria-expanded', 'false');
 
     const setExpanded = (isExpanded) => {
         wrapper.classList.toggle('is-collapsed', !isExpanded);
         wrapper.classList.toggle('is-expanded', isExpanded);
-        toggleButton.textContent = isExpanded ? '收合' : '展開全部';
+        toggleButton.textContent = isExpanded ? t('code_collapse') : t('code_expand_all');
         toggleButton.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
     };
 
@@ -2754,7 +2896,7 @@ function enhanceCodeBlocks(container) {
         const header = document.createElement('div');
         const languageLabel = document.createElement('span');
         const actions = document.createElement('div');
-        const copyButton = createCodeBlockActionButton('askpage-code-block-copy', '📋', '複製程式碼');
+        const copyButton = createCodeBlockActionButton('askpage-code-block-copy', '📋', t('code_copy_button'));
 
         wrapper.className = 'askpage-code-block';
         if (shouldCollapseCode) {
@@ -2772,7 +2914,7 @@ function enhanceCodeBlocks(container) {
         });
 
         if (isRawHtmlResponse) {
-            const codePenButton = createCodeBlockActionButton('askpage-code-block-codepen', 'CodePen', '在 CodePen 開啟');
+            const codePenButton = createCodeBlockActionButton('askpage-code-block-codepen', 'CodePen', t('code_open_in_codepen'));
             const defaultCodePenLabel = codePenButton.textContent;
             codePenButton.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -2781,10 +2923,10 @@ function enhanceCodeBlocks(container) {
 
                 try {
                     openCodePenPrefill(codeText);
-                    codePenButton.textContent = '已開啟';
+                    codePenButton.textContent = t('code_opened');
                 } catch (error) {
                     console.error('[AskPage] Failed to open CodePen prefill:', error);
-                    codePenButton.textContent = '失敗';
+                    codePenButton.textContent = t('code_open_failed');
                 }
 
                 setTimeout(() => {
@@ -2796,7 +2938,7 @@ function enhanceCodeBlocks(container) {
         }
 
         if (shouldCollapseCode) {
-            const toggleButton = createCodeBlockActionButton('askpage-code-block-toggle', '展開', '展開完整程式碼');
+            const toggleButton = createCodeBlockActionButton('askpage-code-block-toggle', t('code_expand'), t('code_expand_full'));
             toggleButton.setAttribute('aria-expanded', 'false');
             toggleButton.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -3415,15 +3557,23 @@ function buildSystemPrompt({
             ? 'For non-trivial form filling, inspect the form fields first before mutating them.'
             : '',
         'Please format your answer using Markdown when appropriate.',
-        'As a default, provide responses in zh-tw unless specified otherwise.',
         'Do not provide any additional explanations or disclaimers unless explicitly asked.',
         'No prefix or suffix is needed for the response.'
     ].filter(Boolean).join(' ');
 
     const normalizedCustomSystemPrompt = customSystemPrompt.trim();
-    return normalizedCustomSystemPrompt
+    const base = normalizedCustomSystemPrompt
         ? `${baseSystemPrompt}\n\n${normalizedCustomSystemPrompt}`
         : baseSystemPrompt;
+    // Short language directive at the end of the system prompt so even
+    // providers that put the page context in the user turn (e.g. Gemini's
+    // systemInstruction) still carry the language constraint. A fuller
+    // directive is also appended after the page context in
+    // buildConversationContextText.
+    const loc = getUserResponseLocale();
+    const tag = localeForAi(loc);
+    const name = localeDisplayName(loc);
+    return `${base}\n\nRespond in ${name} (${tag}). The response language must match the user's preferred language set in the extension settings, regardless of the page content's language.`;
 }
 
 function buildConversationContextText(pageContext, capturedSelectedText = '') {
@@ -3438,15 +3588,20 @@ function buildConversationContextText(pageContext, capturedSelectedText = '') {
             ? 'Use the following web page context for this conversation. It is a DOM-derived approximation of the accessibility tree, not the browser-computed accessibility tree.'
             : 'Use the following web page context for this conversation.');
 
+    // Appended LAST so the model encounters the response-language directive
+    // after the (often non-English) page content, reducing the tendency to
+    // mirror the page's language.
+    const languageDirective = `\n\n${buildResponseLanguageDirective()}`;
+
     if (capturedSelectedText) {
         const selectedTextLabel = pageContext.format === 'html'
             ? 'Selected text (plain text, main focus):'
             : 'Selected text (main focus):';
 
-        return `${introText}\n\n${fullPageLabel}\n${pageContext.content}\n\n${selectedTextLabel}\n${capturedSelectedText}`;
+        return `${introText}\n\n${fullPageLabel}\n${pageContext.content}\n\n${selectedTextLabel}\n${capturedSelectedText.slice(0, MAX_SELECTED_TEXT_CONTEXT_LENGTH)}${languageDirective}`;
     }
 
-    return `${introText}\n\n${fullPageLabel}\n${pageContext.content}`;
+    return `${introText}\n\n${fullPageLabel}\n${pageContext.content}${languageDirective}`;
 }
 
 async function preparePageConversationContext(capturedSelectedText = '', options = {}) {
@@ -3655,6 +3810,13 @@ function requestOpenOptionsPage() {
 async function createDialog() {
     if (getActiveDialogHost()) { return; }
 
+    // Wait for the runtime locale loader to finish loading the preferred
+    // locale bundle before rendering any UI strings, so the first paint
+    // uses the preferred language instead of the browser-locale fallback.
+    if (typeof askpageI18n !== 'undefined' && askpageI18n && askpageI18n.ready) {
+        await askpageI18n.ready;
+    }
+
     const initialSelection = window.getSelection();
     const initialSelectionRange = initialSelection.rangeCount > 0
         ? initialSelection.getRangeAt(0).cloneRange()
@@ -3694,11 +3856,11 @@ async function createDialog() {
     `;
     const modeToggleConfigs = {
         screenshot: {
-            label: '截圖模式',
-            activeText: '截圖',
-            inactiveText: '截圖',
-            activeStateLabel: '含截圖',
-            inactiveStateLabel: '無截圖',
+            label: t('content_screenshot_mode_label'),
+            activeText: t('content_screenshot_active_text'),
+            inactiveText: t('content_screenshot_inactive_text'),
+            activeStateLabel: t('content_screenshot_active_state'),
+            inactiveStateLabel: t('content_screenshot_inactive_state'),
             activeColor: '#f5fbff',
             activeBackground: 'linear-gradient(180deg, rgba(31, 130, 255, 0.9), rgba(4, 86, 211, 0.86))',
             activeBorder: 'rgba(107, 181, 255, 0.95)',
@@ -3717,9 +3879,9 @@ async function createDialog() {
             iconTransform: 'translateY(-0.5px)'
         },
         html: {
-            label: '模式切換',
-            activeText: '代理',
-            inactiveText: '詢問',
+            label: t('content_mode_switch_label'),
+            activeText: t('content_mode_switch_active_text'),
+            inactiveText: t('content_mode_switch_inactive_text'),
             activeColor: '#fff7ed',
             activeBackground: 'linear-gradient(180deg, rgba(234, 125, 42, 0.92), rgba(188, 74, 24, 0.88))',
             activeBorder: 'rgba(255, 184, 114, 0.86)',
@@ -3755,7 +3917,7 @@ async function createDialog() {
     // Provider display header
     const providerHeader = document.createElement('div');
     providerHeader.id = 'provider-header';
-    providerHeader.title = '拖曳標題列可移動對話框';
+    providerHeader.title = t('content_dialog_drag_hint');
     const providerInfo = document.createElement('div');
     providerInfo.className = 'askpage-header-info';
     const providerDisplay = document.createElement('div');
@@ -3768,11 +3930,11 @@ async function createDialog() {
     const providerDisplayName = document.createElement('div');
     providerDisplayName.id = 'provider-display-name';
     providerDisplayName.className = 'askpage-provider-name';
-    providerDisplayName.textContent = '頁問';
+    providerDisplayName.textContent = t('content_brand_name');
     const providerDisplayModel = document.createElement('span');
     providerDisplayModel.id = 'provider-display-model';
     providerDisplayModel.className = 'askpage-provider-model';
-    providerDisplayModel.textContent = '載入中';
+    providerDisplayModel.textContent = t('content_loading');
 
     const providerActions = document.createElement('div');
     providerActions.className = 'askpage-header-actions';
@@ -3786,7 +3948,7 @@ async function createDialog() {
         button.className = 'askpage-toolbar-btn askpage-toolbar-btn-toggle';
         button.style.cssText = modeToggleButtonBaseStyle;
         button.setAttribute('aria-pressed', 'false');
-        button.title = `${config.label}：目前為${config.inactiveStateLabel || config.inactiveText}，點擊切換為${config.activeStateLabel || config.activeText}`;
+        button.title = t('content_toggle_title', [String(config.label), String(config.inactiveStateLabel || config.inactiveText), String(config.activeStateLabel || config.activeText)]);
         button.setAttribute('aria-label', button.title);
 
         icon.setAttribute('aria-hidden', 'true');
@@ -3814,7 +3976,7 @@ async function createDialog() {
         const nextText = isActive ? config.inactiveText : config.activeText;
         const currentStateLabel = isActive ? (config.activeStateLabel || currentText) : (config.inactiveStateLabel || currentText);
         const nextStateLabel = isActive ? (config.inactiveStateLabel || nextText) : (config.activeStateLabel || nextText);
-        const toggleLabel = `${config.label}：目前為${currentStateLabel}，點擊切換為${nextStateLabel}`;
+        const toggleLabel = t('content_toggle_title', [String(config.label), String(currentStateLabel), String(nextStateLabel)]);
         const icon = button.querySelector('[data-mode-toggle-icon="true"]');
         const text = button.querySelector('[data-mode-toggle-text="true"]');
 
@@ -3854,8 +4016,8 @@ async function createDialog() {
     const optionsBtn = document.createElement('button');
     const optionsBtnIcon = document.createElement('span');
     switchProviderBtn.type = 'button';
-    switchProviderBtn.title = 'AI 提供者';
-    switchProviderBtn.setAttribute('aria-label', 'AI 提供者');
+    switchProviderBtn.title = t('content_ai_provider_btn');
+    switchProviderBtn.setAttribute('aria-label', t('content_ai_provider_btn'));
     switchProviderBtn.className = 'askpage-toolbar-btn askpage-toolbar-btn-switch-provider';
     switchProviderBtn.style.cssText = `
         ${modeToggleButtonBaseStyle}
@@ -3873,7 +4035,7 @@ async function createDialog() {
         font-family: 'Segoe UI Symbol', 'Apple Symbols', sans-serif;
         transform: translateY(-0.5px);
     `;
-    switchProviderText.textContent = 'AI 提供者';
+    switchProviderText.textContent = t('content_ai_provider_btn');
     switchProviderText.style.cssText = modeToggleTextBaseStyle;
     switchProviderBtn.appendChild(switchProviderIcon);
     switchProviderBtn.appendChild(switchProviderText);
@@ -3882,8 +4044,8 @@ async function createDialog() {
     });
 
     optionsBtn.type = 'button';
-    optionsBtn.title = '開啟選項';
-    optionsBtn.setAttribute('aria-label', '開啟選項');
+    optionsBtn.title = t('content_options_btn');
+    optionsBtn.setAttribute('aria-label', t('content_options_btn'));
     optionsBtn.className = 'askpage-toolbar-btn askpage-toolbar-btn-options';
     optionsBtn.style.cssText = `
         ${modeToggleButtonBaseStyle}
@@ -3906,7 +4068,7 @@ async function createDialog() {
             await requestOpenOptionsPage();
         } catch (error) {
             console.error('[AskPage] Failed to open options page:', error);
-            appendMessage('assistant', '❌ **無法開啟選項畫面**\n\n請稍後再試一次。');
+            appendMessage('assistant', t('err_open_options_failed'));
         }
     });
 
@@ -3926,7 +4088,7 @@ async function createDialog() {
 
     const input = document.createElement('textarea');
     input.id = 'gemini-qna-input';
-    input.placeholder = '輸入問題後按 Enter；也可貼上或拖曳最多 4 張圖片作為上下文';
+    input.placeholder = t('content_input_placeholder');
     input.rows = 1;
     input.wrap = 'soft';
 
@@ -3960,11 +4122,11 @@ async function createDialog() {
 
     const inputImageStripTitle = document.createElement('span');
     inputImageStripTitle.className = 'askpage-input-image-strip-title';
-    inputImageStripTitle.textContent = '圖片上下文（可透過 Ctrl+V 或拖曳貼上參考圖片）';
+    inputImageStripTitle.textContent = t('content_image_strip_title');
 
     const inputImageStripMeta = document.createElement('span');
     inputImageStripMeta.className = 'askpage-input-image-strip-meta';
-    inputImageStripMeta.textContent = '支援 PNG / JPG / WebP 等圖片，單檔大小上限 10MB';
+    inputImageStripMeta.textContent = t('content_image_meta');
 
     const inputImageStripActions = document.createElement('div');
     inputImageStripActions.className = 'askpage-input-image-strip-actions';
@@ -3978,16 +4140,16 @@ async function createDialog() {
     const uploadImageBtn = document.createElement('button');
     uploadImageBtn.type = 'button';
     uploadImageBtn.className = 'askpage-upload-image-btn';
-    uploadImageBtn.textContent = '上傳圖片';
-    uploadImageBtn.title = '選取圖片並加入本次提問上下文';
-    uploadImageBtn.setAttribute('aria-label', '上傳圖片並加入圖片上下文');
+    uploadImageBtn.textContent = t('content_upload_image');
+    uploadImageBtn.title = t('content_upload_image_title');
+    uploadImageBtn.setAttribute('aria-label', t('content_upload_image_aria'));
 
     const annotateScreenBtn = document.createElement('button');
     annotateScreenBtn.type = 'button';
     annotateScreenBtn.className = 'askpage-annotate-screen-btn';
-    annotateScreenBtn.textContent = '標注畫面';
-    annotateScreenBtn.title = '暫時隱藏對話框，選取或標注目前畫面後加入圖片上下文';
-    annotateScreenBtn.setAttribute('aria-label', '標注畫面並加入圖片上下文');
+    annotateScreenBtn.textContent = t('content_annotate_screen');
+    annotateScreenBtn.title = t('content_annotate_screen_title');
+    annotateScreenBtn.setAttribute('aria-label', t('content_annotate_screen_aria'));
     annotateScreenBtn.hidden = true;
 
     inputImageStripCopy.appendChild(inputImageStripTitle);
@@ -4020,24 +4182,22 @@ async function createDialog() {
         const customCommands = await getValue(CUSTOM_COMMANDS_STORAGE, []);
         const builtInSummaryPrompt = await getValue(CUSTOM_SUMMARY_PROMPT_STORAGE, '');
         const summaryShowVariableLabels = await getValue(CUSTOM_SUMMARY_SHOW_VARIABLE_LABELS_STORAGE, false);
-        const summaryTemplate = builtInSummaryPrompt || '請幫我總結這篇文章，並以 Markdown 格式輸出，內容包含「標題」、「重點摘要」、「總結」';
+        const summaryTemplate = builtInSummaryPrompt || t('cmd_summary_default_prompt');
 
         const builtInCommands = [
-            { cmd: '/clear', desc: '清除提問歷史紀錄' },
-            { cmd: '/summary', desc: '總結本頁內容', template: summaryTemplate, hasVariables: extractTemplateVariables(summaryTemplate).length > 0, showVariableLabels: summaryShowVariableLabels === true },
-            { cmd: '/screenshot', desc: screenshotEnabled ? '停用截圖功能' : '啟用截圖功能' },
-            { cmd: '/agent', desc: agentModeEnabled ? '切換為詢問模式（只做內容問答）' : '切換為代理模式（允許工具調用）' }
-        ];
+            { cmd: '/clear', desc: t('cmd_clear_desc') },
+            { cmd: '/summary', desc: t('cmd_summary_desc'), template: summaryTemplate, hasVariables: extractTemplateVariables(summaryTemplate).length > 0, showVariableLabels: summaryShowVariableLabels === true },
+            { cmd: '/screenshot', desc: screenshotEnabled ? t('cmd_screenshot_disable') : t('cmd_screenshot_enable') },
+            { cmd: '/agent', desc: agentModeEnabled ? t('cmd_agent_switch_to_ask') : t('cmd_agent_switch_to_agent') }];
 
         const customCommandsForIntellisense = customCommands.map(cmd => ({
             cmd: cmd.cmd,
-            desc: cmd.prompt ? cmd.prompt.substring(0, 50) + (cmd.prompt.length > 50 ? '...' : '') : '自訂命令',
+            desc: cmd.prompt ? cmd.prompt.substring(0, 50) + (cmd.prompt.length > 50 ? '...' : '') : t('cmd_custom_desc'),
             template: cmd.prompt || '',
             hasVariables: extractTemplateVariables(cmd.prompt || '').length > 0,
             mode: cmd.mode,
             screenshotEnabled: cmd.screenshotEnabled === true,
-            showVariableLabels: cmd.showVariableLabels === true
-        }));
+            showVariableLabels: cmd.showVariableLabels === true        }));
 
         return [...builtInCommands, ...customCommandsForIntellisense];
     }
@@ -4057,8 +4217,8 @@ async function createDialog() {
     intelliBox.tabIndex = -1;
     const btn = document.createElement('button');
     btn.id = 'gemini-qna-btn';
-    btn.textContent = '問';
-    btn.setAttribute('aria-label', '送出提問');
+    btn.textContent = t('content_ask_button');
+    btn.setAttribute('aria-label', t('content_ask_button_aria'));
 
     inputRow.appendChild(inputWrapper);
     inputRow.appendChild(btn);
@@ -4315,7 +4475,7 @@ async function createDialog() {
     }
 
     function buildPromptCommandListCopyText() {
-        return '**內建斜線命令：**\n- /clear - 清除歷史紀錄（也可按 Ctrl+L）\n- /summary - 總結整個頁面';
+        return t('usage_built_in_help');
     }
 
     function buildUsageModeNotice(options = {}) {
@@ -4323,11 +4483,11 @@ async function createDialog() {
         const agentModeEnabled = options.agentModeEnabled === true;
         const notices = [
             screenshotEnabled
-                ? '📸 **截圖模式目前為啟用狀態**\n系統會在提問時會自動附帶目前可視範圍的截圖作為輔助分析。'
-                : '📝 **截圖模式目前為停用狀態**\n頁問只會對目前網頁的文字內容進行分析，不會自動附帶截圖。',
+                ? t('usage_screenshot_enabled')
+                : t('usage_screenshot_disabled'),
             agentModeEnabled
-                ? '🤖 **代理模式目前為啟用狀態**\n系統會使用多步驟代理的工具調用能力來分析與操作目前頁面。'
-                : '💬 **詢問模式目前為啟用狀態**\n系統只會根據頁面內容回答問題，不會呼叫頁面工具。'
+                ? t('usage_agent_enabled')
+                : t('usage_inquiry_enabled')
         ];
 
         return `\n\n${notices.join('\n\n')}`;
@@ -4337,17 +4497,17 @@ async function createDialog() {
         const screenshotEnabled = options.screenshotEnabled === true;
         const agentModeEnabled = options.agentModeEnabled === true;
         const screenshotTitle = screenshotEnabled
-            ? '截圖：啟用'
-            : '截圖：停用';
+            ? t('usage_screenshot_status_on')
+            : t('usage_screenshot_status_off');
         const screenshotText = screenshotEnabled
-            ? '提問時自動附帶目前可視範圍截圖。'
-            : '只分析網頁文字，不自動附帶截圖。';
+            ? t('usage_screenshot_on_desc')
+            : t('usage_screenshot_off_desc');
         const agentTitle = agentModeEnabled
-            ? '代理：啟用'
-            : '詢問：啟用';
+            ? t('usage_agent_status_on')
+            : t('usage_inquiry_status_on');
         const agentText = agentModeEnabled
-            ? '可用多步驟工具呼叫分析與操作目前頁面。'
-            : '根據頁面內容回答，不呼叫頁面工具。';
+            ? t('usage_agent_on_desc')
+            : t('usage_inquiry_on_desc');
 
         return `
             <div class="askpage-usage-mode-grid">
@@ -4374,8 +4534,8 @@ async function createDialog() {
             })
             .join('');
         const customCommandSubtitle = hiddenCustomCommandCount > 0
-            ? `自訂命令 (<button type="button" class="askpage-usage-more-link askpage-usage-count-link" data-askpage-open-options="true" title="開啟偏好設定查看所有自訂命令" aria-label="開啟偏好設定查看所有自訂命令">${hiddenCustomCommandCount + visibleCustomCommands.length}</button>)`
-            : '自訂命令';
+            ? t('cmd_custom_count_label', [`<button type="button" class="askpage-usage-more-link askpage-usage-count-link" data-askpage-open-options="true" title="${t('cmd_custom_count_aria')}" aria-label="${t('cmd_custom_count_aria')}">${hiddenCustomCommandCount + visibleCustomCommands.length}</button>`])
+            : t('cmd_custom_plain');
         const customCommandItems = customCommands.length
             ? `
                 <div class="askpage-usage-command-panel">
@@ -4390,10 +4550,10 @@ async function createDialog() {
         return `
             <section class="askpage-usage-section askpage-usage-commands${customCommands.length ? ' askpage-usage-commands--two-col' : ''}">
                 <div class="askpage-usage-command-panel">
-                    <div class="askpage-usage-subtitle">內建命令</div>
+                    <div class="askpage-usage-subtitle">${t('cmd_usage_builtin_commands_title')}</div>
                     <ul class="askpage-usage-command-list">
-                        ${createUsageCommandHtml('/clear', '清除歷史紀錄（Ctrl+L）')}
-                        ${createUsageCommandHtml('/summary', '總結整個頁面')}
+                        ${createUsageCommandHtml('/clear', t('cmd_usage_clear_detail'))}
+                        ${createUsageCommandHtml('/summary', t('cmd_usage_summary_detail'))}
                     </ul>
                 </div>
                 ${customCommandItems}
@@ -4404,11 +4564,11 @@ async function createDialog() {
     function buildUsagePromptHtml(options = {}) {
         const selectedText = String(options.selectedText || '').trim();
         const selectedTextLength = options.selectedTextLength || 0;
-        const title = selectedTextLength ? '已偵測到選取文字' : '使用提示';
+        const title = selectedTextLength ? t('usage_selected_detected_title') : t('usage_hint_title');
         const icon = selectedTextLength ? '🎯' : '💡';
         const intro = selectedTextLength
-            ? `將以選取文字作為主要分析對象。<span class="askpage-usage-count">${selectedTextLength} 字元</span>`
-            : '直接提問目前頁面，或先選取文字範圍再提問。';
+            ? t('usage_selected_context', [String(selectedTextLength)])
+            : t('usage_no_selection_hint');
         const selectedTextPreview = selectedText.length > 420
             ? `${selectedText.slice(0, 420)}…`
             : selectedText;
@@ -4443,7 +4603,7 @@ async function createDialog() {
             return '';
         }
 
-        return '\n\n**您的自訂命令：**\n' + commands
+        return t('usage_custom_commands_header') + commands
             .map((cmd) => `- ${cmd.cmd} - ${cmd.prompt.substring(0, 30)}${cmd.prompt.length > 30 ? '...' : ''}`)
             .join('\n');
     }
@@ -4485,7 +4645,7 @@ async function createDialog() {
                     await requestOpenOptionsPage();
                 } catch (error) {
                     console.error('[AskPage] Failed to open options page:', error);
-                    appendMessage('assistant', '❌ **無法開啟偏好設定**\n\n請稍後再試一次。');
+                    appendMessage('assistant', t('err_open_settings_failed'));
                 }
             });
         });
@@ -4511,7 +4671,7 @@ async function createDialog() {
         });
 
         if (activeSelectedText) {
-            const copyText = `🎯 **已偵測到選取文字** (${activeSelectedText.length} 字元)\n\n您可以直接提問，系統將以選取的文字作為分析對象。\n\n**選取內容：**\n${activeSelectedText}${modeNotice}\n\n💡 ${builtInCommandsCopyText}${customCommandsCopyText}`;
+            const copyText = t('usage_detected_text_banner', [String(activeSelectedText.length), String(activeSelectedText), String(modeNotice), String(builtInCommandsCopyText), String(customCommandsCopyText)]);
             return {
                 text: copyText,
                 renderedHtml,
@@ -4519,7 +4679,7 @@ async function createDialog() {
             };
         }
 
-        const copyText = `💡 **使用提示:**\n\n您可以直接提問關於此頁面的問題，或先選取頁面上的文字範圍後再提問。${modeNotice}\n\n${builtInCommandsCopyText}${customCommandsCopyText}`;
+        const copyText = t('usage_tip_banner', [String(modeNotice), String(builtInCommandsCopyText), String(customCommandsCopyText)]);
         return {
             text: copyText,
             renderedHtml,
@@ -4771,13 +4931,13 @@ async function createDialog() {
             return false;
         }
 
-        const previewTitle = options.title || '圖片預覽 - AskPage';
-        const previewHeading = options.heading || '圖片預覽';
-        const previewAlt = options.alt || 'AskPage 圖片預覽';
+        const previewTitle = options.title || t('image_preview_title_default');
+        const previewHeading = options.heading || t('image_preview_heading_default');
+        const previewAlt = options.alt || t('image_preview_alt_default');
         const escapedDataUrl = escapeHtml(imageDataUrl);
         const imageSize = Math.round(imageDataUrl.length / 1024);
         const previewHtml = `<!doctype html>
-<html lang="zh-Hant">
+<html lang="${localeForAi(getUserResponseLocale())}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -4813,7 +4973,7 @@ async function createDialog() {
     <main class="preview">
         <h1>${escapeHtml(previewHeading)}</h1>
         <img src="${escapedDataUrl}" alt="${escapeHtml(previewAlt)}">
-        <div class="meta">圖片大小：約 ${imageSize} KB</div>
+        <div class="meta">${t('image_preview_size_meta', [String(imageSize)])}</div>
     </main>
 </body>
 </html>`;
@@ -4839,11 +4999,11 @@ async function createDialog() {
         }
         inputImageStripList.innerHTML = '';
         inputImageStripTitle.textContent = isScreenshotAnnotationAvailable
-            ? '圖片上下文（可上傳、貼上、拖曳，或標注目前畫面）'
-            : '圖片上下文（可透過 Ctrl+V 或拖曳貼上參考圖片）';
+            ? t('content_image_strip_title_full')
+            : t('content_image_strip_title');
         inputImageStripMeta.textContent = normalizedImages.length
-            ? `支援 PNG / JPG / WebP 等圖片，單檔大小上限 10MB · ${normalizedImages.length}/${MAX_INPUT_CONTEXT_IMAGES}`
-            : '支援 PNG / JPG / WebP 等圖片，單檔大小上限 10MB';
+            ? t('content_image_meta_count', [String(normalizedImages.length), String(MAX_INPUT_CONTEXT_IMAGES)])
+            : t('content_image_meta');
         inputImageStripNotice.textContent = inputContextImageNotice;
         inputImageStripNotice.dataset.level = inputContextImageNoticeLevel;
         uploadImageBtn.hidden = inputStack.dataset.askpageImageContextEnabled !== 'true';
@@ -4860,29 +5020,29 @@ async function createDialog() {
             link.href = 'about:blank';
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
-            link.title = `點擊開啟第 ${index + 1} 張完整圖片`;
-            link.setAttribute('aria-label', `開啟第 ${index + 1} 張完整圖片`);
+            link.title = t('image_strip_open_full_aria', [String(index + 1)]);
+            link.setAttribute('aria-label', t('image_strip_open_full_aria_open', [String(index + 1)]));
             link.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 openImagePreviewWindow(imageDataUrl, {
-                    title: `圖片預覽 ${index + 1} - AskPage`,
-                    heading: `圖片預覽 ${index + 1}`,
-                    alt: `AskPage 提問圖片 ${index + 1}`
+                    title: t('image_preview_title_indexed', [String(index + 1)]),
+                    heading: t('image_preview_heading_indexed', [String(index + 1)]),
+                    alt: t('image_preview_alt_indexed', [String(index + 1)])
                 });
             });
 
             const img = document.createElement('img');
             img.src = imageDataUrl;
-            img.alt = `提問圖片 ${index + 1}`;
+            img.alt = t('image_strip_alt_indexed', [String(index + 1)]);
             img.loading = 'lazy';
             link.appendChild(img);
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'askpage-input-image-remove';
-            removeBtn.title = `移除第 ${index + 1} 張圖片`;
-            removeBtn.setAttribute('aria-label', `移除第 ${index + 1} 張圖片`);
+            removeBtn.title = t('image_strip_remove_aria', [String(index + 1)]);
+            removeBtn.setAttribute('aria-label', t('image_strip_remove_aria', [String(index + 1)]));
             removeBtn.textContent = '×';
             removeBtn.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -4928,7 +5088,7 @@ async function createDialog() {
 
     function readFileAsDataUrl(file) {
         if (file.size > MAX_INPUT_CONTEXT_IMAGE_FILE_BYTES) {
-            throw new Error('圖片檔案超過 10MB 上限。');
+            throw new Error(t('err_image_too_large'));
         }
 
         return new Promise((resolve, reject) => {
@@ -4939,10 +5099,10 @@ async function createDialog() {
                     return;
                 }
 
-                reject(new Error('讀取到的檔案內容不是有效圖片。'));
+                reject(new Error(t('err_image_invalid_content')));
             };
             reader.onerror = () => {
-                reject(reader.error || new Error('無法讀取圖片內容。'));
+                reject(reader.error || new Error(t('err_image_read_failed')));
             };
             reader.readAsDataURL(file);
         });
@@ -4955,12 +5115,12 @@ async function createDialog() {
 
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`無法讀取拖曳圖片（${response.status} ${response.statusText}）。`);
+            throw new Error(t('err_drag_image_fetch_failed', [String(response.status), String(response.statusText)]));
         }
 
         const mimeType = response.headers.get('content-type') || '';
         if (!mimeType.toLowerCase().startsWith('image/')) {
-            throw new Error('拖曳內容不是圖片。');
+            throw new Error(t('err_drag_not_image'));
         }
 
         return await readFileAsDataUrl(await response.blob());
@@ -5018,7 +5178,7 @@ async function createDialog() {
             ? Array.from(new Set(imageDataUrls.filter((imageDataUrl) => isImageDataUrl(imageDataUrl))))
             : [];
         if (!rawUniqueImages.length) {
-            setInputImageNotice(options.emptyMessage || '沒有偵測到可加入的圖片。', 'warning');
+            setInputImageNotice(options.emptyMessage || t('notice_no_images_detected'), 'warning');
             return;
         }
 
@@ -5026,7 +5186,7 @@ async function createDialog() {
         const existingImages = new Set(inputContextImageDataUrls);
         const newImages = nextImages.filter((imageDataUrl) => !existingImages.has(imageDataUrl));
         if (!newImages.length) {
-            setInputImageNotice('這些圖片已經加入目前提問。', 'info');
+            setInputImageNotice(t('notice_images_already_added'), 'info');
             return;
         }
 
@@ -5035,59 +5195,59 @@ async function createDialog() {
         inputContextImageDataUrls = inputContextImageDataUrls.concat(acceptedImages);
 
         if (!acceptedImages.length) {
-            setInputImageNotice(`最多只能附加 ${MAX_INPUT_CONTEXT_IMAGES} 張圖片。`, 'warning');
+            setInputImageNotice(t('notice_max_images', [String(MAX_INPUT_CONTEXT_IMAGES)]), 'warning');
             return;
         }
 
         if (acceptedImages.length < newImages.length || rawUniqueImages.length > nextImages.length) {
-            setInputImageNotice(`最多只能附加 ${MAX_INPUT_CONTEXT_IMAGES} 張圖片，已加入前 ${acceptedImages.length} 張。`, 'warning');
+            setInputImageNotice(t('notice_max_images_partial', [String(MAX_INPUT_CONTEXT_IMAGES), String(acceptedImages.length)]), 'warning');
             return;
         }
 
-        setInputImageNotice(`已加入 ${inputContextImageDataUrls.length} 張圖片，可直接送出給模型。`, 'info');
+        setInputImageNotice(t('notice_images_added_ready', [String(inputContextImageDataUrls.length)]), 'info');
     }
 
     async function handleAnnotateScreenClick() {
         const screenshotEnabled = await getScreenshotEnabled();
         if (!screenshotEnabled) {
-            setInputImageNotice('請先啟用截圖功能，才能標注目前畫面。', 'warning');
+            setInputImageNotice(t('notice_enable_screenshot_first'), 'warning');
             await refreshInputImageContextAvailability({ clearNotice: false });
             return;
         }
 
-        setInputImageNotice('標注模式已啟動：點擊頁面元素，或按住左鍵拖曳畫線。', 'info');
+        setInputImageNotice(t('notice_annotation_started'), 'info');
         const annotatedScreenshotDataUrl = await captureAnnotatedViewportScreenshot();
         input.focus();
         if (!annotatedScreenshotDataUrl) {
-            setInputImageNotice('已取消或未取得標注畫面，未加入圖片上下文。', 'info');
+            setInputImageNotice(t('notice_annotation_cancelled'), 'info');
             return;
         }
 
-        await appendInputContextImages([annotatedScreenshotDataUrl], { emptyMessage: '沒有取得可加入的標注截圖。' });
+        await appendInputContextImages([annotatedScreenshotDataUrl], { emptyMessage: t('notice_no_annotation_screenshot') });
         if (inputContextImageDataUrls.includes(annotatedScreenshotDataUrl)) {
             pendingAnnotatedScreenshotDataUrl = annotatedScreenshotDataUrl;
-            setInputImageNotice('已加入標注截圖；送出提示時不會再額外擷取一次畫面。', 'info');
+            setInputImageNotice(t('notice_annotation_added'), 'info');
         }
     }
 
     async function handleUploadImageFiles(files) {
         const imageFiles = Array.from(files || []).filter((file) => file.type.startsWith('image/'));
         if (!imageFiles.length) {
-            setInputImageNotice('請選擇可用的圖片檔案。', 'warning');
+            setInputImageNotice(t('notice_choose_image_file'), 'warning');
             return;
         }
 
         if (inputStack.dataset.askpageImageContextEnabled !== 'true') {
-            setInputImageNotice('請先切換到代理模式，才能手動附加圖片上下文。', 'warning');
+            setInputImageNotice(t('notice_switch_to_agent_first'), 'warning');
             return;
         }
 
         try {
             const imageDataUrls = await Promise.all(imageFiles.map((file) => readFileAsDataUrl(file)));
-            await appendInputContextImages(imageDataUrls, { emptyMessage: '沒有可加入的圖片檔案。' });
+            await appendInputContextImages(imageDataUrls, { emptyMessage: t('notice_no_image_files') });
         } catch (error) {
             console.error('[AskPage] Failed to read uploaded images:', error);
-            setInputImageNotice(`無法上傳圖片：${error.message}`, 'error');
+            setInputImageNotice(t('notice_upload_failed', [String(error.message)]), 'error');
         }
     }
 
@@ -5111,10 +5271,10 @@ async function createDialog() {
 
         try {
             const imageDataUrls = await Promise.all(imageFiles.map((file) => readFileAsDataUrl(file)));
-            await appendInputContextImages(imageDataUrls, { emptyMessage: '剪貼簿裡沒有可用的圖片。' });
+            await appendInputContextImages(imageDataUrls, { emptyMessage: t('notice_no_clipboard_images') });
         } catch (error) {
             console.error('[AskPage] Failed to read pasted images:', error);
-            setInputImageNotice(`無法貼上圖片：${error.message}`, 'error');
+            setInputImageNotice(t('notice_paste_failed', [String(error.message)]), 'error');
         }
     }
 
@@ -5130,10 +5290,10 @@ async function createDialog() {
 
         try {
             const imageDataUrls = await collectDroppedImageDataUrls(event.dataTransfer);
-            await appendInputContextImages(imageDataUrls, { emptyMessage: '拖曳內容中沒有可用的圖片。' });
+            await appendInputContextImages(imageDataUrls, { emptyMessage: t('notice_no_drag_images') });
         } catch (error) {
             console.error('[AskPage] Failed to read dropped images:', error);
-            setInputImageNotice(`無法加入拖曳圖片：${error.message}`, 'error');
+            setInputImageNotice(t('notice_drag_failed', [String(error.message)]), 'error');
         }
     }
 
@@ -5235,7 +5395,7 @@ async function createDialog() {
 
         return await toggleModeWithUi(toggleScreenshotEnabled, async (newState) => {
             if (feedbackMode === 'brief') {
-                appendMessage('assistant', newState ? '📸 **截圖模式已啟用**' : '⭕ **截圖模式已停用**');
+                appendMessage('assistant', newState ? t('msg_screenshot_enabled') : t('msg_screenshot_disabled'));
                 return;
             }
 
@@ -5244,29 +5404,21 @@ async function createDialog() {
             }
 
             if (newState) {
-                appendMessage('assistant', '✅ **截圖功能已啟用**\n\n🔄 正在測試截圖功能...');
+                appendMessage('assistant', t('msg_screenshot_testing_start'));
                 const screenshotDataUrl = await captureViewportScreenshot();
 
                 if (screenshotDataUrl) {
                     const imageSize = Math.round(screenshotDataUrl.length / 1024);
-                    const debugMessage = `📸 **截圖測試成功!**
-
-**截圖資訊:**
-- 📏 圖片大小: ${imageSize} KB
-- 🔗 格式: PNG (Base64)
-- 📊 資料長度: ${screenshotDataUrl.length} 字元
-- 🎯 Base64 資料長度: ${screenshotDataUrl.split(',')[1]?.length || 0} 字元
-
-**捕獲的截圖預覽:**`;
+                    const debugMessage = t('msg_screenshot_test_success', [String(imageSize), String(screenshotDataUrl.length), String(screenshotDataUrl.split(',')[1]?.length || 0)]);
 
                     appendMessage('assistant', debugMessage);
                     appendScreenshotMessage(screenshotDataUrl);
-                    appendMessage('assistant', '✨ **截圖功能已啟用!** 您現在提問時，系統會自動包含截圖進行分析。此設定會記憶到下次重新載入頁面。');
+                    appendMessage('assistant', t('msg_screenshot_enabled_ready'));
                 } else {
-                    appendMessage('assistant', '❌ **截圖測試失敗**\n\n截圖功能已啟用，但截圖捕獲失敗。請檢查瀏覽器權限設定。');
+                    appendMessage('assistant', t('msg_screenshot_test_failed'));
                 }
             } else {
-                appendMessage('assistant', '⭕ **截圖功能已停用**\n\n系統將不再自動捕獲截圖。您的提問將僅使用文字內容進行分析。此設定會記憶到下次重新載入頁面。');
+                appendMessage('assistant', t('msg_screenshot_disabled_notice'));
             }
         });
     }
@@ -5276,7 +5428,7 @@ async function createDialog() {
 
         return await toggleModeWithUi(toggleAgentModeEnabled, async (newState) => {
             if (feedbackMode === 'brief') {
-                appendMessage('assistant', newState ? '🤖 **代理模式已啟用**' : '💬 **詢問模式已啟用**');
+                appendMessage('assistant', newState ? t('msg_agent_mode_enabled') : t('msg_inquiry_mode_enabled'));
                 return;
             }
 
@@ -5285,9 +5437,9 @@ async function createDialog() {
             }
 
             if (newState) {
-                appendMessage('assistant', '✅ **代理模式已啟用**\n\n目前已切換為代理模式。系統會使用頁面 HTML 與工具調用能力來分析與操作目前頁面，此設定會保留到重新載入後。');
+                appendMessage('assistant', t('msg_agent_enabled_notice'));
             } else {
-                appendMessage('assistant', '💬 **詢問模式已啟用**\n\n目前已切換為詢問模式。系統只會根據頁面內容回答問題，不會呼叫頁面工具，手動附加的圖片上下文也會一併停用，此設定會保留到重新載入後。');
+                appendMessage('assistant', t('msg_inquiry_enabled_notice'));
             }
         });
     }
@@ -5329,18 +5481,16 @@ async function createDialog() {
 
         if (question === '/summary') {
             const customPrompt = await getValue(CUSTOM_SUMMARY_PROMPT_STORAGE, '');
-            const summaryPromptTemplate = customPrompt || '請幫我總結這篇文章，並以 Markdown 格式輸出，內容包含「標題」、「重點摘要」、「總結」';
+            const summaryPromptTemplate = customPrompt || t('cmd_summary_default_prompt');
             if (extractTemplateVariables(summaryPromptTemplate).length > 0) {
-                // 有變數的範本應由 snippet 流程展開，不應直接以 /summary 送出
                 appendMessage('user', question);
-                appendMessage('assistant', '❌ **/summary 提示內容包含 ${變數}，請輸入 /summary 後按 Tab 展開並填寫變數。**');
+                appendMessage('assistant', '\u274c **' + t('cmd_summary_variables_error') + '**');
                 clearInputContextImages();
                 setInputValue('', { resetToSingleLine: true });
                 input.focus();
                 return;
             }
-            question = summaryPromptTemplate;
-            displayedQuestion = question;
+            question = summaryPromptTemplate;            displayedQuestion = question;
         }
 
         if (question === '/screenshot') {
@@ -5371,7 +5521,7 @@ async function createDialog() {
             if (customCommand) {
                 if (extractTemplateVariables(customCommand.prompt || '').length > 0) {
                     appendMessage('user', question);
-                    appendMessage('assistant', `❌ **${question} 提示內容包含 \${變數}，請輸入命令後按 Tab 展開並填寫變數。**`);
+                    appendMessage('assistant', t('cmd_variables_hint', [String(question)]));
                     clearInputContextImages();
                     setInputValue('', { resetToSingleLine: true });
                     input.focus();
@@ -5386,7 +5536,7 @@ async function createDialog() {
             } else {
                 // Unknown command
                 appendMessage('user', question);
-                appendMessage('assistant', `❌ **未知命令: ${question}**\n\n可用的命令：\n- \`/clear\` - 清除歷史紀錄\n- \`/summary\` - 總結整個頁面\n- \`/screenshot\` - 切換截圖功能\n- \`/agent\` - 切換詢問/代理模式\n\n您也可以在設定中新增自訂命令。`);
+                appendMessage('assistant', t('err_unknown_command', [String(question)]));
                 clearInputContextImages();
                 setInputValue('', { resetToSingleLine: true });
                 input.focus();
@@ -5898,7 +6048,7 @@ async function createDialog() {
     });
     uploadImageBtn.addEventListener('click', () => {
         if (inputStack.dataset.askpageImageContextEnabled !== 'true') {
-            setInputImageNotice('請先切換到代理模式，才能手動附加圖片上下文。', 'warning');
+            setInputImageNotice(t('notice_switch_to_agent_first'), 'warning');
             return;
         }
 
@@ -6065,7 +6215,7 @@ async function createDialog() {
             const copyBtn = document.createElement('button');
             copyBtn.className = 'copy-btn';
             copyBtn.innerHTML = '📋';
-            copyBtn.title = '複製到剪貼簿';
+            copyBtn.title = t('code_copy_to_clipboard');
             copyBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const markdownText = options.copyText || copyText;
@@ -6212,9 +6362,9 @@ async function createDialog() {
 
     function openScreenshotPreviewWindow(screenshotDataUrl) {
         return openImagePreviewWindow(screenshotDataUrl, {
-            title: '截圖預覽 - AskPage',
-            heading: '截圖預覽',
-            alt: 'AskPage 截圖預覽'
+            title: t('screenshot_preview_title'),
+            heading: t('screenshot_preview_heading'),
+            alt: t('screenshot_preview_alt')
         });
     }
 
@@ -6230,8 +6380,8 @@ async function createDialog() {
         link.href = 'about:blank';
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        link.title = '點擊開啟完整截圖';
-        link.setAttribute('aria-label', '開啟提問當下的完整截圖');
+        link.title = t('screenshot_open_full_title');
+        link.setAttribute('aria-label', t('screenshot_open_full_aria'));
         link.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -6240,7 +6390,7 @@ async function createDialog() {
 
         const img = document.createElement('img');
         img.src = screenshotDataUrl;
-        img.alt = '提問當下的畫面截圖';
+        img.alt = t('screenshot_image_alt');
         img.loading = 'lazy';
 
         link.appendChild(img);
@@ -6262,21 +6412,21 @@ async function createDialog() {
             link.href = 'about:blank';
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
-            link.title = `點擊開啟第 ${index + 1} 張完整圖片`;
-            link.setAttribute('aria-label', `開啟第 ${index + 1} 張完整圖片`);
+            link.title = t('image_strip_open_full_aria', [String(index + 1)]);
+            link.setAttribute('aria-label', t('image_strip_open_full_aria_open', [String(index + 1)]));
             link.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 openImagePreviewWindow(imageDataUrl, {
-                    title: `圖片預覽 ${index + 1} - AskPage`,
-                    heading: `圖片預覽 ${index + 1}`,
-                    alt: `AskPage 提問圖片 ${index + 1}`
+                    title: t('image_preview_title_indexed', [String(index + 1)]),
+                    heading: t('image_preview_heading_indexed', [String(index + 1)]),
+                    alt: t('image_preview_alt_indexed', [String(index + 1)])
                 });
             });
 
             const img = document.createElement('img');
             img.src = imageDataUrl;
-            img.alt = `提問圖片 ${index + 1}`;
+            img.alt = t('image_strip_alt_indexed', [String(index + 1)]);
             img.loading = 'lazy';
             link.appendChild(img);
 
@@ -6299,7 +6449,7 @@ async function createDialog() {
         if (role === 'assistant') {
             renderAssistantMessageElement(div, text, options);
         } else {
-            appendCollapsibleTextPreview(div, '你: ' + text);
+            appendCollapsibleTextPreview(div, t('content_user_preview_label', [String(text)]));
             appendUserScreenshotThumbnail(div, options.screenshotDataUrl);
             appendUserInputImageGallery(div, options.inputImageDataUrls);
         }
@@ -6373,9 +6523,9 @@ async function createDialog() {
         }
 
         if (
-            trimmedStatus.includes('已選擇工具')
-            || trimmedStatus.includes('正在執行工具')
-            || trimmedStatus.includes('已執行工具')
+            trimmedStatus.includes(t('status_tool_selected'))
+            || trimmedStatus.includes(t('status_executing_tool'))
+            || trimmedStatus.includes(t('status_tool_executed'))
         ) {
             return '';
         }
@@ -6385,35 +6535,35 @@ async function createDialog() {
         const baseStatus = roundMatch ? roundMatch[3] : trimmedStatus;
         const withRoundBadge = (text) => `${roundBadge}${text}`;
 
-        if (baseStatus.includes('正在擷取畫面與整理頁面上下文')) {
-            return withRoundBadge('我先擷取目前畫面，再整理頁面上下文。');
+        if (baseStatus.includes(t('status_capturing_context'))) {
+            return withRoundBadge(t('trace_capture_context'));
         }
 
-        if (baseStatus.includes('正在整理頁面上下文')) {
-            return withRoundBadge('我先整理一下頁面上下文。');
+        if (baseStatus.includes(t('status_organizing_context'))) {
+            return withRoundBadge(t('trace_organize_context'));
         }
 
-        if (baseStatus.includes('規劃任務')) {
-            return withRoundBadge('正在分析需求與頁面狀態。');
+        if (baseStatus.includes(t('status_planning_task'))) {
+            return withRoundBadge(t('trace_planning'));
         }
 
-        if (baseStatus.includes('端點不支援 tool calling')) {
-            return withRoundBadge('這個端點不支援 tool calling，我改用一般文字模式繼續。');
+        if (baseStatus.includes(t('status_endpoint_no_tool_calling'))) {
+            return withRoundBadge(t('trace_no_tool_calling'));
         }
 
-        if (baseStatus.includes('回傳內容為空且疑似達到輸出上限')) {
-            return withRoundBadge('這次回應在輸出上限前就被截斷了，我會放寬輸出額度再試一次。');
+        if (baseStatus.includes(t('gemini_empty_output_limit_retry'))) {
+            return withRoundBadge(t('trace_empty_output_limit'));
         }
 
-        if (baseStatus.includes('回傳內容為空')) {
-            return withRoundBadge('這次沒有拿到可顯示內容，我再試一次。');
+        if (baseStatus.includes(t('gemini_empty_output_retry'))) {
+            return withRoundBadge(t('trace_empty_output'));
         }
 
-        if (baseStatus.includes('將在') && baseStatus.includes('後重試')) {
-            return withRoundBadge('服務暫時不穩定，我會稍候自動重試。');
+        if (baseStatus.includes(', will retry in ') || baseStatus.includes(t('trace_will_retry_prefix'))) {
+            return withRoundBadge(t('trace_unstable_retry'));
         }
 
-        if (baseStatus.includes('已取得最終回覆，正在整理答案')) {
+        if (baseStatus.includes(t('status_got_final_reply'))) {
             return '';
         }
 
@@ -6422,8 +6572,8 @@ async function createDialog() {
 
     function buildToolCallTraceMessage(toolCall) {
         const toolName = formatToolDisplayName(toolCall.name);
-        const summaryText = `🛠️ 正在執行 ${toolName}`;
-        const summaryHtml = `🛠️ 正在執行 <span class="askpage-tool-name">${escapeHtml(toolName)}</span>`;
+        const summaryText = t('trace_executing_tool_text', [String(toolName)]);
+        const summaryHtml = t('trace_executing_tool_html', [String(escapeHtml(toolName))]);
         return {
             text: `${summaryText}\n\n${formatTracePayload({ arguments: toolCall.args || {} })}`,
             renderedHtml: buildCollapsibleTraceHtml(summaryText, getJsonPreview({ arguments: toolCall.args || {} }), summaryHtml)
@@ -6432,15 +6582,15 @@ async function createDialog() {
 
     function buildToolResultTraceMessage(toolResult) {
         const toolName = formatToolDisplayName(toolResult.name);
-        const resultStatusSuffix = toolResult.result?.success === false ? '（失敗）' : '';
+        const resultStatusSuffix = toolResult.result?.success === false ? t('trace_result_failed_suffix') : '';
         const resultSummary = toolResult.result?.message
-            ? `\n\n結果摘要：${truncateToolText(toolResult.result.message, 240)}`
+            ? `\n\n${t('trace_result_summary_label')}${truncateToolText(toolResult.result.message, 240)}`
             : '';
-        const messageSuffix = toolResult.result?.message ? `：${truncateToolText(toolResult.result.message, 120)}` : '';
-        const summaryText = `📥 ${toolName} 已回傳${resultStatusSuffix}${messageSuffix}`;
-        const summaryHtml = `📥 <span class="askpage-tool-name">${escapeHtml(toolName)}</span> 已回傳${resultStatusSuffix ? escapeHtml(resultStatusSuffix) : ''}${messageSuffix ? `：${escapeHtml(truncateToolText(toolResult.result.message, 120))}` : ''}`;
+        const messageSuffix = toolResult.result?.message ? t('trace_tool_colon_msg', [String(truncateToolText(toolResult.result.message, 120))]) : '';
+        const summaryText = `📥 ${t('trace_tool_returned', [String(toolName)])}${resultStatusSuffix}${messageSuffix}`;
+        const summaryHtml = t('trace_tool_result_html', [String(escapeHtml(toolName)), String(resultStatusSuffix ? escapeHtml(resultStatusSuffix) : ''), String(messageSuffix ? escapeHtml(messageSuffix) : '')]);
         return {
-            text: `📥 **${toolName}** 已回傳${resultStatusSuffix}。${resultSummary}\n\n${formatTracePayload(toolResult.result)}`,
+            text: t('trace_tool_result_text', [`**${toolName}**`, String(resultStatusSuffix), String(resultSummary), String(formatTracePayload(toolResult.result))]),
             renderedHtml: buildCollapsibleTraceHtml(summaryText, getJsonPreview(toolResult.result), summaryHtml)
         };
     }
@@ -6577,11 +6727,12 @@ async function createDialog() {
 
     function logAgentExecutionCompletion(success, stats, errorMessage = '') {
         const tokenUsageText = formatApiTokenUsageSummary(stats.tokenUsage);
-        const durationText = `費時：${formatElapsedDuration(stats.elapsedMilliseconds)}`;
+        const durationText = t('agent_elapsed_label', [String(formatElapsedDuration(stats.elapsedMilliseconds))]);
         const tokenUsageSuffix = tokenUsageText ? `\n\n${tokenUsageText}` : '';
-        const finalMessage = success
-            ? `頁問已經打完收工，共執行 ${stats.stepCount} 個步驟，${durationText}${tokenUsageSuffix}`
-            : `頁問提早收工，共執行 ${stats.stepCount} 個步驟，${durationText}${tokenUsageSuffix}`;
+        const baseMessage = success
+            ? t('agent_finished', [String(stats.stepCount), durationText])
+            : t('agent_stopped_early', [String(stats.stepCount), durationText]);
+        const finalMessage = `${baseMessage}${tokenUsageSuffix}`;
         if (success) {
             console.info(`[AskPage] ${finalMessage}`);
         } else {
@@ -6664,7 +6815,7 @@ async function createDialog() {
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             cursor: pointer;
         `;
-        img.title = '點擊查看原始大小';
+        img.title = t('screenshot_view_original_title');
 
         // 點擊圖片時在新視窗中開啟
         img.addEventListener('click', () => openScreenshotPreviewWindow(screenshotDataUrl));
@@ -6678,11 +6829,11 @@ async function createDialog() {
             font-size: 12px;
             color: #666;
         `;
-        info.textContent = `📊 尺寸資訊: ${img.naturalWidth || '載入中...'}×${img.naturalHeight || '載入中...'} | 檔案大小: ${Math.round(screenshotDataUrl.length / 1024)} KB`;
+        info.textContent = t('screenshot_size_info_loading', [String(img.naturalWidth || t('content_loading')), String(img.naturalHeight || t('content_loading')), String(Math.round(screenshotDataUrl.length / 1024))]);
 
         // 當圖片載入完成時更新尺寸資訊
         img.onload = () => {
-            info.textContent = `📊 尺寸資訊: ${img.naturalWidth}×${img.naturalHeight} | 檔案大小: ${Math.round(screenshotDataUrl.length / 1024)} KB`;
+            info.textContent = t('screenshot_size_info_loading', [String(img.naturalWidth), String(img.naturalHeight), String(Math.round(screenshotDataUrl.length / 1024))]);
         };
 
         screenshotContainer.appendChild(info);
@@ -6692,7 +6843,7 @@ async function createDialog() {
         const copyBtn = document.createElement('button');
         copyBtn.className = 'copy-btn';
         copyBtn.innerHTML = '📋';
-        copyBtn.title = '複製截圖 Base64 資料';
+        copyBtn.title = t('screenshot_copy_base64_title');
         copyBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             try {
@@ -6805,7 +6956,7 @@ async function createDialog() {
     }
 
     function formatRetryDelay(delayMs) {
-        return `${Math.max(1, Math.ceil(delayMs / 1000))} 秒`;
+        return t('retry_delay_seconds', [String(Math.max(1, Math.ceil(delayMs / 1000)))]);
     }
 
     function buildApiDiagnosticPayload(error) {
@@ -6887,14 +7038,14 @@ async function createDialog() {
 
     function appendRetrySummary(message, retryCount) {
         return retryCount > 0
-            ? `${message} 已重試 ${retryCount} 次仍失敗。`
+            ? t('err_retry_suffix', [String(message), String(retryCount)])
             : message;
     }
 
     function analyzeProviderApiError(providerLabel, error, retryCount = 0) {
         const status = Number(error?.status || 0);
         const apiMessage = String(error?.apiMessage || '').trim();
-        const statusSuffix = status ? `（HTTP ${status}${error?.statusText ? ` ${error.statusText}` : ''}）` : '';
+        const statusSuffix = status ? t('http_status_suffix', [String(status), String(error?.statusText ? ` ${error.statusText}` : '')]) : '';
         const errorContent = `${error?.message || ''}\n${apiMessage}\n${error?.body || ''}`.toLowerCase();
         const isContextWindowExceeded = [
             'context_length_exceeded',
@@ -6910,8 +7061,8 @@ async function createDialog() {
             return {
                 shouldRetry: true,
                 reasonCode: 'request-timeout',
-                shortReason: '請求逾時',
-                userMessage: appendRetrySummary(`${providerLabel} 請求逾時，可能是服務忙碌或網路不穩。`, retryCount)
+                shortReason: t('err_request_timeout_short'),
+                userMessage: appendRetrySummary(t('err_request_timeout', [String(providerLabel)]), retryCount)
             };
         }
 
@@ -6919,8 +7070,8 @@ async function createDialog() {
             return {
                 shouldRetry: true,
                 reasonCode: 'network-error',
-                shortReason: '網路連線異常',
-                userMessage: appendRetrySummary(`無法連線到 ${providerLabel} 服務，可能是網路不穩或服務暫時無回應。`, retryCount)
+                shortReason: t('err_network_error_short'),
+                userMessage: appendRetrySummary(t('err_network_error', [String(providerLabel)]), retryCount)
             };
         }
 
@@ -6928,8 +7079,8 @@ async function createDialog() {
             return {
                 shouldRetry: true,
                 reasonCode: 'invalid-json',
-                shortReason: '回應格式異常',
-                userMessage: appendRetrySummary(`${providerLabel} 回傳了無法解析的資料，可能是服務暫時異常。`, retryCount)
+                shortReason: t('err_response_format_short'),
+                userMessage: appendRetrySummary(t('err_response_format', [String(providerLabel)]), retryCount)
             };
         }
 
@@ -6937,8 +7088,8 @@ async function createDialog() {
             return {
                 shouldRetry: false,
                 reasonCode: 'context-window-exceeded',
-                shortReason: '對話內容超過 Context Window',
-                userMessage: `${providerLabel} 回報目前頁面快照與完整對話已超過模型的 Context Window${statusSuffix}。請自行執行 /clear 開始新對話；AskPage 不會自動清除或裁切既有對話。${apiMessage ? `\n錯誤訊息：${apiMessage}` : ''}`
+                shortReason: t('err_context_window_short'),
+                userMessage: t('err_context_window', [String(providerLabel), String(statusSuffix), String(apiMessage ? t('err_api_message_label', [String(apiMessage)]) : '')])
             };
         }
 
@@ -6946,7 +7097,7 @@ async function createDialog() {
             return {
                 shouldRetry: false,
                 reasonCode: 'unauthorized',
-                shortReason: '驗證失敗',
+                shortReason: t('err_auth_failed_short'),
                 userMessage: error.message
             };
         }
@@ -6955,8 +7106,8 @@ async function createDialog() {
             return {
                 shouldRetry: false,
                 reasonCode: 'forbidden',
-                shortReason: '權限不足',
-                userMessage: error.message || `${providerLabel} 拒絕了這次請求，請檢查 API 權限或模型存取設定。`
+                shortReason: t('err_insufficient_permissions_short'),
+                userMessage: error.message || t('err_insufficient_permissions', [String(providerLabel)])
             };
         }
 
@@ -6964,8 +7115,8 @@ async function createDialog() {
             return {
                 shouldRetry: false,
                 reasonCode: 'not-found',
-                shortReason: '找不到資源',
-                userMessage: error.message || `${providerLabel} 找不到指定的模型、端點或部署設定。`
+                shortReason: t('err_resource_not_found_short'),
+                userMessage: error.message || t('err_resource_not_found', [String(providerLabel)])
             };
         }
 
@@ -6973,8 +7124,8 @@ async function createDialog() {
             return {
                 shouldRetry: false,
                 reasonCode: 'invalid-request',
-                shortReason: '請求格式錯誤',
-                userMessage: error.message || `${providerLabel} 拒絕了這次請求，可能是參數格式不正確。${apiMessage ? ` ${apiMessage}` : ''}`
+                shortReason: t('err_bad_request_short'),
+                userMessage: error.message || t('err_bad_request', [String(providerLabel), String(apiMessage ? ` ${apiMessage}` : '')])
             };
         }
 
@@ -6983,15 +7134,15 @@ async function createDialog() {
                 return {
                     shouldRetry: false,
                     reasonCode: 'quota-exceeded',
-                    shortReason: '配額已用盡',
-                    userMessage: `${providerLabel} 額度或用量限制已達上限${statusSuffix}。可能是上下文超出現有模型的 Context Window 限制或允許的 TPM (Token per minute) 上限。有些免費模型允許的 TPM 較小，例如 gemma-4-26b-a4b-it 的 TPM 就只有 16K 而已，所以執行「代理」模式比較容易超出限制，請更換模型或使用「詢問」模式減少輸入內容。錯誤訊息:\n${apiMessage ? ` ${apiMessage}` : ''}`
+                    shortReason: t('err_quota_exhausted_short'),
+                    userMessage: t('err_quota_exhausted', [String(providerLabel), String(statusSuffix), String(apiMessage ? ` ${apiMessage}` : '')])
                 };
             }
             return {
                 shouldRetry: true,
                 reasonCode: 'rate-limit',
-                shortReason: '服務忙碌或請求過多',
-                userMessage: appendRetrySummary(`${providerLabel} 服務目前忙碌或請求頻率過高${statusSuffix}。${apiMessage ? ` ${apiMessage}` : ''}`, retryCount)
+                shortReason: t('err_service_busy_short'),
+                userMessage: appendRetrySummary(t('err_service_busy', [String(providerLabel), String(statusSuffix), String(apiMessage ? ` ${apiMessage}` : '')]), retryCount)
             };
         }
 
@@ -6999,8 +7150,8 @@ async function createDialog() {
             return {
                 shouldRetry: true,
                 reasonCode: `http-${status || 'service-error'}`,
-                shortReason: '服務暫時異常',
-                userMessage: appendRetrySummary(`${providerLabel} 服務暫時異常${statusSuffix}。${apiMessage ? ` ${apiMessage}` : ''}`, retryCount)
+                shortReason: t('err_service_unavailable_short'),
+                userMessage: appendRetrySummary(t('err_service_unavailable', [String(providerLabel), String(statusSuffix), String(apiMessage ? ` ${apiMessage}` : '')]), retryCount)
             };
         }
 
@@ -7008,7 +7159,7 @@ async function createDialog() {
             return {
                 shouldRetry: false,
                 reasonCode: 'known-error',
-                shortReason: '請求失敗',
+                shortReason: t('err_request_failed_short'),
                 userMessage: error.message
             };
         }
@@ -7016,8 +7167,8 @@ async function createDialog() {
         return {
             shouldRetry: false,
             reasonCode: 'unknown-error',
-            shortReason: '未知錯誤',
-            userMessage: `${providerLabel} API 呼叫失敗，原因不明。`
+            shortReason: t('err_unknown_error_short'),
+            userMessage: t('err_unknown_error', [String(providerLabel)])
         };
     }
 
@@ -7085,7 +7236,7 @@ async function createDialog() {
 
     async function readServerSentEvents(response, onEvent) {
         if (!response.body || typeof response.body.getReader !== 'function') {
-            throw new Error('此瀏覽器不支援讀取串流回應。');
+            throw new Error(t('err_stream_unsupported'));
         }
 
         const reader = response.body.getReader();
@@ -7969,20 +8120,20 @@ async function createDialog() {
     }
 
     function formatToolDisplayName(name) {
-        return name || '未知工具';
+        return name || t('tool_unknown_tool_display');
     }
 
     function formatToolNameList(toolNames = []) {
         const formattedNames = toolNames.map((toolName) => formatToolDisplayName(toolName)).filter(Boolean);
         if (!formattedNames.length) {
-            return '未知工具';
+            return t('tool_unknown_tool_display');
         }
 
         if (formattedNames.length <= 3) {
             return formattedNames.join('、');
         }
 
-        return `${formattedNames.slice(0, 3).join('、')} 等 ${formattedNames.length} 個工具`;
+        return t('tool_list_more_than_three', [String(formattedNames.slice(0, 3).join('、')), String(formattedNames.length)]);
     }
 
     function buildToolExecutionSummary(toolResults = []) {
@@ -7995,25 +8146,27 @@ async function createDialog() {
         const failureCount = toolResults.length - successCount;
 
         if (toolResults.length === 1) {
-            return `剛剛調用 ${toolNames} 工具${successCount === 1 ? '成功' : '失敗'}`;
+            return successCount === 1
+                ? t('tool_exec_summary_single_success', [String(toolNames)])
+                : t('tool_exec_summary_single_failed', [String(toolNames)]);
         }
 
         if (failureCount === 0) {
-            return `剛剛調用 ${toolNames} 工具全部成功`;
+            return t('tool_exec_summary_all_success', [String(toolNames)]);
         }
 
         if (successCount === 0) {
-            return `剛剛調用 ${toolNames} 工具全部失敗`;
+            return t('tool_exec_summary_all_failed', [String(toolNames)]);
         }
 
-        return `剛剛調用 ${toolNames} 工具，成功 ${successCount} 個、失敗 ${failureCount} 個`;
+        return t('tool_exec_summary_mixed', [String(toolNames), String(successCount), String(failureCount)]);
     }
 
     function getToolDefinitions() {
         return [
             {
                 name: 'get_page_metadata',
-                description: '當使用者要求「取得頁面資訊」、「取得網頁資訊」、「頁面資訊」、「網頁資料」或需要目前頁面的 metadata/context 時使用；取得 page title、SEO metadata、OpenGraph、Twitter Card、page url、canonical/alternate links、JSON-LD、headings 與頁面統計。',
+                description: t('tool_def_get_page_metadata'),
                 parameters: {
                     type: 'object',
                     properties: {}
@@ -8021,7 +8174,7 @@ async function createDialog() {
             },
             {
                 name: 'inspect_selection',
-                description: '取得目前頁面選取範圍的文字與 HTML。當需要處理使用者選取內容時使用。',
+                description: t('tool_def_inspect_selection'),
                 parameters: {
                     type: 'object',
                     properties: {}
@@ -8029,50 +8182,50 @@ async function createDialog() {
             },
             {
                 name: 'inspect_form_fields',
-                description: '列出目前頁面的可編輯表單欄位，包含 label、name、id、placeholder、型別與選項。填表前優先使用。',
+                description: t('tool_def_inspect_form_fields'),
                 parameters: {
                     type: 'object',
                     properties: {
                         limit: {
                             type: 'integer',
-                            description: '最多回傳幾個欄位，預設 40。'
+                            description: t('tool_def_inspect_form_fields_limit')
                         },
                         includeHidden: {
                             type: 'boolean',
-                            description: '是否包含隱藏欄位，預設 false。'
+                            description: t('tool_def_inspect_form_fields_include_hidden')
                         },
                         includeDisabled: {
                             type: 'boolean',
-                            description: '是否包含 disabled 欄位，預設 true。'
+                            description: t('tool_def_inspect_form_fields_include_disabled')
                         }
                     }
                 }
             },
             {
                 name: 'fill_form_fields',
-                description: '根據 selector 或欄位名稱模糊比對填寫表單。支援文字輸入、下拉選單、核取方塊與 radio button。',
+                description: t('tool_def_fill_form_fields'),
                 parameters: {
                     type: 'object',
                     properties: {
                         fields: {
                             type: 'array',
-                            description: '要填寫的欄位清單。',
+                            description: t('tool_def_fill_form_fields_fields'),
                             items: {
                                 type: 'object',
                                 properties: {
-                                    selector: { type: 'string', description: '直接指定欄位 CSS selector。' },
-                                    field: { type: 'string', description: '欄位名稱或模糊搜尋文字。' },
-                                    label: { type: 'string', description: '欄位標籤文字。' },
-                                    name: { type: 'string', description: '欄位 name。' },
-                                    id: { type: 'string', description: '欄位 id。' },
-                                    placeholder: { type: 'string', description: '欄位 placeholder。' },
-                                    value: { type: 'string', description: '要寫入的值，文字欄位直接使用；select/radio 可同時拿來當選項 key 或 value。' },
-                                    text: { type: 'string', description: '要寫入的顯示文字或選項文字。' },
-                                    checked: { type: 'boolean', description: 'checkbox 要設定的狀態。' },
-                                    optionText: { type: 'string', description: 'select/radio 要選取的選項文字。' },
-                                    optionValue: { type: 'string', description: 'select/radio 要選取的選項 value。' },
-                                    valueKey: { type: 'string', description: 'select/radio 的 key 或 value。' },
-                                    valueText: { type: 'string', description: 'select/radio 的顯示文字。' }
+                                    selector: { type: 'string', description: t('tool_def_fill_form_fields_selector') },
+                                    field: { type: 'string', description: t('tool_def_fill_form_fields_field') },
+                                    label: { type: 'string', description: t('tool_def_fill_form_fields_label') },
+                                    name: { type: 'string', description: t('tool_def_fill_form_fields_name') },
+                                    id: { type: 'string', description: t('tool_def_fill_form_fields_id') },
+                                    placeholder: { type: 'string', description: t('tool_def_fill_form_fields_placeholder') },
+                                    value: { type: 'string', description: t('tool_def_fill_form_fields_value') },
+                                    text: { type: 'string', description: t('tool_def_fill_form_fields_text') },
+                                    checked: { type: 'boolean', description: t('tool_def_fill_form_fields_checked') },
+                                    optionText: { type: 'string', description: t('tool_def_fill_form_fields_option_text') },
+                                    optionValue: { type: 'string', description: t('tool_def_fill_form_fields_option_value') },
+                                    valueKey: { type: 'string', description: t('tool_def_fill_form_fields_value_key') },
+                                    valueText: { type: 'string', description: t('tool_def_fill_form_fields_value_text') }
                                 }
                             }
                         }
@@ -8082,13 +8235,13 @@ async function createDialog() {
             },
             {
                 name: 'run_js',
-                description: '在目前頁面的主世界執行通用 JavaScript。可用來讀取 DOM、查詢頁面資料、點擊元素、修改內容、注入 CSS、調整網頁排版、呼叫頁面腳本，並支援 await。當使用者要求修改、重排、套用樣式或操作目前網頁時，請直接使用此工具執行，不要只提供程式碼或建議。頁問對話框是擴充功能 UI，不是網頁內容；不可選取、讀取、修改或套用樣式到 #askpage-dialog-host 或其 shadow DOM，也不要用 html/body 的 filter、transform、opacity 等祖先效果影響擴充功能 UI。若要把結果回傳給模型，請使用 return。',
+                description: t('tool_def_run_js'),
                 parameters: {
                     type: 'object',
                     properties: {
                         code: {
                             type: 'string',
-                            description: '要執行的 JavaScript 程式碼。可以使用 document、window、selection、console 與 buildElementSelector。'
+                            description: t('tool_def_run_js_code')
                         }
                     },
                     required: ['code']
@@ -8105,7 +8258,7 @@ async function createDialog() {
             return {
                 id,
                 name,
-                result: createToolResult(false, `工具參數解析失敗：${toolArgs._parseError}`, {
+                result: createToolResult(false, t('tool_args_parse_failed', [String(toolArgs._parseError)]), {
                     rawArguments: truncateToolText(toolArgs._raw || '', 240)
                 }, [toolArgs._parseError])
             };
@@ -8117,7 +8270,7 @@ async function createDialog() {
                 return {
                     id,
                     name,
-                    result: createToolResult(true, `已取得頁面 metadata：${metadata.title || metadata.url}`, metadata)
+                    result: createToolResult(true, t('tool_page_metadata_obtained', [String(metadata.title || metadata.url)]), metadata)
                 };
             }
 
@@ -8126,7 +8279,7 @@ async function createDialog() {
                 return {
                     id,
                     name,
-                    result: createToolResult(selectionSnapshot.hasSelection, selectionSnapshot.hasSelection ? '已取得選取範圍內容。' : '目前沒有可用的選取範圍。', {
+                    result: createToolResult(selectionSnapshot.hasSelection, selectionSnapshot.hasSelection ? t('tool_selection_obtained') : t('tool_no_selection'), {
                         source: selectionSnapshot.source,
                         text: selectionSnapshot.text,
                         html: selectionSnapshot.html,
@@ -8144,7 +8297,7 @@ async function createDialog() {
                 return {
                     id,
                     name,
-                    result: createToolResult(true, `已找到 ${descriptors.length} 個表單欄位。`, {
+                    result: createToolResult(true, t('tool_form_fields_found', [String(descriptors.length)]), {
                         total: descriptors.length,
                         fields: descriptors.map(serializeFieldDescriptor)
                     }, [], descriptors.map((descriptor) => ({
@@ -8160,7 +8313,7 @@ async function createDialog() {
                     return {
                         id,
                         name,
-                        result: createToolResult(false, 'fields 參數至少要有一筆欄位指示。')
+                        result: createToolResult(false, t('tool_fields_param_empty'))
                     };
                 }
 
@@ -8170,7 +8323,7 @@ async function createDialog() {
                     if (!match.descriptor) {
                         return {
                             success: false,
-                            message: `找不到符合條件的欄位：${instruction.selector || instruction.field || instruction.label || instruction.name || instruction.id || '未知欄位'}`
+                            message: t('tool_field_not_found', [String(instruction.selector || instruction.field || instruction.label || instruction.name || instruction.id || t('tool_unknown_field'))])
                         };
                     }
 
@@ -8178,7 +8331,7 @@ async function createDialog() {
                     if (descriptor.disabled) {
                         return {
                             success: false,
-                            message: `欄位目前是 disabled，無法填寫：${descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector}`,
+                            message: t('tool_field_disabled', [String(descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector)]),
                             selector: descriptor.selector
                         };
                     }
@@ -8192,7 +8345,7 @@ async function createDialog() {
                             selector: descriptor.selector,
                             value: String(nextValue),
                             fieldType: descriptor.fieldType,
-                            message: `已填寫 ${descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector}`
+                            message: t('tool_field_filled', [String(descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector)])
                         };
                     }
 
@@ -8208,7 +8361,7 @@ async function createDialog() {
                             selector: descriptor.selector,
                             checked: nextChecked,
                             fieldType: descriptor.fieldType,
-                            message: `已${nextChecked ? '勾選' : '取消勾選'} ${descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector}`
+                            message: t('tool_checkbox_toggled', [nextChecked ? t('tool_action_checked') : t('tool_action_unchecked'), String(descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector)])
                         };
                     }
 
@@ -8218,7 +8371,7 @@ async function createDialog() {
                             return {
                                 success: false,
                                 selector: descriptor.selector,
-                                message: `找不到可匹配的選項：${descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector}`
+                                message: t('tool_option_not_found', [String(descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector)])
                             };
                         }
 
@@ -8231,7 +8384,7 @@ async function createDialog() {
                             value: matchedOption.value,
                             displayValue: matchedOption.text,
                             fieldType: descriptor.fieldType,
-                            message: `已選取 ${matchedOption.text}`
+                            message: t('tool_option_selected', [String(matchedOption.text)])
                         };
                     }
 
@@ -8241,7 +8394,7 @@ async function createDialog() {
                             return {
                                 success: false,
                                 selector: descriptor.selector,
-                                message: `找不到可匹配的 radio 選項：${descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector}`
+                                message: t('tool_radio_not_found', [String(descriptor.labels[0] || descriptor.name || descriptor.id || descriptor.selector)])
                             };
                         }
 
@@ -8256,14 +8409,14 @@ async function createDialog() {
                             value: matchedOption.value,
                             displayValue: matchedOption.text,
                             fieldType: descriptor.fieldType,
-                            message: `已選取 ${matchedOption.text}`
+                            message: t('tool_option_selected', [String(matchedOption.text)])
                         };
                     }
 
                     return {
                         success: false,
                         selector: descriptor.selector,
-                        message: `目前不支援此欄位型別：${descriptor.fieldType}`
+                        message: t('tool_field_type_unsupported', [String(descriptor.fieldType)])
                     };
                 });
 
@@ -8274,7 +8427,7 @@ async function createDialog() {
                     name,
                     result: createToolResult(
                         successResults.length > 0,
-                        `已成功填寫 ${successResults.length} 個欄位${failureResults.length ? `，失敗 ${failureResults.length} 個` : ''}。`,
+                        t('tool_form_fill_summary', [String(successResults.length), String(failureResults.length ? t('tool_form_fill_failure_partial', [String(failureResults.length)]) : '')]),
                         {
                             total: fieldResults.length,
                             applied: fieldResults
@@ -8294,7 +8447,7 @@ async function createDialog() {
                     return {
                         id,
                         name,
-                        result: createToolResult(false, 'code 參數不可為空。')
+                        result: createToolResult(false, t('tool_code_param_empty'))
                     };
                 }
 
@@ -8313,7 +8466,7 @@ async function createDialog() {
                     return {
                         id,
                         name,
-                        result: createToolResult(false, response?.error || '主世界 JavaScript 執行失敗。')
+                        result: createToolResult(false, response?.error || t('tool_main_world_exec_failed'))
                     };
                 }
 
@@ -8322,7 +8475,7 @@ async function createDialog() {
                     name,
                     result: createToolResult(
                         response.result?.success !== false,
-                        response.result?.message || '已執行 JavaScript。',
+                        response.result?.message || t('tool_js_executed'),
                         response.result?.data || {},
                         response.result?.warnings || [],
                         response.result?.matchedTargets || []
@@ -8333,17 +8486,17 @@ async function createDialog() {
             return {
                 id,
                 name,
-                result: createToolResult(false, `未知工具：${name}`)
+                result: createToolResult(false, t('tool_unknown_tool', [String(name)]))
             };
         } catch (error) {
             console.error('[AskPage] Tool execution failed:', name, error);
             return {
                 id,
                 name,
-                result: createToolResult(false, `工具 ${name} 執行失敗：${error.message}`, {
+                result: createToolResult(false, t('tool_exec_failed', [String(name), String(error.message)]), {
                     errorName: error.name || 'Error',
-                    errorMessage: error.message || '未知錯誤'
-                }, [`${error.name || 'Error'}: ${error.message || '未知錯誤'}`])
+                    errorMessage: error.message || t('err_unknown_error_short')
+                }, [`${error.name || 'Error'}: ${error.message || t('err_unknown_error_short')}`])
             };
         }
     }
@@ -8591,7 +8744,7 @@ async function createDialog() {
                 : typeof responseData.error?.message === 'string'
                     ? responseData.error.message
                     : JSON.stringify(responseData.error);
-            throw new Error(`API 回報錯誤：${errorMsg}`);
+            throw new Error(t('err_api_reported_error', [String(errorMsg)]));
         }
 
         if (Array.isArray(responseData?.choices)) {
@@ -8717,29 +8870,29 @@ async function createDialog() {
         const refusalText = getOpenAIRefusalText(assistantMessage);
 
         if (refusalText) {
-            return `${providerLabel} 拒絕回應這次請求：${refusalText}`;
+            return t('resp_refused', [String(providerLabel), String(refusalText)]);
         }
 
         switch (finishReason) {
         case 'length':
-            return `${providerLabel} 已達輸出長度上限，請縮小問題範圍後再試。`;
+            return t('resp_output_limit', [String(providerLabel)]);
         case 'content_filter':
-            return `${providerLabel} 因內容過濾而未回傳文字內容，請調整提問內容後再試。`;
+            return t('resp_content_filtered', [String(providerLabel)]);
         case 'tool_calls':
-            return `${providerLabel} 回傳了工具呼叫狀態，但沒有提供可顯示的文字內容。`;
+            return t('resp_tool_call_no_text', [String(providerLabel)]);
         case 'function_call':
-            return `${providerLabel} 回傳了函式呼叫狀態，但沒有提供可顯示的文字內容。`;
+            return t('resp_function_call_no_text', [String(providerLabel)]);
         case 'stop':
-            return `${providerLabel} 已完成回應，但內容不是可顯示的文字。請再試一次，或縮小問題範圍。`;
+            return t('resp_not_displayable_retry', [String(providerLabel)]);
         default:
             break;
         }
 
         if (!choices.length) {
-            return `${providerLabel} 沒有回傳任何候選內容，可能是模型暫時沒有產生答案，請稍後再試。`;
+            return t('resp_no_candidates', [String(providerLabel)]);
         }
 
-        return `${providerLabel} 已回傳結果，但內容不是可顯示的文字。請再試一次，或縮小問題範圍。`;
+        return t('resp_result_not_text', [String(providerLabel)]);
     }
 
     function getGeminiPrimaryCandidate(responseData) {
@@ -8803,22 +8956,21 @@ async function createDialog() {
         return !['SAFETY', 'RECITATION', 'LANGUAGE', 'BLOCKLIST', 'PROHIBITED_CONTENT', 'SPII', 'IMAGE_SAFETY'].includes(finishReason);
     }
 
-    function buildGeminiEmptyResponseMessage(responseData, providerLabel = 'Gemini') {
+    function buildGeminiEmptyResponseMessage(responseData) {
         const promptFeedback = responseData?.promptFeedback;
         const promptSafetyDetails = formatGeminiSafetyDetails(promptFeedback?.safetyRatings);
 
         switch (promptFeedback?.blockReason) {
         case 'SAFETY':
-            return `${providerLabel} 因安全性限制而未處理這次請求${promptSafetyDetails}，請調整提問內容後再試。`;
+            return t('gemini_safety_blocked', [String(promptSafetyDetails)]);
         case 'BLOCKLIST':
-            return `${providerLabel} 因請求內容包含封鎖詞而未處理這次請求，請調整提問內容後再試。`;
+            return t('gemini_blocked_term');
         case 'PROHIBITED_CONTENT':
-            return `${providerLabel} 判定這次請求屬於禁止內容，因此未回傳答案。`;
+            return t('gemini_prohibited_content');
         case 'IMAGE_SAFETY':
-            return `${providerLabel} 因圖片內容觸發安全性限制，因此未回傳答案。`;
+            return t('gemini_image_safety');
         case 'OTHER':
-            return `${providerLabel} 沒有處理這次請求，請稍後再試。`;
-        default:
+            return t('gemini_not_processed');        default:
             break;
         }
 
@@ -8829,32 +8981,31 @@ async function createDialog() {
 
         switch (finishReason) {
         case 'MAX_TOKENS':
-            return `${providerLabel} 已達輸出長度上限${finishMessage}，請縮小問題範圍後再試。`;
+            return t('gemini_output_limit', [String(finishMessage)]);
         case 'SAFETY':
-            return `${providerLabel} 因安全性限制而未回傳文字內容${candidateSafetyDetails || finishMessage}，請調整提問內容後再試。`;
+            return t('gemini_safety_no_text', [String(candidateSafetyDetails || finishMessage)]);
         case 'RECITATION':
-            return `${providerLabel} 因引用內容限制而未回傳文字內容${finishMessage}。`;
+            return t('gemini_citation_limit', [String(finishMessage)]);
         case 'LANGUAGE':
-            return `${providerLabel} 因語言限制而未回傳文字內容${finishMessage}，請改用繁體中文或英文後再試。`;
+            return t('gemini_language_limit', [String(finishMessage)]);
         case 'BLOCKLIST':
-            return `${providerLabel} 因回應內容觸發封鎖詞限制而未回傳文字內容。`;
+            return t('gemini_response_blocked_term');
         case 'PROHIBITED_CONTENT':
-            return `${providerLabel} 因回應內容觸發禁止內容限制而未回傳文字內容。`;
+            return t('gemini_response_prohibited');
         case 'SPII':
-            return `${providerLabel} 因回應內容可能包含敏感個人資訊而未回傳文字內容。`;
+            return t('gemini_response_sensitive_pii');
         case 'MALFORMED_FUNCTION_CALL':
-            return `${providerLabel} 回傳了格式不正確的工具呼叫${finishMessage}，請再試一次。`;
+            return t('gemini_invalid_tool_call', [String(finishMessage)]);
         case 'OTHER':
-            return `${providerLabel} 沒有產生可顯示的文字內容${finishMessage}，請稍後再試。`;
-        default:
+            return t('gemini_no_text', [String(finishMessage)]);        default:
             break;
         }
 
         if (!Array.isArray(responseData?.candidates) || !responseData.candidates.length) {
-            return `${providerLabel} 沒有回傳任何候選內容，可能是請求被系統攔下或模型暫時沒有產生答案。`;
+            return t('gemini_no_candidates_blocked');
         }
 
-        return `${providerLabel} 已回傳結果，但內容不是可顯示的文字${finishMessage}。請再試一次，或縮小問題範圍。`;
+        return t('gemini_result_not_text', [String(finishMessage)]);
     }
 
     function formatGeminiUsageMetadataSummary(usageMetadata) {
@@ -8914,8 +9065,8 @@ async function createDialog() {
         const message = `${error?.userMessage || ''}\n${error?.message || ''}`;
 
         return [
-            '內容不是可顯示的文字',
-            '沒有產生可顯示的文字內容'
+            t('phrase_not_displayable_text'),
+            t('phrase_no_displayable_text')
         ].some((expectedMessage) => message.includes(expectedMessage));
     }
 
@@ -8942,7 +9093,7 @@ async function createDialog() {
         try {
             return JSON.parse(sseEvent.data);
         } catch (error) {
-            throw new Error(`${providerLabel} 回傳了無法解析的串流資料：${sseEvent.data.slice(0, 200)}`);
+            throw new Error(t('err_stream_parse_failed', [String(providerLabel), String(sseEvent.data.slice(0, 200))]));
         }
     }
 
@@ -9202,7 +9353,7 @@ async function createDialog() {
                         : typeof payload.error?.message === 'string'
                             ? payload.error.message
                             : JSON.stringify(payload.error);
-                    throw new Error(`API 串流錯誤：${errorMsg}`);
+                    throw new Error(t('err_stream_api_error', [String(errorMsg)]));
                 }
 
                 if (payload.choices || payload.object === 'chat.completion.chunk') {
@@ -9486,8 +9637,8 @@ async function createDialog() {
             reportStatus(formatRoundStatus(
                 round,
                 useTools
-                    ? `${roundPrefix}正在請 ${providerLabel} 規劃任務...`
-                    : `正在請 ${providerLabel} 分析頁面並回答問題...`
+                    ? `${roundPrefix}${t('status_ask_plan_task', [String(providerLabel)])}`
+                    : t('status_ask_analyze_page', [String(providerLabel)])
             ));
             let responseData;
             try {
@@ -9495,7 +9646,7 @@ async function createDialog() {
                     buildRequestBody(messages, useTools, maxOutputTokens),
                     (retryInfo) => reportStatus(formatRoundStatus(
                         round,
-                        `${providerLabel} ${retryInfo.shortReason}，將在 ${formatRetryDelay(retryInfo.delayMs)} 後重試（${retryInfo.retryCount}/${retryInfo.maxRetries}）...`
+                        t('status_will_retry_after', [String(providerLabel), String(retryInfo.shortReason), String(formatRetryDelay(retryInfo.delayMs)), String(retryInfo.retryCount), String(retryInfo.maxRetries)])
                     )),
                     {
                         onAnswerDelta,
@@ -9507,7 +9658,7 @@ async function createDialog() {
                     console.warn(`[AskPage] ${providerLabel} does not appear to support tool calling, falling back to plain chat.`, error);
                     useTools = false;
                     fallbackUsed = true;
-                    reportStatus(formatRoundStatus(round, `${providerLabel} 端點不支援 tool calling，正在退回一般文字模式...`));
+                    reportStatus(formatRoundStatus(round, t('status_provider_no_tool_calling_fallback', [String(providerLabel)])));
                     continue;
                 }
                 throw error;
@@ -9540,8 +9691,8 @@ async function createDialog() {
                     maxOutputTokens = Math.max(maxOutputTokens, retryMaxOutputTokens);
                     reportStatus(
                         getOpenAIFinishReason(responseChoice) === 'length'
-                            ? `${providerLabel} 回傳內容為空且疑似達到輸出上限，正在放寬輸出限制後自動重試一次...`
-                            : `${providerLabel} 回傳內容為空，正在自動重試一次...`
+                            ? t('status_empty_output_limit', [String(providerLabel)])
+                            : t('status_empty_output_retry', [String(providerLabel)])
                     );
                     continue;
                 }
@@ -9550,7 +9701,7 @@ async function createDialog() {
             }
 
             if (!toolCalls.length) {
-                console.debug(`[AskPage] ${providerLabel} 已取得最終回覆，正在整理答案...`);
+                console.debug(t('status_provider_got_final_reply', [String(providerLabel)]));
                 return {
                     answer: answerText,
                     fallbackUsed
@@ -9569,18 +9720,18 @@ async function createDialog() {
                 name: toolCall.function?.name,
                 args: parseToolArguments(toolCall.function?.arguments)
             }));
-            reportStatus(formatRoundStatus(round, `${providerLabel} 已選擇工具 ${requestedToolNames}，準備執行...`));
+            reportStatus(formatRoundStatus(round, t('status_provider_selected_tools', [String(providerLabel), String(requestedToolNames)])));
             onTrace({ type: 'tool-call', round, toolCalls: parsedToolCalls });
 
             const toolResults = await executeToolCalls(
                 parsedToolCalls,
-                (toolStatus) => reportStatus(formatRoundStatus(round, `正在執行工具 ${formatToolDisplayName(toolStatus.name)} (${toolStatus.index}/${toolStatus.total})...`))
+                (toolStatus) => reportStatus(formatRoundStatus(round, t('status_executing_tool_indexed', [String(formatToolDisplayName(toolStatus.name)), String(toolStatus.index), String(toolStatus.total)])))
             );
 
             previousToolSummary = buildToolExecutionSummary(toolResults);
             const toolNames = formatToolNameList(toolResults.map((toolResult) => toolResult.name));
             onTrace({ type: 'tool-result', round, toolResults });
-            reportStatus(formatRoundStatus(round, `已執行工具 ${toolNames}，正在把結果交回模型...`));
+            reportStatus(formatRoundStatus(round, t('status_tool_executed_handoff', [String(toolNames), String(providerLabel)])));
 
             toolResults.forEach((toolResult) => {
                 messages.push({
@@ -9591,7 +9742,7 @@ async function createDialog() {
             });
         }
 
-        throw new Error('工具呼叫輪數已達上限，已中止以避免無限循環。');
+        throw new Error(t('err_tool_round_limit'));
     }
 
     async function runGeminiToolLoop({
@@ -9640,9 +9791,8 @@ async function createDialog() {
             reportStatus(formatRoundStatus(
                 round,
                 enableTools
-                    ? `${roundPrefix}正在請 ${providerLabel} 規劃任務...`
-                    : `正在請 ${providerLabel} 分析頁面並回答問題...`
-            ));
+                    ? `${roundPrefix}${t('status_ask_gemini_plan')}`
+                    : t('status_ask_gemini_analyze')            ));
             const requestBody = {
                 systemInstruction: {
                     parts: [{ text: systemInstructionText }]
@@ -9663,26 +9813,25 @@ async function createDialog() {
             const buildGeminiHttpError = (response, errorBody) => {
                 const retryAfterMs = getRetryAfterMilliseconds(response);
                 if (response.status === 401) {
-                    return createHttpError(response.status, response.statusText, errorBody, `無效的 ${providerLabel} API Key，請檢查您的 ${providerLabel} API Key 設定。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_gemini_invalid_key'), { retryAfterMs });
                 }
                 if (response.status === 403) {
-                    return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 拒絕了這次請求，請檢查 API 權限或模型存取設定。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_gemini_permission'), { retryAfterMs });
                 }
                 if (response.status === 404) {
-                    return createHttpError(response.status, response.statusText, errorBody, `找不到指定的 ${providerLabel} 模型，請檢查模型設定。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_gemini_model_not_found'), { retryAfterMs });
                 }
                 if (response.status === 429) {
-                    return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 服務目前忙碌或請求頻率過高，請稍後再試。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_gemini_busy'), { retryAfterMs });
                 }
                 if (response.status >= 500) {
-                    return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 服務暫時不可用，請稍後再試。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_gemini_unavailable'), { retryAfterMs });
                 }
                 return createHttpError(response.status, response.statusText, errorBody, undefined, { retryAfterMs });
             };
             const handleRetry = (retryInfo) => reportStatus(formatRoundStatus(
                 round,
-                `${providerLabel} ${retryInfo.shortReason}，將在 ${formatRetryDelay(retryInfo.delayMs)} 後重試（${retryInfo.retryCount}/${retryInfo.maxRetries}）...`
-            ));
+                t('status_will_retry_after', [String('Gemini'), String(retryInfo.shortReason), String(formatRetryDelay(retryInfo.delayMs)), String(retryInfo.retryCount), String(retryInfo.maxRetries)])            ));
             const responseData = enableTools
                 ? await fetchGeminiStream({
                     apiKey,
@@ -9731,17 +9880,16 @@ async function createDialog() {
                     emptyResponseRetryCount++;
                     reportStatus(
                         responseCandidate?.finishReason === 'MAX_TOKENS'
-                            ? `${providerLabel} 回傳內容為空且疑似達到輸出上限，正在以模型最大輸出上限自動重試一次...`
-                            : `${providerLabel} 回傳內容為空，正在自動重試一次...`
-                    );
+                            ? t('gemini_empty_output_limit_retry')
+                            : t('gemini_empty_output_retry')                    );
                     continue;
                 }
 
-                throw new Error(buildGeminiEmptyResponseMessage(responseData, providerLabel));
+                throw new Error(buildGeminiEmptyResponseMessage(responseData));
             }
 
             if (!functionCalls.length) {
-                console.debug('[AskPage] Gemini 已取得最終回覆，正在整理答案...');
+                console.debug(t('status_gemini_got_final_reply'));
                 return textResponse;
             }
 
@@ -9753,18 +9901,18 @@ async function createDialog() {
                 name: functionCall.name,
                 args: functionCall.args || {}
             }));
-            reportStatus(formatRoundStatus(round, `Gemini 已選擇工具 ${requestedToolNames}，準備執行...`));
+            reportStatus(formatRoundStatus(round, t('status_provider_selected_tools', [String('Gemini'), String(requestedToolNames)])));
             onTrace({ type: 'tool-call', round, toolCalls: parsedToolCalls });
 
             const toolResults = await executeToolCalls(
                 parsedToolCalls,
-                (toolStatus) => reportStatus(formatRoundStatus(round, `正在執行工具 ${formatToolDisplayName(toolStatus.name)} (${toolStatus.index}/${toolStatus.total})...`))
+                (toolStatus) => reportStatus(formatRoundStatus(round, t('status_executing_tool_indexed', [String(formatToolDisplayName(toolStatus.name)), String(toolStatus.index), String(toolStatus.total)])))
             );
 
             previousToolSummary = buildToolExecutionSummary(toolResults);
             const toolNames = formatToolNameList(toolResults.map((toolResult) => toolResult.name));
             onTrace({ type: 'tool-result', round, toolResults });
-            reportStatus(formatRoundStatus(round, `已執行工具 ${toolNames}，正在把結果交回 Gemini...`));
+            reportStatus(formatRoundStatus(round, t('status_tool_executed_handoff_gemini', [String(toolNames)])));
 
             contents.push({
                 role: 'user',
@@ -9778,7 +9926,7 @@ async function createDialog() {
             });
         }
 
-        throw new Error('Gemini 工具呼叫輪數已達上限，已中止以避免無限循環。');
+        throw new Error(t('err_gemini_tool_round_limit'));
     }
 
     async function askGemini(question, capturedSelectedText = '', screenshotDataUrl = null, inputImageDataUrls = []) {
@@ -9795,8 +9943,7 @@ async function createDialog() {
         console.log('[AskPage] API key available:', encryptedApiKey ? 'Yes' : 'No');
 
         if (!encryptedApiKey) {
-            appendErrorMessageAndStore(`請點擊擴充功能圖示設定您的 ${providerLabel} API Key。`);
-            return;
+            appendErrorMessageAndStore(t('err_setup_gemini_key'));            return;
         }
 
         const apiKey = await decryptApiKey(encryptedApiKey);
@@ -9804,8 +9951,7 @@ async function createDialog() {
         console.log('[AskPage] API key preview:', maskApiKey(apiKey));
 
         if (!apiKey) {
-            appendErrorMessageAndStore(`無法解密 ${providerLabel} API Key，請重新設定。`);
-            return;
+            appendErrorMessageAndStore(t('err_decrypt_gemini_key'));            return;
         }
 
         const traceReporter = createExecutionTraceReporter();
@@ -9813,7 +9959,7 @@ async function createDialog() {
 
         const agentModeEnabled = await getAgentModeEnabled();
         const hasInputImages = normalizeInputImageDataUrls(inputImageDataUrls).length > 0;
-        handleStatusUpdate((screenshotDataUrl || hasInputImages) ? '正在整理圖片與頁面上下文...' : '正在整理頁面上下文...');
+        handleStatusUpdate((screenshotDataUrl || hasInputImages) ? t('status_organizing_image_context') : t('status_organizing_context') + '...');
         const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
 
         try {
@@ -9849,7 +9995,7 @@ async function createDialog() {
             if (streamedAnswer) {
                 streamedAnswer.discard();
             }
-            const errorMessage = `錯誤: ${error.userMessage || error.message}`;
+            const errorMessage = t('err_generic_prefix', [String(error.userMessage || error.message)]);
             appendErrorMessageAndStore(errorMessage);
             traceReporter.reportCompletion(logAgentExecutionCompletion(false, traceReporter.getStats(), errorMessage));
         }
@@ -9863,14 +10009,12 @@ async function createDialog() {
         const providerLabel = getProviderDisplayName(activeConfig);
 
         if (!encryptedApiKey) {
-            appendErrorMessageAndStore(`請點擊擴充功能圖示設定您的 ${providerLabel} API Key。`);
-            return;
+            appendErrorMessageAndStore(t('err_setup_openai_key'));            return;
         }
 
         const apiKey = await decryptApiKey(encryptedApiKey);
         if (!apiKey) {
-            appendErrorMessageAndStore(`無法解密 ${providerLabel} API Key，請重新設定。`);
-            return;
+            appendErrorMessageAndStore(t('err_decrypt_openai_key'));            return;
         }
 
         const traceReporter = createExecutionTraceReporter();
@@ -9883,8 +10027,7 @@ async function createDialog() {
             inputImageDataUrls: normalizedInputImages
         }, agentModeEnabled);
         const promptCacheKey = agentModeEnabled ? '' : getInquiryPromptCacheKey();
-        handleStatusUpdate((screenshotDataUrl || normalizedInputImages.length) ? '正在整理圖片與頁面上下文...' : '正在整理頁面上下文...');
-        const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
+        handleStatusUpdate((screenshotDataUrl || normalizedInputImages.length) ? t('status_organizing_image_context') : t('status_organizing_context') + '...');        const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
         const usesMaxCompletionTokens = isReasoningModel(selectedModel);
         const supportsTemperature = !isReasoningModel(selectedModel);
         const maxOutputTokens = getOpenAIStyleMaxOutputTokens(selectedModel);
@@ -9951,19 +10094,19 @@ async function createDialog() {
                     const buildHttpError = (response, errorBody) => {
                         const retryAfterMs = getRetryAfterMilliseconds(response);
                         if (response.status === 401) {
-                            return createHttpError(response.status, response.statusText, errorBody, `無效的 API Key，請檢查您的 ${providerLabel} API Key 設定。`, { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_openai_invalid_key'), { retryAfterMs });
                         }
                         if (response.status === 403) {
-                            return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 拒絕了這次請求，請檢查 API 權限或模型存取設定。`, { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_openai_permission'), { retryAfterMs });
                         }
                         if (response.status === 404) {
-                            return createHttpError(response.status, response.statusText, errorBody, `找不到指定的 ${providerLabel} 模型，請檢查模型設定。`, { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_openai_model_not_found'), { retryAfterMs });
                         }
                         if (response.status === 429) {
-                            return createHttpError(response.status, response.statusText, errorBody, 'API 請求頻率過高，請稍後再試。', { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_openai_rate_limit'), { retryAfterMs });
                         }
                         if (response.status >= 500) {
-                            return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 服務暫時不可用，請稍後再試。`, { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_openai_unavailable'), { retryAfterMs });
                         }
                         return createHttpError(response.status, response.statusText, errorBody, undefined, { retryAfterMs });
                     };
@@ -10020,7 +10163,7 @@ async function createDialog() {
             if (streamedAnswer) {
                 streamedAnswer.discard();
             }
-            const errorMessage = `錯誤: ${error.userMessage || error.message}`;
+            const errorMessage = t('err_generic_prefix', [String(error.userMessage || error.message)]);
             appendErrorMessageAndStore(errorMessage);
             traceReporter.reportCompletion(logAgentExecutionCompletion(false, traceReporter.getStats(), errorMessage));
         }
@@ -10036,24 +10179,20 @@ async function createDialog() {
         const providerLabel = getProviderDisplayName(activeConfig);
 
         if (!encryptedApiKey) {
-            appendErrorMessageAndStore(`請點擊擴充功能圖示設定您的 ${providerLabel} API Key。`);
-            return;
+            appendErrorMessageAndStore(t('err_setup_azure_key'));            return;
         }
 
         if (!endpoint) {
-            appendErrorMessageAndStore(`請點擊擴充功能圖示設定您的 ${providerLabel} Endpoint。`);
-            return;
+            appendErrorMessageAndStore(t('err_setup_azure_endpoint'));            return;
         }
 
         if (!deployment) {
-            appendErrorMessageAndStore(`請點擊擴充功能圖示設定您的 ${providerLabel} Deployment Name。`);
-            return;
+            appendErrorMessageAndStore(t('err_setup_azure_deployment'));            return;
         }
 
         const apiKey = await decryptApiKey(encryptedApiKey);
         if (!apiKey) {
-            appendErrorMessageAndStore(`無法解密 ${providerLabel} API Key，請重新設定。`);
-            return;
+            appendErrorMessageAndStore(t('err_decrypt_azure_key'));            return;
         }
 
         const traceReporter = createExecutionTraceReporter();
@@ -10065,8 +10204,7 @@ async function createDialog() {
             includeScreenshot: Boolean(screenshotDataUrl),
             inputImageDataUrls: normalizedInputImages
         }, agentModeEnabled);
-        handleStatusUpdate((screenshotDataUrl || normalizedInputImages.length) ? '正在整理圖片與頁面上下文...' : '正在整理頁面上下文...');
-        const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
+        handleStatusUpdate((screenshotDataUrl || normalizedInputImages.length) ? t('status_organizing_image_context') : t('status_organizing_context') + '...');        const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
         const isGpt5Model = isGpt5FamilyModel(deployment);
         const isReasoning = isReasoningModel(deployment);
         const maxOutputTokens = getOpenAIStyleMaxOutputTokens(deployment);
@@ -10126,19 +10264,19 @@ async function createDialog() {
                     const buildHttpError = (response, errorBody) => {
                         const retryAfterMs = getRetryAfterMilliseconds(response);
                         if (response.status === 401) {
-                            return createHttpError(response.status, response.statusText, errorBody, `無效的 API Key，請檢查您的 ${providerLabel} API Key 設定。`, { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_azure_invalid_key'), { retryAfterMs });
                         }
                         if (response.status === 403) {
-                            return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 拒絕了這次請求，請檢查 API 權限或模型存取設定。`, { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_azure_permission'), { retryAfterMs });
                         }
                         if (response.status === 404) {
-                            return createHttpError(response.status, response.statusText, errorBody, '找不到指定的部署，請檢查您的 Endpoint 和 Deployment Name 設定。', { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_azure_deployment_not_found'), { retryAfterMs });
                         }
                         if (response.status === 429) {
-                            return createHttpError(response.status, response.statusText, errorBody, 'API 請求頻率過高，請稍後再試。', { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_openai_rate_limit'), { retryAfterMs });
                         }
                         if (response.status >= 500) {
-                            return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 服務暫時不可用，請稍後再試。`, { retryAfterMs });
+                            return createHttpError(response.status, response.statusText, errorBody, t('err_azure_unavailable'), { retryAfterMs });
                         }
                         return createHttpError(response.status, response.statusText, errorBody, undefined, { retryAfterMs });
                     };
@@ -10195,7 +10333,7 @@ async function createDialog() {
             if (streamedAnswer) {
                 streamedAnswer.discard();
             }
-            const errorMessage = `錯誤: ${error.userMessage || error.message}`;
+            const errorMessage = t('err_generic_prefix', [String(error.userMessage || error.message)]);
             appendErrorMessageAndStore(errorMessage);
             traceReporter.reportCompletion(logAgentExecutionCompletion(false, traceReporter.getStats(), errorMessage));
         }
@@ -10247,8 +10385,7 @@ async function createDialog() {
             includeScreenshot: Boolean(screenshotDataUrl),
             inputImageDataUrls: normalizedInputImages
         }, agentModeEnabled);
-        handleStatusUpdate((screenshotDataUrl || normalizedInputImages.length) ? '正在整理圖片與頁面上下文...' : '正在整理頁面上下文...');
-        const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
+        handleStatusUpdate((screenshotDataUrl || normalizedInputImages.length) ? t('status_organizing_image_context') : t('status_organizing_context') + '...');        const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
         const cleanEndpoint = endpoint.replace(/\/$/, '');
         const useResponsesApi = shouldUseResponsesApi(selectedModel);
         const baseEndpoint = cleanEndpoint.replace(/\/(chat\/completions|responses)$/, '');
@@ -10347,7 +10484,7 @@ async function createDialog() {
             });
 
             const finalAnswer = answer.fallbackUsed
-                ? `⚠️ **目前這個 ${providerLabel} 端點未完整支援 tool calling**\n\n已自動改用一般文字模式，因此這次無法直接操作頁面 DOM 或表單。\n\n${answer.answer}`
+                ? t('notice_endpoint_no_tool_calling', [String(providerLabel), String(answer.answer)])
                 : answer.answer;
             if (streamedAnswer) {
                 streamedAnswer.finalize(finalAnswer);
@@ -10367,7 +10504,7 @@ async function createDialog() {
             if (streamedAnswer) {
                 streamedAnswer.discard();
             }
-            const errorMessage = `錯誤: ${error.userMessage || error.message}`;
+            const errorMessage = t('err_generic_prefix', [String(error.userMessage || error.message)]);
             appendErrorMessageAndStore(errorMessage);
             traceReporter.reportCompletion(logAgentExecutionCompletion(false, traceReporter.getStats(), errorMessage));
         }
@@ -10474,14 +10611,12 @@ async function createDialog() {
         const providerLabel = getProviderDisplayName(activeConfig);
 
         if (!encryptedApiKey) {
-            appendErrorMessageAndStore(`請點擊擴充功能圖示設定您的 ${providerLabel} API Key。`);
-            return;
+            appendErrorMessageAndStore(t('err_setup_anthropic_key'));            return;
         }
 
         const apiKey = await decryptApiKey(encryptedApiKey);
         if (!apiKey) {
-            appendErrorMessageAndStore(`無法解密 ${providerLabel} API Key，請重新設定。`);
-            return;
+            appendErrorMessageAndStore(t('err_decrypt_anthropic_key'));            return;
         }
 
         const traceReporter = createExecutionTraceReporter();
@@ -10493,8 +10628,7 @@ async function createDialog() {
             includeScreenshot: Boolean(screenshotDataUrl),
             inputImageDataUrls: normalizedInputImages
         }, agentModeEnabled);
-        handleStatusUpdate((screenshotDataUrl || normalizedInputImages.length) ? '正在整理圖片與頁面上下文...' : '正在整理頁面上下文...');
-        const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
+        handleStatusUpdate((screenshotDataUrl || normalizedInputImages.length) ? t('status_organizing_image_context') : t('status_organizing_context') + '...');        const streamedAnswer = agentModeEnabled ? createStreamingAssistantMessageRenderer() : null;
 
         const maxOutputTokens = 4096;
         console.log('[AskPage] Anthropic max output tokens:', maxOutputTokens, 'model:', selectedModel);
@@ -10529,19 +10663,19 @@ async function createDialog() {
             const buildHttpError = (response, errorBody) => {
                 const retryAfterMs = getRetryAfterMilliseconds(response);
                 if (response.status === 401) {
-                    return createHttpError(response.status, response.statusText, errorBody, `無效的 API Key，請檢查您的 ${providerLabel} API Key 設定。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_anthropic_invalid_key'), { retryAfterMs });
                 }
                 if (response.status === 403) {
-                    return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 拒絕了這次請求，請檢查權限或模型存取設定。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_anthropic_permission'), { retryAfterMs });
                 }
                 if (response.status === 404) {
-                    return createHttpError(response.status, response.statusText, errorBody, `找不到指定的 ${providerLabel} 模型，請檢查模型設定。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_anthropic_model_not_found'), { retryAfterMs });
                 }
                 if (response.status === 429) {
-                    return createHttpError(response.status, response.statusText, errorBody, 'API 請求頻率過高，請稍後再試。', { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_openai_rate_limit'), { retryAfterMs });
                 }
                 if (response.status >= 500) {
-                    return createHttpError(response.status, response.statusText, errorBody, `${providerLabel} 服務暫時不可用，請稍後再試。`, { retryAfterMs });
+                    return createHttpError(response.status, response.statusText, errorBody, t('err_anthropic_unavailable'), { retryAfterMs });
                 }
                 return createHttpError(response.status, response.statusText, errorBody, undefined, { retryAfterMs });
             };
@@ -10556,8 +10690,7 @@ async function createDialog() {
                     headers,
                     buildHttpError,
                     onRetry: (retryInfo) => handleStatusUpdate(
-                        `${providerLabel} ${retryInfo.shortReason}，將在 ${formatRetryDelay(retryInfo.delayMs)} 後重試（${retryInfo.retryCount}/${retryInfo.maxRetries}）...`
-                    ),
+                        t('status_will_retry_after', [String('Anthropic'), String(retryInfo.shortReason), String(formatRetryDelay(retryInfo.delayMs)), String(retryInfo.retryCount), String(retryInfo.maxRetries)])                    ),
                     onAnswerDelta: (delta) => {
                         if (streamedAnswer) {
                             streamedAnswer.append(delta);
@@ -10565,8 +10698,8 @@ async function createDialog() {
                     },
                     providerLabel
                 });
-                traceReporter.reportUsage(providerLabel, streamResult.usage);
-                finalAnswer = `⚠️ **目前 ${providerLabel} 提供者未完整支援 agent 模式下的 tool calling**\n\n已自動改用一般文字模式，因此這次無法直接操作頁面 DOM 或表單。\n\n${streamResult.answer}`;
+                traceReporter.reportUsage('Anthropic', streamResult.usage);
+                finalAnswer = t('notice_anthropic_no_tool_calling', [String(streamResult.answer)]);
             } else {
                 const response = await fetchJsonWithRetry({
                     providerLabel,
@@ -10578,8 +10711,7 @@ async function createDialog() {
                     },
                     buildHttpError,
                     onRetry: (retryInfo) => handleStatusUpdate(
-                        `${providerLabel} ${retryInfo.shortReason}，將在 ${formatRetryDelay(retryInfo.delayMs)} 後重試（${retryInfo.retryCount}/${retryInfo.maxRetries}）...`
-                    )
+                        t('status_will_retry_after', [String('Anthropic'), String(retryInfo.shortReason), String(formatRetryDelay(retryInfo.delayMs)), String(retryInfo.retryCount), String(retryInfo.maxRetries)])                    )
                 });
                 traceReporter.reportUsage(providerLabel, response.usage);
                 finalAnswer = response.content?.map(block => block.text).join('') || '';
@@ -10603,7 +10735,7 @@ async function createDialog() {
             if (streamedAnswer) {
                 streamedAnswer.discard();
             }
-            const errorMessage = `錯誤: ${error.userMessage || error.message}`;
+            const errorMessage = t('err_generic_prefix', [String(error.userMessage || error.message)]);
             appendErrorMessageAndStore(errorMessage);
             traceReporter.reportCompletion(logAgentExecutionCompletion(false, traceReporter.getStats(), errorMessage));
         }
@@ -10612,7 +10744,7 @@ async function createDialog() {
     async function askAI(question, capturedSelectedText = '', screenshotDataUrl = null, inputImageDataUrls = []) {
         const activeConfig = await getActiveProviderConfig();
         if (!activeConfig) {
-            appendErrorMessageAndStore('請點擊擴充功能圖示設定您的 AI 提供者。');
+            appendErrorMessageAndStore(t('err_setup_provider'));
             return;
         }
 

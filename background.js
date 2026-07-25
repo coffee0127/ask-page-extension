@@ -168,16 +168,17 @@ async function executeMainWorldJavaScript(tabId, code) {
     }
 
     function createErrorResult(message, errorName = 'Error', stack = '') {
+        const unknownErrorMsg = chrome.i18n.getMessage('bg_unknown_error');
         return {
             success: false,
-            message: `JavaScript 執行失敗：${message || '未知錯誤'}`,
+            message: chrome.i18n.getMessage('bg_js_exec_failed', [String(message || unknownErrorMsg)]),
             data: {
                 executionWorld: 'main',
                 errorName,
-                errorMessage: message || '未知錯誤',
+                errorMessage: message || unknownErrorMsg,
                 stack: truncateToolText(stack || '', 2000)
             },
-            warnings: [`${errorName}: ${message || '未知錯誤'}`]
+            warnings: [`${errorName}: ${message || unknownErrorMsg}`]
         };
     }
 
@@ -186,14 +187,14 @@ async function executeMainWorldJavaScript(tabId, code) {
 
         if (!chrome.userScripts) {
             if (chromeVersion >= 135) {
-                return '目前執行環境沒有提供 User Scripts API。這通常代表擴充功能尚未重新載入以套用最新權限，或您目前使用的瀏覽器發行版尚未支援這個 API。';
+                return chrome.i18n.getMessage('bg_no_user_scripts_api');
             }
 
-            return '目前瀏覽器不支援 User Scripts API，請升級到 Chrome 135 以上版本。';
+            return chrome.i18n.getMessage('bg_browser_no_user_scripts');
         }
 
         if (typeof chrome.userScripts.execute !== 'function') {
-            return '目前瀏覽器版本過舊，無法執行 run_js。請升級到 Chrome 135 以上版本。';
+            return chrome.i18n.getMessage('bg_browser_too_old');
         }
 
         try {
@@ -201,10 +202,10 @@ async function executeMainWorldJavaScript(tabId, code) {
             return '';
         } catch (error) {
             if (chromeVersion >= 138) {
-                return 'run_js 需要在擴充功能詳細資料頁啟用「Allow User Scripts」後才能使用。';
+                return chrome.i18n.getMessage('bg_allow_user_scripts_required');
             }
 
-            return `run_js 需要啟用 User Scripts。請先到 chrome://extensions 開啟開發人員模式，再重新整理目前頁面。${error?.message ? ` (${error.message})` : ''}`;
+            return chrome.i18n.getMessage('bg_enable_user_scripts_hint', [String(error?.message ? ` (${error.message})` : '')]);
         }
     }
 
@@ -401,7 +402,7 @@ async function executeMainWorldJavaScript(tabId, code) {
         ]
     });
 
-    return executionResults?.[0]?.result || createErrorResult('沒有取得 JavaScript 執行結果。', 'UserScriptsExecutionError');
+    return executionResults?.[0]?.result || createErrorResult(chrome.i18n.getMessage('bg_no_js_result'), 'UserScriptsExecutionError');
 }
 
 const OLLAMA_CLOUD_FETCH_PORT = 'ollama-cloud-fetch';
@@ -410,22 +411,22 @@ const OLLAMA_CLOUD_ALLOWED_ENDPOINTS = new Set(['chat/completions', 'responses']
 
 function getOllamaCloudProxyRequest(message) {
     if (!message || message.type !== 'request') {
-        throw new Error('無效的 Ollama Cloud Service Worker 請求。');
+        throw new Error(chrome.i18n.getMessage('bg_invalid_ollama_sw_request'));
     }
 
     const endpoint = String(message.endpoint || '').trim();
     if (!OLLAMA_CLOUD_ALLOWED_ENDPOINTS.has(endpoint)) {
-        throw new Error('不允許的 Ollama Cloud API 端點。');
+        throw new Error(chrome.i18n.getMessage('bg_disallowed_ollama_endpoint'));
     }
 
     const apiKey = String(message.apiKey || '').trim();
     if (!apiKey) {
-        throw new Error('Ollama Cloud API Key 不可為空。');
+        throw new Error(chrome.i18n.getMessage('bg_ollama_key_empty'));
     }
 
     const requestBody = message.requestBody;
     if (!requestBody || typeof requestBody !== 'object' || Array.isArray(requestBody)) {
-        throw new Error('Ollama Cloud 請求內容格式不正確。');
+        throw new Error(chrome.i18n.getMessage('bg_ollama_body_invalid'));
     }
 
     return { endpoint, apiKey, requestBody };
@@ -461,7 +462,7 @@ chrome.runtime.onConnect.addListener((port) => {
                 type: 'error',
                 error: {
                     name: 'InvalidStateError',
-                    message: '每個 Ollama Cloud 連線只能處理一個請求。'
+                    message: chrome.i18n.getMessage('bg_ollama_one_request_only')
                 }
             });
             return;
@@ -537,7 +538,7 @@ chrome.runtime.onConnect.addListener((port) => {
                     type: 'error',
                     error: {
                         name: error?.name || 'Error',
-                        message: error?.message || 'Ollama Cloud Service Worker 請求失敗。'
+                        message: error?.message || chrome.i18n.getMessage('bg_ollama_sw_failed')
                     }
                 });
             }
@@ -562,15 +563,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 const tabId = sender.tab?.id;
                 const code = String(request.code || '');
                 if (!tabId) {
-                    throw new Error('找不到目前頁籤，無法執行 JavaScript。');
+                    throw new Error(chrome.i18n.getMessage('bg_no_tab_found'));
                 }
                 if (!code.trim()) {
-                    throw new Error('code 參數不可為空。');
+                    throw new Error(chrome.i18n.getMessage('bg_code_param_empty'));
                 }
 
                 const result = await executeMainWorldJavaScript(tabId, code);
                 if (!result) {
-                    throw new Error('沒有取得 JavaScript 執行結果。');
+                    throw new Error(chrome.i18n.getMessage('bg_no_js_result'));
                 }
 
                 sendResponse({
@@ -581,7 +582,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 console.error('[AskPage] Failed to execute main-world JavaScript:', error);
                 sendResponse({
                     success: false,
-                    error: error.message || '主世界 JavaScript 執行失敗。'
+                    error: error.message || chrome.i18n.getMessage('bg_main_world_js_failed')
                 });
             }
         })();

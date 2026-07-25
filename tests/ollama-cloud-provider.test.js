@@ -11,8 +11,42 @@ const settingsHtml = fs.readFileSync(path.join(rootDir, 'settings.html'), 'utf8'
 const contentScript = fs.readFileSync(path.join(rootDir, 'content.js'), 'utf8');
 const backgroundScript = fs.readFileSync(path.join(rootDir, 'background.js'), 'utf8');
 
+// Stub for chrome.i18n.getMessage so settings.js module-load code that calls it
+// (e.g. BUILT_IN_COMMANDS) does not throw in the Node test sandbox.
+const zhMessages = JSON.parse(fs.readFileSync(path.join(rootDir, '_locales', 'zh_TW', 'messages.json'), 'utf8'));
+function stubGetMessage(key, substitutions) {
+    const entry = zhMessages[key];
+    if (!entry) {
+        return '';
+    }
+    let message = entry.message || '';
+    const placeholders = entry.placeholders || {};
+    const ordered = Object.entries(placeholders)
+        .map(([name, meta]) => {
+            const m = /^\$(\d+)$/.exec(meta.content || '');
+            return { name, index: m ? Number(m[1]) - 1 : -1 };
+        })
+        .filter((p) => p.index >= 0)
+        .sort((a, b) => a.index - b.index);
+    if (substitutions && substitutions.length) {
+        ordered.forEach((p) => {
+            const value = substitutions[p.index] != null ? String(substitutions[p.index]) : '';
+            message = message.replace(new RegExp(`\\$${p.name}\\$`, 'gi'), value);
+        });
+    }
+    return message;
+}
+
 const sandbox = {
     console,
+    chrome: {
+        i18n: {
+            getMessage: stubGetMessage,
+            getUILanguage() {
+                return 'zh-TW';
+            }
+        }
+    },
     document: {
         addEventListener() {}
     }
